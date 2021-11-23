@@ -9,9 +9,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /// Route import ///
-import navigationRouter from './routers/pagesRouter.js'
+import navigationRouter from './routers/navigationRouter.js'
+//import loginRouter from './routers/loginRouter.js'
+import registerRouter from './routers/registerRouter.js'
 
 app.use(navigationRouter)
+//app.use(loginRouter)
+app.use(registerRouter)
+
 /// PORT setup ///
 const PORT = process.env.PORT || 3000
 

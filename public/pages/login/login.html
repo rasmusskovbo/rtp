@@ -1,0 +1,38 @@
+
+<!-- Log-in box -->
+<div class="container-fluid padding">
+    <div class="row welcome text-center">
+        <div class="col-12">
+            <h1 class="display-4">Log In</h1>
+        </div>
+        <hr>
+    </div>
+    <form name="login" action="/login" method="post">
+    <div class="row text-center padding">
+        <div class="col-12">
+            <p class="lead">Enter username:</p>
+             <input class="input-field" type="text" name="username" placeholder="Username..." required>
+        </div>
+        <div class="col-12">
+            <p class="lead">Enter password:</p>
+            <input class="input-field" type="password" name="pw" placeholder="Password..." required>
+        </div>
+        <div class="row padding text-center">
+            <div class="col-12" style="color: #8b0000">
+                <th th:if="${error != null}">
+                <th th:text="${error}"></th>
+                </th>
+            </div>
+        </div>
+        <div class="col-12">
+            <input type="submit" class="btn btn-primary btn-lg" value="Log In">
+        </div>
+    </div>
+    </form>
+    <div class="row welcome text-center padding">
+        <hr>
+        <div class="col-12">
+            <p class="lead">Not registered yet? Click <a href="/register">here</a></p>
+        </div>
+    </div>
+</div>
