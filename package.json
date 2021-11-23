@@ -1,0 +1,23 @@
+{
+  "name": "road_to_pink",
+  "version": "0.0.1",
+  "description": "Hobby project using NodeJS, HTML, Bootstrap, CSS and JS to create an interactive website for a fantasy football league.",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rasmusskovbo/js_rtp.git"
+  },
+  "author": "Rasmus Skovbo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rasmusskovbo/js_rtp/issues"
+  },
+  "homepage": "https://github.com/rasmusskovbo/js_rtp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
