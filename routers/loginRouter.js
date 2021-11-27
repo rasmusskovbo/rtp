@@ -1,13 +1,12 @@
 import express from "express";
 import { checkPassword } from "../public/database/passwordService.js";
 import { getDBConnection } from "../public/database/connectDB.js";
-import toastr from "toastr"
 const router = express.Router();
 
 // todo investigate proper use of response/express to avoid sending multiple res.status through without use of flag
 router.post("/login", async (req, res) => {
     const db = await getDBConnection()
-    const password = req.body.pw
+    const password = req.body.pw1
     var userId = -1
     var validationHasFailed = false
 

@@ -4,7 +4,7 @@ function login() {
         headers: { "Content-Type": "application/json; charset=UTF-8" },
         body: JSON.stringify({
             email: document.getElementById("email").value,
-            pw: document.getElementById("pw").value
+            pw1: document.getElementById("pw").value
         })
     }).then(res => {
         console.log("Response: " + res.status)
