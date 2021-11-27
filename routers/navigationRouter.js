@@ -11,6 +11,10 @@ const loginPage = createPage("login/login.html", {
     title: "Road To Pink | Login"
 })
 
+const registerPage = createPage("register/register.html", {
+    title: "Road To Pink | Register"
+})
+
 
 /// HTTP Requests ///
 router.get("/", (req, res) => {
@@ -19,6 +23,10 @@ router.get("/", (req, res) => {
 
 router.get("/login", (req, res) => {
     res.send(loginPage)
+})
+
+router.get("/register", (req, res) => {
+    res.send(registerPage)
 })
 
 

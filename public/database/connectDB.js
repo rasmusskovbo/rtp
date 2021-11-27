@@ -1,11 +1,11 @@
-import mysql from "mysql2"
+import mysql from "mysql2/promise"
 import fs from "fs"
 
 const config = JSON.parse(fs.readFileSync("./public/database/config.json"))
 const connection = null;
 
-export function getDBConnection() {
-    return mysql.createConnection({
+export async function getDBConnection() {
+    return await mysql.createConnection({
         host: config.host,
         user: config.user,
         password: config.password,

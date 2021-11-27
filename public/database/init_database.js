@@ -4,6 +4,7 @@ import { getDBConnection } from "./connectDB.js";
 const usersTable = `
 CREATE TABLE users (
     id INT AUTO_INCREMENT,
+    email VARCHAR(100) NOT NULL,
     username VARCHAR(100) NOT NULL,
     sleeper_user_id VARCHAR(100),
     PRIMARY KEY(id)
@@ -16,13 +17,16 @@ CREATE TABLE passwords (
     hash VARCHAR(100) NOT NULL,
     user_id INT NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) 
+        REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 `
 const db = getDBConnection();
 
-db.query("DROP TABLE IF EXISTS users;")
 db.query("DROP TABLE IF EXISTS passwords;")
+db.query("DROP TABLE IF EXISTS users;")
 
 db.query(usersTable)
 db.query(passwordsTable)

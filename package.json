@@ -18,10 +18,13 @@
   },
   "homepage": "https://github.com/rasmusskovbo/js_rtp#readme",
   "dependencies": {
+    "async": "^3.2.2",
     "bcrypt": "^5.0.1",
+    "bluebird": "^3.7.2",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
     "fs": "^0.0.1-security",
-    "mysql2": "^2.3.3"
+    "mysql2": "^2.3.3",
+    "toastr": "^2.1.4"
   }
 }

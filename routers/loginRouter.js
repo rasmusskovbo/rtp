@@ -1,28 +1,36 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import { connectSqlite } from "../database/connectSqlite.js";
+import { checkPassword } from "../public/database/passwordService.js";
+import { getDBConnection } from "../public/database/connectDB.js";
 const router = express.Router();
 
+// todo refactor to password passwordService
+// todo investigate proper use of response/express
 router.post("/login", async (req, res) => {
-    const db = await connectSqlite()
-    const userId = req.body.id
+    const db = await getDBConnection()
+    const password = req.body.pw
+    var userId = -1
+    var stopValidation = false
+
+    // Get user id by email
     
-    const hashInfo = await db.all(`
-        SELECT hash FROM secrets WHERE id = ?
-        `,
-        userId
-    )
+    try {
+        const [results, fields] = await db.execute(`
+            SELECT id FROM users WHERE email = ?
+            `, 
+            [req.body.email]
+        )
 
-    const hash = hashInfo.map(hash => hash.hash)
+        userId = results[0].id
+    } catch (err) {
+        stopValidation = true
+        res.sendStatus(400)
+    }       
 
-    bcrypt.compare(req.body.pass, hash[0], function(err, result) {
-        if (result) {
-            req.session.loggedIn = true;
-            res.sendStatus(200);
-        } else {
-            res.sendStatus(400)
-        }
-    });        
+    if (stopValidation == false) {
+        await checkPassword(password, userId) ? res.sendStatus(200) : res.sendStatus(400)
+    }
+    
 })
 
 // todo toastr then timeout (make sure toastr cdns are in header and footer)

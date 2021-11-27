@@ -1,0 +1,45 @@
+<!-- Register box -->
+<div class="container-fluid padding">
+    <div class="row welcome text-center">
+        <div class="col-12">
+            <h1 class="display-4">Register User</h1>
+        </div>
+        <hr>
+    </div>
+    <div class="container-fluid padding" style="width: 75%">
+        <div class="row padding text-center">
+            <div class="col-sm-12 col-lg-6">
+                <p class="lead">Enter email:</p>
+                <input class="input-field" type="email" id="email" placeholder="Email..." value="placeholder@email.com" required>
+            </div>
+            <div class="col-sm-12 col-lg-6">
+                <p class="lead">Enter username:</p>
+                <input class="input-field" type="text" id="username" placeholder="Username..." value="Placeholder User" required>
+            </div>
+        </div>
+        <div class="row padding text-center">
+            <div class="col-sm-12 col-lg-6">
+                <p class="lead">Enter password:</p>
+                <input class="input-field" type="password" id="pw1" placeholder="Password..." value="1234" required>
+            </div>
+            <div class="col-sm-12 col-lg-6">
+                <p class="lead">Confirm password:</p>
+                <input class="input-field" type="password" id="pw2" placeholder="Confirm password..." value="1234" required>
+            </div>
+        </div>
+        <div class="row text-center padding">
+            <div class="col-12">
+                <button id="register-button" class="btn btn-primary btn-lg">Register</button>
+            </div>
+        </div>
+
+        <div class="row welcome text-center padding">
+            <hr>
+            <div class="col-12">
+                <p class="lead">Already registered? Click <a href="/login">here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="./pages/register/register.js"></script>

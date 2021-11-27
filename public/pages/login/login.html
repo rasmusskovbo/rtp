@@ -7,32 +7,31 @@
         </div>
         <hr>
     </div>
-    <form name="login" action="/login" method="post">
     <div class="row text-center padding">
         <div class="col-12">
-            <p class="lead">Enter username:</p>
-             <input class="input-field" type="text" name="username" placeholder="Username..." required>
+            <p class="lead">Enter email:</p>
+             <input class="input-field" type="text" id="email" placeholder="Email..." value="placeholder@email.com" required>
         </div>
         <div class="col-12">
             <p class="lead">Enter password:</p>
-            <input class="input-field" type="password" name="pw" placeholder="Password..." required>
+            <input class="input-field" type="password" id="pw" placeholder="Password..." value="1234" required>
         </div>
-        <div class="row padding text-center">
-            <div class="col-12" style="color: #8b0000">
-                <th th:if="${error != null}">
-                <th th:text="${error}"></th>
-                </th>
+        <div class="row text-center padding">
+            <div class="col-12">
+                <button id="login-button" class="btn btn-primary btn-lg">Login</button>
             </div>
-        </div>
-        <div class="col-12">
-            <input type="submit" class="btn btn-primary btn-lg" value="Log In">
         </div>
     </div>
     </form>
     <div class="row welcome text-center padding">
         <hr>
         <div class="col-12">
+            <p class="lead">Forgot your <a href="/recoverPassword">password?</a></p>
+        </div>
+        <div class="col-12">
             <p class="lead">Not registered yet? Click <a href="/register">here</a></p>
         </div>
     </div>
 </div>
+
+<script src="./pages/login/login.js"></script>
