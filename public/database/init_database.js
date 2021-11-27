@@ -23,12 +23,12 @@ CREATE TABLE passwords (
         ON UPDATE CASCADE
 );
 `
-const db = getDBConnection();
+const db = await getDBConnection();
 
-db.query("DROP TABLE IF EXISTS passwords;")
-db.query("DROP TABLE IF EXISTS users;")
+db.execute("DROP TABLE IF EXISTS passwords;")
+db.execute("DROP TABLE IF EXISTS users;")
 
-db.query(usersTable)
-db.query(passwordsTable)
+db.execute(usersTable)
+db.execute(passwordsTable)
 
-db.end()
+db.end
