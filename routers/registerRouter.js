@@ -3,33 +3,24 @@ import { getDBConnection } from "../public/database/connectDB.js";
 import { registerPassword } from "../public/database/passwordService.js";
 const router = express.Router();
 
-router.post("/register/user", (req, res) => {
+router.post("/register/user", async (req, res) => {
     if (req.body.pw1 == req.body.pw2) {
-        const db = getDBConnection()
+        const db = await getDBConnection()
 
-        db.query({
-            sql:`
-            INSERT INTO users 
-            (email, username)
-            VALUES
-            (?, ?);
-            `,
-            values: [req.body.email, req.body.username]
-        },
-        function (error, results, fields) {
-            if (error) {
-                res.sendStatus(500);
-            } else {
-                registerPassword(req.body.pw1, results.insertId)
-                res.sendStatus(200)
-            }
-            // error will be an Error if one occurred during the query
-            // results will contain the results of the query
-            // fields will contain information about the returned results fields (if any)
-        })
-
-        db.end
-
+        try {
+            const [results, fields] = await db.execute(`
+                INSERT INTO users 
+                (email, username)
+                VALUES
+                (?, ?);
+                `,
+                [req.body.email, req.body.username]
+            )
+            await registerPassword(req.body.pw1, results.insertId) ? res.sendStatus(200) : res.sendStatus(500)
+        } catch (error) {
+            console.log(error)
+            res.sendStatus(500);
+        }
     } else {
         res.sendStatus(400)
     }

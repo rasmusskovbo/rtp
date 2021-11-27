@@ -4,13 +4,12 @@ import { checkPassword } from "../public/database/passwordService.js";
 import { getDBConnection } from "../public/database/connectDB.js";
 const router = express.Router();
 
-// todo refactor to password passwordService
-// todo investigate proper use of response/express
+// todo investigate proper use of response/express to avoid sending multiple res.status through without use of flag
 router.post("/login", async (req, res) => {
     const db = await getDBConnection()
     const password = req.body.pw
     var userId = -1
-    var stopValidation = false
+    var validationHasFailed = false
 
     // Get user id by email
     
@@ -23,11 +22,11 @@ router.post("/login", async (req, res) => {
 
         userId = results[0].id
     } catch (err) {
-        stopValidation = true
+        validationHasFailed = true
         res.sendStatus(400)
     }       
 
-    if (stopValidation == false) {
+    if (!validationHasFailed) {
         await checkPassword(password, userId) ? res.sendStatus(200) : res.sendStatus(400)
     }
     
