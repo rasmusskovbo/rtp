@@ -12,11 +12,12 @@ app.use(express.urlencoded({ extended: true }));
 import navigationRouter from './routers/navigationRouter.js'
 import registerRouter from './routers/registerRouter.js'
 import loginRouter from './routers/loginRouter.js'
+import sessionController from './util/session.js'
 
 app.use(navigationRouter)
 app.use(registerRouter)
 app.use(loginRouter)
-
+app.use(sessionController)
 
 /// PORT setup ///
 const PORT = process.env.PORT || 3000

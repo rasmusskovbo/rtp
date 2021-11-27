@@ -1,7 +1,7 @@
 import express from "express";
-import bcrypt from "bcrypt";
 import { checkPassword } from "../public/database/passwordService.js";
 import { getDBConnection } from "../public/database/connectDB.js";
+import toastr from "toastr"
 const router = express.Router();
 
 // todo investigate proper use of response/express to avoid sending multiple res.status through without use of flag
@@ -27,14 +27,24 @@ router.post("/login", async (req, res) => {
     }       
 
     if (!validationHasFailed) {
-        await checkPassword(password, userId) ? res.sendStatus(200) : res.sendStatus(400)
+        const successfulLogin = await checkPassword(password, userId)
+
+        if (successfulLogin) {
+            req.session.userId = userId
+            req.session.isLoggedIn = true
+            req.session.currentUser = req.body.email
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(400)
+        } 
+            
     }
     
 })
 
 // todo toastr then timeout (make sure toastr cdns are in header and footer)
 router.get("/logout", (req, res) => {
-    req.session.loggedIn = false;
+    req.session.isLoggedIn = false
     res.redirect("/")
 })
 
