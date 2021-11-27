@@ -4,15 +4,15 @@ import { createPage } from '../util/render.js'
 
 /// Ready HTML pages using createPage js ///
 const frontpagePage = createPage("frontpage/frontpage.html", {
-    title: "Road To Pink | The League of Would-be Champions"
+    title: "Home of Road To Pink | The League of Would-be Champions"
 })
 
 const loginPage = createPage("login/login.html", {
-    title: "Road To Pink | Login"
+    title: "Login | Road To Pink"
 })
 
 const registerPage = createPage("register/register.html", {
-    title: "Road To Pink | Register"
+    title: "Register | Road To Pink"
 })
 
 

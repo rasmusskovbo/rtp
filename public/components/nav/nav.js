@@ -1,28 +1,28 @@
-document.addEventListener("DOMContentLoaded", (event) => {
-    fetch("/session")
-    .then(res => res.json())
-    .then(session => {
+fetch("/session")
+.then(res => res.json())
+.then(session => {
+    
+    if (!session.isLoggedIn) {
+        createNavLink("Login", "/login")
+    } else {
+        createNavLink("Profile", "/profile")
+        createNavLink("Logout", "/logout")
         
-        if (!session.isLoggedIn) {
-            createNavLink("Login", "/login")
-        } else {
-            createNavLink("Profile", "/profile")
-            createNavLink("Logout", "/logout")
-            
-            
-            const navBar = document.getElementById("dynamic-nav")
-            const listItem = document.createElement("li")
-                listItem.className = "nav-item"
+        const navBar = document.getElementById("dynamic-nav")
+        const listItem = document.createElement("li")
+            listItem.className = "nav-item"
 
-            const text = document.createElement("a")
-                text.className = "nav-link"
-                text.style = "color: hotpink"
-                text.innerHTML = "Currently logged in as: " + session.currentUser
+        const text = document.createElement("a")
+            text.className = "nav-link"
+            text.style = "color: hotpink"
+            text.innerHTML = "Currently logged in as: " + session.currentUser
 
-            listItem.appendChild(text)
-            navBar.appendChild(listItem)
-        }
-    })
+        listItem.appendChild(text)
+        navBar.appendChild(listItem)
+
+    }
+
+    updateActiveLink()
 })
 
 function createNavLink(name, link) {
@@ -40,16 +40,19 @@ function createNavLink(name, link) {
     navBar.appendChild(listItem)
 }
 
-    /*
-    if (res.status == 200) {
-        toastr.success("Registering...")
-        setTimeout(() => location.href= "/", 1500);
-    }
-    if (res.status == 400) {
-        toastr.info("Passwords do not match. Please try again")
-    }
-    if (res.status == 500) {
-        toastr.info("Login currently unavailable, try again later")
-    }
-    */
- 
+function updateActiveLink() {
+    const documentTitle = document.title
+        const documentTitleArray = documentTitle.split(" ")
+        const documentSubTitle = documentTitleArray.at(0)
+
+        console.log(documentTitle, documentTitleArray, documentSubTitle)
+
+        const navItems = Array.from(document.getElementsByClassName("nav-link"))
+
+        console.log(navItems)
+        navItems.forEach(navItem => {
+            if (navItem.innerHTML.includes(documentSubTitle)) {
+                navItem.classList.add("active")
+            }
+        })
+}
