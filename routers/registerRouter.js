@@ -1,6 +1,7 @@
-import express from "express";
-import { getDBConnection } from "../public/database/connectDB.js";
-import { registerPassword } from "../public/database/passwordService.js";
+import express from "express"
+import { getDBConnection } from "../public/database/connectDB.js"
+import { registerPassword } from "../public/database/repository/passwordRepository.js"
+
 const router = express.Router();
 
 router.post("/register/user", async (req, res) => {

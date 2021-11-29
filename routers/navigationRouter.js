@@ -1,6 +1,7 @@
 import express from "express";
-const router = express.Router();
 import { createPage } from '../util/render.js'
+
+const router = express.Router();
 
 /// Ready HTML pages using createPage js ///
 const frontpagePage = createPage("frontpage/frontpage.html", {

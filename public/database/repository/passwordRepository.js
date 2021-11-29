@@ -1,6 +1,6 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import { getDBConnection } from "./connectDB.js";
+import { getDBConnection } from "../connectDB.js";
 const saltRounds = 10;
 const router = express.Router();
 

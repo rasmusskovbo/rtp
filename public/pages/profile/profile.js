@@ -1,3 +1,5 @@
+// TODO LOAD AVATAR WITH AVATAR ID
+
 function updatePassword() {
     fetch("/profile/pw", {
         method: "PUT",

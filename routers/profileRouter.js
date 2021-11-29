@@ -1,9 +1,10 @@
-import express from "express";
-import { checkPassword } from "../public/database/passwordService.js";
-import { updatePassword } from "../public/database/passwordService.js";
-import { getDBConnection } from "../public/database/connectDB.js";
-import * as sleeperService from "../public/sleeper/sleeperService.js";
-const router = express.Router();
+import express from "express"
+import { getDBConnection } from "../public/database/connectDB.js"
+import * as passwordRepository from "../public/database/repository/passwordRepository.js"
+import * as userRepository from "../public/database/repository/userRepository.js"
+import * as sleeperService from "../public/api/sleeper/sleeperService.js"
+
+const router = express.Router()
 
 router.put("/profile/pw", async (req, res) => {
     const pwords = req.body
@@ -11,10 +12,10 @@ router.put("/profile/pw", async (req, res) => {
         const db = await getDBConnection()
         var userId = req.session.userId
     
-        const passwordValidated = await checkPassword(pwords.currentPw, userId)
+        const passwordValidated = await passwordRepository.checkPassword(pwords.currentPw, userId)
     
         if (passwordValidated) {
-            await updatePassword(pwords.pw1, userId)  ? res.sendStatus(200) : res.sendStatus(500)
+            await passwordRepository.updatePassword(pwords.pw1, userId)  ? res.sendStatus(200) : res.sendStatus(500)
         } else {
             res.sendStatus(400)
         } 
@@ -24,27 +25,20 @@ router.put("/profile/pw", async (req, res) => {
      
 })
 
+
+// validate email with regex use res.next(err) to break loop
 router.put("/profile/email", async (req, res) => {
     const email = req.body.newEmail
     const userId = req.session.userId
 
-    // validate email with regex use res.next(err) to break loop
-
     const db = await getDBConnection()
 
-    try {
-        if (db.execute(`
-            UPDATE users 
-            SET email = ?
-            WHERE id = ?
-            `,
-            [email, userId]
-        )) {
-            req.session.currentUser = email
-            res.sendStatus(200)
-        }
-        
-    } catch {
+    const updateSuccessful = await userRepository.updateEmailById(email, userId)
+
+    if (updateSuccessful) {
+        req.session.currentUser = email
+        res.sendStatus(200)
+    } else {
         res.sendStatus(400)
     }
       
