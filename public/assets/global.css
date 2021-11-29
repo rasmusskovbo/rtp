@@ -27,12 +27,12 @@ html, body {
 .btn-primary {
   color: antiquewhite;
   background-color: hotpink;
-  border: 1px solid #563d7c;
+  border: none;
+  box-shadow: 0.1rem 0.1rem 0.2rem 0.1rem grey;
 }
 
 .btn-primary:hover {
   background-color: lightpink;
-  border: 1px solid #563d7c;
 }
 
 
@@ -85,8 +85,24 @@ hr.light {
 
 
 /* Font Awesome */
+.size-xl {
+  font-size: x-large;
+}
+
 .icons {
   color: hotpink;
+}
+
+.fas-btn {
+  background-color: white;
+  font-size: x-large;
+  color: hotpink;
+  border: none;
+}
+
+.fas-btn:hover {
+  color: pink;
+  font-size: x-large;
 }
 
 

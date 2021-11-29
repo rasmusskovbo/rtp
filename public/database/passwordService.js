@@ -31,6 +31,32 @@ export async function registerPassword(pass, userid) {
     })
 }
 
+export async function updatePassword(pass, userid) {
+    return await new Promise((resolve, reject) => {
+        bcrypt.genSalt(saltRounds, function(err, salt) {
+            bcrypt.hash(pass, salt, async function(err, hash) {
+                try {
+                    const db = await getDBConnection()
+        
+                    const [results, fields] = await db.execute(`
+                        UPDATE passwords
+                        SET hash = ?
+                        WHERE user_id = ?
+                        `,
+                        [hash, userid]
+                    )
+                    resolve(true)
+                    
+                } catch (err) {
+                    console.log(err)
+                    reject(false)
+                }
+                
+            })
+        })
+    })
+}
+
 export async function checkPassword(pass, userId) {
     try {
         const db = await getDBConnection()

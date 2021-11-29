@@ -15,6 +15,10 @@ const registerPage = createPage("register/register.html", {
     title: "Register | Road To Pink"
 })
 
+const profilePage = createPage("profile/profile.html", {
+    title: "Profile | Road To Pink"
+})
+
 
 /// HTTP Requests ///
 router.get("/", (req, res) => {
@@ -27,6 +31,14 @@ router.get("/login", (req, res) => {
 
 router.get("/register", (req, res) => {
     res.send(registerPage)
+})
+
+router.get("/profile", (req, res) => {
+    if (req.session.isLoggedIn) {
+        res.send(profilePage)
+    } else {
+        res.redirect("/login")
+    }
 })
 
 

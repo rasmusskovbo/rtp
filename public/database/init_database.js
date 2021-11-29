@@ -6,7 +6,6 @@ CREATE TABLE users (
     id INT AUTO_INCREMENT,
     email VARCHAR(100) NOT NULL,
     username VARCHAR(100) NOT NULL,
-    sleeper_user_id VARCHAR(100),
     PRIMARY KEY(id)
 );
 `
@@ -23,12 +22,29 @@ CREATE TABLE passwords (
         ON UPDATE CASCADE
 );
 `
-const db = await getDBConnection();
 
+const sleeperInfoTable = `
+CREATE TABLE sleeperInfo (
+    id INT AUTO_INCREMENT,
+    sleeper_username VARCHAR(100) NOT NULL,
+    sleeper_userid VARCHAR(100) NOT NULL,
+    sleeper_avatar_url VARCHAR(100),
+    user_id INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) 
+        REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+)
+`
+const db = await getDBConnection()
+
+db.execute("DROP TABLE IF EXISTS sleeperInfo;")
 db.execute("DROP TABLE IF EXISTS passwords;")
 db.execute("DROP TABLE IF EXISTS users;")
 
 db.execute(usersTable)
 db.execute(passwordsTable)
+db.execute(sleeperInfoTable)
 
-db.end
+db.end()

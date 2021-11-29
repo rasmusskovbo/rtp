@@ -8,11 +8,13 @@ fetch("/session")
         createNavLink("Profile", "/profile")
         createNavLink("Logout", "/logout")
         
+        // Display user
         const navBar = document.getElementById("dynamic-nav")
         const listItem = document.createElement("li")
             listItem.className = "nav-item"
 
         const text = document.createElement("a")
+            text.id = "current_user"
             text.className = "nav-link"
             text.style = "color: hotpink"
             text.innerHTML = "Currently logged in as: " + session.currentUser

@@ -1,5 +1,3 @@
-
-
 function register() {
     fetch("/register/user", {
         method: "POST",
@@ -30,7 +28,7 @@ function register() {
                     toastr.info("Login currently unavailable, try again later")
                 }
             }) 
-            
+
         }
         if (res.status == 400) {
             toastr.info("Passwords do not match. Please try again")
