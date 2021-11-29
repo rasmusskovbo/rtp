@@ -5,35 +5,47 @@ const BASEURL_SLEEPER_USER_INFO = "https://api.sleeper.app/v1/user/" // + <usern
 
 export async function updateSleeperInfo(sleeperUserName, userId) {
     
-    return await new Promise((resolve, reject) => {
+    return await new Promise(async (resolve, reject) => {
     
         const url = BASEURL_SLEEPER_USER_INFO + sleeperUserName
 
-
         // refactor async await instead of then: https://github.com/node-fetch/node-fetch
-        await fetch(url)
-        .then(res => res.json())
-        .then(data => {
-            try {
-                const db = await getDBConnection()
+        const resStream = await fetch(url)
+        const res = await resStream.json()
 
-                db.execute(`
-                        INSERT INTO sleeperInfo
-                        (sleeper_username, sleeper_userid, sleeper_avatar_url, user_id)
-                        VALUES
-                        (?, ?, ?, ?);
-                    `,
-                    [data.display_name, data.user_id, data.avatar, userId]
-                )
+        console.log(res)
 
-                resolve(true)
+        try {
+            const db = await getDBConnection()
 
-            } catch (err) {
-                reject(false)
-            }
-        })
+            const [results, fields] = await db.execute(`
+                    INSERT INTO sleeperInfo
+                    (sleeper_username, sleeper_user_id, sleeper_avatar_url, user_id)
+                    VALUES
+                    (?, ?, ?, ?);
+                `,
+                [res.display_name, res.user_id, res.avatar, userId]
+            )
+            
+            resolve(true)
 
+        } catch (err) {
+            resolve(false)
+        }
+    
     })
+}
+
+function userIdHasSleeperUser() {
+
+    return await new Promise((resolve, reject) => {
+        try {}
+    const db = await getDBConnection()
+    // todo
+    })
+    
+
+
 }
 
 /*

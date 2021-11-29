@@ -27,7 +27,7 @@ const sleeperInfoTable = `
 CREATE TABLE sleeperInfo (
     id INT AUTO_INCREMENT,
     sleeper_username VARCHAR(100) NOT NULL,
-    sleeper_userid VARCHAR(100) NOT NULL,
+    sleeper_user_id VARCHAR(100) NOT NULL,
     sleeper_avatar_url VARCHAR(100),
     user_id INT NOT NULL,
     PRIMARY KEY (id),
