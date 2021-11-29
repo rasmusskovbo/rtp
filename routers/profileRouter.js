@@ -2,10 +2,10 @@ import express from "express";
 import { checkPassword } from "../public/database/passwordService.js";
 import { updatePassword } from "../public/database/passwordService.js";
 import { getDBConnection } from "../public/database/connectDB.js";
-import { updateSleeperInfo } from "../public/sleeper/sleeperService.js";
+import * as sleeperService from "../public/sleeper/sleeperService.js";
 const router = express.Router();
 
-router.post("/profile/updatepw", async (req, res) => {
+router.put("/profile/pw", async (req, res) => {
     const pwords = req.body
     if (pwords.pw1 == pwords.pw2) {
         const db = await getDBConnection()
@@ -24,7 +24,7 @@ router.post("/profile/updatepw", async (req, res) => {
      
 })
 
-router.post("/profile/updateemail", async (req, res) => {
+router.put("/profile/email", async (req, res) => {
     const email = req.body.newEmail
     const userId = req.session.userId
 
@@ -50,14 +50,20 @@ router.post("/profile/updateemail", async (req, res) => {
       
 })
 
-router.post("/profile/updatesleeper", async (req, res) => {
+router.put("/profile/sleeper", async (req, res) => {
     const userId = req.session.userId
 
-    await updateSleeperInfo(req.body.sleeperUser, userId) ? res.sendStatus(200) : res.sendStatus(400)
+    const userIdHasSleeperUser = await sleeperService.userIdHasSleeperUser(userId)
+
+    if (userIdHasSleeperUser) {
+        await sleeperService.updateSleeperInfo(req.body.sleeperUser, userId) ? res.sendStatus(200) : res.sendStatus(400)
+    } else {
+        await sleeperService.createSleeperInfo(req.body.sleeperUser, userId) ? res.sendStatus(200) : res.sendStatus(400)
+    }
+    
       
 })
 
-// todo toastr then timeout (make sure toastr cdns are in header and footer)
 router.get("/logout", (req, res) => {
     req.session.isLoggedIn = false
     res.redirect("/")

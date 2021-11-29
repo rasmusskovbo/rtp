@@ -3,17 +3,14 @@ import { getDBConnection } from "../database/connectDB.js";
 
 const BASEURL_SLEEPER_USER_INFO = "https://api.sleeper.app/v1/user/" // + <username>
 
-export async function updateSleeperInfo(sleeperUserName, userId) {
+export async function createSleeperInfo(sleeperUserName, userId) {
     
     return await new Promise(async (resolve, reject) => {
     
         const url = BASEURL_SLEEPER_USER_INFO + sleeperUserName
 
-        // refactor async await instead of then: https://github.com/node-fetch/node-fetch
         const resStream = await fetch(url)
         const res = await resStream.json()
-
-        console.log(res)
 
         try {
             const db = await getDBConnection()
@@ -30,22 +27,70 @@ export async function updateSleeperInfo(sleeperUserName, userId) {
             resolve(true)
 
         } catch (err) {
+            console.log(err)
             resolve(false)
         }
     
     })
 }
 
-function userIdHasSleeperUser() {
+export async function userIdHasSleeperUser(userId) {
 
-    return await new Promise((resolve, reject) => {
-        try {}
-    const db = await getDBConnection()
-    // todo
+    return await new Promise(async (resolve, reject) => {
+        try {
+            const db = await getDBConnection()
+
+            const [results, fields] = await db.execute(`
+                    SELECT * FROM sleeperInfo
+                    WHERE user_id = ?
+                `,
+                [userId]
+            )
+
+            await results.length > 0 ? resolve(true) : resolve(false)
+
+        } catch (err) {
+            console.log(err)
+            resolve(false)
+        }
+    
     })
     
+}
 
+export async function updateSleeperInfo(sleeperUserName, userId) {
+    
+    return await new Promise(async (resolve, reject) => {
+    
+        const url = BASEURL_SLEEPER_USER_INFO + sleeperUserName
 
+        const resStream = await fetch(url)
+        const res = await resStream.json()
+
+        console.log(res)
+
+        try {
+            const db = await getDBConnection()
+
+            const [results, fields] = await db.execute(`
+                    UPDATE sleeperInfo
+                    SET 
+                        sleeper_username = ?,
+                        sleeper_user_id = ?,
+                        sleeper_avatar_url = ?
+                    WHERE user_id = ?;
+                `,
+                [res.display_name, res.user_id, res.avatar, userId]
+            )
+            
+            resolve(true)
+
+        } catch (err) {
+            console.log(err)
+            resolve(false)
+        }
+    
+    })
 }
 
 /*

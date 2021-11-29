@@ -1,6 +1,6 @@
 function updatePassword() {
-    fetch("/profile/updatepw", {
-        method: "POST",
+    fetch("/profile/pw", {
+        method: "PUT",
         headers: { "Content-Type": "application/json; charset=UTF-8" },
         body: JSON.stringify({
             currentPw: document.getElementById("current_pw").value,
@@ -21,8 +21,8 @@ function updatePassword() {
 }
 
 function updateEmail() {
-    fetch("/profile/updateemail", {
-        method: "POST",
+    fetch("/profile/email", {
+        method: "PUT",
         headers: { "Content-Type": "application/json; charset=UTF-8" },
         body: JSON.stringify({
             newEmail: document.getElementById("new_email").value
@@ -41,8 +41,8 @@ function updateEmail() {
 }
 
 function updateSleeper() {
-    fetch("/profile/updatesleeper", {
-        method: "POST",
+    fetch("/profile/sleeper", {
+        method: "PUT",
         headers: { "Content-Type": "application/json; charset=UTF-8" },
         body: JSON.stringify({
             sleeperUser: document.getElementById("sleeper_username").value

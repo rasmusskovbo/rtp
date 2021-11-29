@@ -72,6 +72,7 @@ export async function checkPassword(pass, userId) {
         return bcrypt.compare(pass, hash)
 
     } catch (err) {
+        console.log(err)
         return false
     } 
 }
