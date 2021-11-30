@@ -1,3 +1,6 @@
+// todo impl. escape html for sockets
+// use escape html for all input fields to secure against crossside scripting (see profile etc.)
+
 /// Init ////
 import express from "express";
 import session from "express-session";
