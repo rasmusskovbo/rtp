@@ -1,5 +1,5 @@
-// todo impl. escape html for sockets
-// use escape html for all input fields to secure against crossside scripting (see profile etc.)
+// TODO impl. escape html for sockets
+// TODO impl. socket
 
 /// Init ////
 import express from "express"
