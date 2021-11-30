@@ -34,13 +34,16 @@ router.get("/register", (req, res) => {
     res.send(registerPage)
 })
 
-router.get("/profile", (req, res) => {
-    if (req.session.isLoggedIn) {
-        res.send(profilePage)
-    } else {
+router.get("/profile", isAuthorized, (req, res) => {
+    res.send(profilePage)
+})
+
+function isAuthorized(req, res, next) {
+    if (!req.session.isLoggedIn) {
         res.redirect("/login")
     }
-})
+    next()
+}
 
 
 export default router

@@ -6,11 +6,10 @@ import { getDBConnection } from "../public/database/connectDB.js"
 const router = express.Router();
 
 
-router.post("/login", async (req, res, next) => {
+router.post("/auth/login", async (req, res, next) => {
     const db = await getDBConnection()
     const password = req.body.pw1
     var userId = -1
-    var validationHasFailed = false
 
     // Get user id by email, stop with .next
     userId = await userRepository.getUserIdByEmail(req.body.email)
@@ -35,9 +34,13 @@ router.post("/login", async (req, res, next) => {
     
 })
 
+router.post("/auth/recover", async (req, res, next) => {
+    // todo nodemailer reset link
+})
+
 // todo toastr then timeout (make sure toastr cdns are in header and footer)
 router.get("/logout", (req, res) => {
-    req.session.isLoggedIn = false
+    req.session.destroy()
     res.redirect("/")
 })
 

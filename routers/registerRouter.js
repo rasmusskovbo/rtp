@@ -1,11 +1,17 @@
 import express from "express"
 import { getDBConnection } from "../public/database/connectDB.js"
 import { registerPassword } from "../public/database/repository/passwordRepository.js"
-
+import { isEmailValid } from "../util/validation.js"
 const router = express.Router();
 
 // refactor to use userRepository
-router.post("/register/user", async (req, res) => {
+router.post("/register/user", async (req, res, next) => {
+    if (!isEmailValid(req.body.email)) {
+        console.log(req.body.email)
+        res.sendStatus(403)
+        return next()
+    }
+
     if (req.body.pw1 == req.body.pw2) {
         const db = await getDBConnection()
         
@@ -31,7 +37,7 @@ router.post("/register/user", async (req, res) => {
                 res.sendStatus(500);
             }
         } else {
-            res.sendStatus(403)
+            res.sendStatus(409)
         }
     } else {
         res.sendStatus(400)

@@ -18,8 +18,8 @@ export async function fetchAndUpdateSleeperInfo(sleeperUserName, userId) {
 
 }
 
-export async function getSleeperAvatarUrlForUserId(userId) {
-    const avatarURL = await sleeperRepo.getSleeperAvatarUrlForUserId(userId)
+export async function getSleeperAvatarUrlByUserId(userId) {
+    const avatarURL = await sleeperRepo.getSleeperAvatarUrlByUserId(userId)
 
     return avatarURL ? avatarURL : false
 }

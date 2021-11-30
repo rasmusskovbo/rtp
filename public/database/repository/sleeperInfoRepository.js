@@ -80,7 +80,7 @@ export async function createSleeperInfoByUserid(sleeperUser, userId) {
 
 }
 
-export async function getSleeperAvatarUrlForUserId(userId) {
+export async function getSleeperAvatarUrlByUserId(userId) {
     return await new Promise(async (resolve) => {
         
         try {

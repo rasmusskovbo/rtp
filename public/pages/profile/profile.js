@@ -1,8 +1,19 @@
 function updateAvatar() {
-    fetch("/sleeperAvatarUrl")
+    fetch("/profile/sleeperAvatarUrl")
     .then(response => response.text())
     .then(avatarURL => {
         document.getElementById("sleeper_avatar").src = avatarURL;
+    })
+}
+
+function updateUserDetails() {
+    fetch("/profile/userDetails")
+    .then(response => response.json())
+    .then(userDetails => {
+        console.log(userDetails)
+        console.log(userDetails.username)
+        document.getElementById("username").innerHTML = userDetails.username;
+        document.getElementById("email").innerHTML = userDetails.email;
     })
 }
 
@@ -69,7 +80,10 @@ function updateSleeper() {
     }) 
 }
 
-document.addEventListener("DOMContentLoaded", updateAvatar)
+document.addEventListener("DOMContentLoaded", (event) => {
+    updateUserDetails()
+    updateAvatar()
+})
 document.getElementById("update_sleeper").addEventListener("click", updateSleeper)
 document.getElementById("update_password").addEventListener("click", updatePassword)
 document.getElementById("update_email").addEventListener("click", updateEmail)

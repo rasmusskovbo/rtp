@@ -1,5 +1,5 @@
 function login() {
-    fetch("/login", {
+    fetch("/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json; charset=UTF-8" },
         body: JSON.stringify({

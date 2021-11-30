@@ -13,7 +13,7 @@ function register() {
         if (res.status == 200) {
             toastr.success("Registering...")
 
-            fetch("/login", {
+            fetch("/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json; charset=UTF-8" },
                 body: JSON.stringify({
@@ -34,6 +34,9 @@ function register() {
             toastr.info("Passwords do not match. Please try again")
         }
         if (res.status == 403) {
+            toastr.info("Not a valid email. Please try again.")
+        }
+        if (res.status == 409) {
             toastr.info("Email already registered to a user. Try another")
         }
         if (res.status == 500) {
