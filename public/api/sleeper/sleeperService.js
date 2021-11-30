@@ -1,8 +1,6 @@
 import * as sleeperRepo from '../../database/repository/sleeperInfoRepository.js'
 import * as sleeperRessource from './sleeperRessource.js'
 
-const BASEURL_SLEEPER_USER_INFO = "https://api.sleeper.app/v1/user/" // + <username>
-
 export async function fetchAndUpdateSleeperInfo(sleeperUserName, userId) {
     const sleeperUser = await sleeperRessource.getSleeperUserByUsername(sleeperUserName)
 
