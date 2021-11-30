@@ -6,6 +6,8 @@ import * as sleeperService from "../public/api/sleeper/sleeperService.js"
 
 const router = express.Router()
 
+// Possibly refactor all repo calls to a service layer (e.g. sleeperservice)
+
 router.put("/profile/pw", async (req, res) => {
     const pwords = req.body
     if (pwords.pw1 == pwords.pw2) {
@@ -25,8 +27,7 @@ router.put("/profile/pw", async (req, res) => {
      
 })
 
-
-// validate email with regex use res.next(err) to break loop
+// TODO validate email with regex use res.next(err) to break loop
 router.put("/profile/email", async (req, res) => {
     const email = req.body.newEmail
     const userId = req.session.userId
@@ -45,18 +46,19 @@ router.put("/profile/email", async (req, res) => {
 })
 
 router.put("/profile/sleeper", async (req, res) => {
-    const userId = req.session.userId
-
-    const userIdHasSleeperUser = await sleeperService.userIdHasSleeperUser(userId)
-
-    if (userIdHasSleeperUser) {
-        await sleeperService.updateSleeperInfo(req.body.sleeperUser, userId) ? res.sendStatus(200) : res.sendStatus(400)
-    } else {
-        await sleeperService.createSleeperInfo(req.body.sleeperUser, userId) ? res.sendStatus(200) : res.sendStatus(400)
-    }
+    const updateSuccessful = await sleeperService.fetchAndUpdateSleeperInfo(req.body.sleeperUser, req.session.userId)
     
-      
+    updateSuccessful ? res.sendStatus(200) : res.sendStatus(400)
+    
 })
+
+router.get("/sleeperAvatarUrl", async (req, res) => {
+    
+    const avatarUrl = await sleeperService.getSleeperAvatarUrlForUserId(req.session.userId)
+    
+    avatarUrl ? res.send(avatarUrl) : res.sendStatus(500)
+})
+
 
 router.get("/logout", (req, res) => {
     req.session.isLoggedIn = false

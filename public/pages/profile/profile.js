@@ -1,4 +1,10 @@
-// TODO LOAD AVATAR WITH AVATAR ID
+function updateAvatar() {
+    fetch("/sleeperAvatarUrl")
+    .then(response => response.text())
+    .then(avatarURL => {
+        document.getElementById("sleeper_avatar").src = avatarURL;
+    })
+}
 
 function updatePassword() {
     fetch("/profile/pw", {
@@ -52,6 +58,7 @@ function updateSleeper() {
     }).then(res => {
         if (res.status == 200) {
             toastr.success("Updated Sleeper info successfully")
+            updateAvatar()
         }
         if (res.status == 400) {
             toastr.info("Sleeper username not found")
@@ -62,6 +69,7 @@ function updateSleeper() {
     }) 
 }
 
+document.addEventListener("DOMContentLoaded", updateAvatar)
 document.getElementById("update_sleeper").addEventListener("click", updateSleeper)
 document.getElementById("update_password").addEventListener("click", updatePassword)
 document.getElementById("update_email").addEventListener("click", updateEmail)

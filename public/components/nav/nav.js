@@ -47,11 +47,8 @@ function updateActiveLink() {
         const documentTitleArray = documentTitle.split(" ")
         const documentSubTitle = documentTitleArray.at(0)
 
-        console.log(documentTitle, documentTitleArray, documentSubTitle)
-
         const navItems = Array.from(document.getElementsByClassName("nav-link"))
 
-        console.log(navItems)
         navItems.forEach(navItem => {
             if (navItem.innerHTML.includes(documentSubTitle)) {
                 navItem.classList.add("active")

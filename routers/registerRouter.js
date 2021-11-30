@@ -4,6 +4,7 @@ import { registerPassword } from "../public/database/repository/passwordReposito
 
 const router = express.Router();
 
+// refactor to use userRepository
 router.post("/register/user", async (req, res) => {
     if (req.body.pw1 == req.body.pw2) {
         const db = await getDBConnection()
