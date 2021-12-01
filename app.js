@@ -6,8 +6,15 @@ import express from "express"
 import session from "express-session"
 import rateLimit from "express-rate-limit"
 import helmet from "helmet"
+import dotenv from "dotenv"
+import http from "http";
+import { Server } from "socket.io";
+
+dotenv.config()
 
 const app = express()
+const server = http.createServer(app);
+const io = new Server(server);
 const rateLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100
@@ -40,6 +47,7 @@ app.use(
                 "https://*.fontawesome.com"],
             "script-src": [
                 "'self'",
+                "'unsafe-inline'",
                 "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js",
                 "https://*.fontawesome.com",
                 "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js",
@@ -65,7 +73,8 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }
+    cookie: { secure: false },
+    isLoggedIn: false
   }))
 
 /// Route import ///
@@ -81,10 +90,28 @@ app.use(loginRouter)
 app.use(sessionController)
 app.use(profileRouter)
 
+// Socket.io
+io.on("connection", (socket) => {
+    console.log("A user connected: {id: ", socket.id, "}")
+})
+
+
+io.on('connection', (socket) => {  
+    socket.on('chat message', (msg) => {  
+        console.log('message: "' + msg + '" from user', socket.id) 
+    })
+})
+
+io.on('connection', (socket) => {
+    socket.on('chat message', (msg) => {
+        io.emit('chat message', msg);  
+    });
+});
+
 /// PORT setup ///
 const PORT = process.env.PORT || 3000
 
-const server = app.listen(PORT, (error) => {
+server.listen(PORT, (error) => {
     if (error) {
         console.log(error)
     }

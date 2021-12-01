@@ -20,6 +20,10 @@ const profilePage = createPage("profile/profile.html", {
     title: "Profile | Road To Pink"
 })
 
+const leagueBoardPage = createPage("leagueBoard/leagueBoard.html", {
+    title: "League Board | Road To Pink"
+})
+
 
 /// HTTP Requests ///
 router.get("/", (req, res) => {
@@ -36,6 +40,11 @@ router.get("/register", (req, res) => {
 
 router.get("/profile", isAuthorized, (req, res) => {
     res.send(profilePage)
+})
+
+// todo authorize access to league board
+router.get("/league-board", (req, res) => {
+    res.send(leagueBoardPage)
 })
 
 function isAuthorized(req, res, next) {
