@@ -10,7 +10,7 @@ function login() {
         console.log("Response: " + res.status)
         if (res.status == 200) {
             toastr.success("Logging in...")
-            setTimeout(() => location.href= "/profile", 1500);
+            setTimeout(() => location.href= "/profile", 0);
         }
         if (res.status == 400) {
             toastr.info("Email or password not found. Please check and try again")
