@@ -1,5 +1,4 @@
-// TODO impl. escape html for sockets
-// TODO impl. socket
+// TODO save board in database
 
 /// Init ////
 import express from "express"
@@ -8,6 +7,7 @@ import rateLimit from "express-rate-limit"
 import helmet from "helmet"
 import dotenv from "dotenv"
 import http from "http";
+import escape from "escape-html"
 import { Server } from "socket.io";
 
 dotenv.config()
@@ -21,7 +21,7 @@ const rateLimiter = rateLimit({
 })
 const authRateLimiter = rateLimit({
     windowMs: 10 * 60 * 1000, 
-    max: 10
+    max: 100
 })
 
 app.use(
@@ -32,7 +32,8 @@ app.use(
                 "'self'", 
                 "https://*.fontawesome.com", 
                 "https://fonts.googLeapis.com/",
-                "https://fonts.gstatic.com"
+                "https://fonts.gstatic.com",
+                "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/"
             ],
             "default-src": [
                 "'self'", 
@@ -55,7 +56,8 @@ app.use(
             ],
             "style-src": [
                 "'self'",
-                "'unsafe-inline'", 
+                "'unsafe-inline'",
+                "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css", 
                 "https://fonts.googleapis.com/",
                 "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css",
                 "https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css",
@@ -83,27 +85,24 @@ import registerRouter from './routers/registerRouter.js'
 import loginRouter from './routers/loginRouter.js'
 import sessionController from './util/session.js'
 import profileRouter from './routers/profileRouter.js'
+import boardRouter from './routers/boardRouter.js'
 
 app.use(navigationRouter)
 app.use(registerRouter)
 app.use(loginRouter)
 app.use(sessionController)
 app.use(profileRouter)
+app.use(boardRouter)
 
 // Socket.io
 io.on("connection", (socket) => {
     console.log("A user connected: {id: ", socket.id, "}")
 })
 
-
-io.on('connection', (socket) => {  
-    socket.on('chat message', (msg) => {  
-        console.log('message: "' + msg + '" from user', socket.id) 
-    })
-})
-
+// relay
 io.on('connection', (socket) => {
     socket.on('chat message', (msg) => {
+        msg.content = escape(msg.content)
         io.emit('chat message', msg);  
     });
 });

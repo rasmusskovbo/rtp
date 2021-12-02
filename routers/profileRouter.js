@@ -52,7 +52,7 @@ router.put("/profile/email", async (req, res, next) => {
 })
 
 router.put("/profile/sleeper", async (req, res) => {
-    const updateSuccessful = await sleeperService.fetchAndUpdateSleeperInfoescape((req.body.sleeperUser), escape(req.session.userId))
+    const updateSuccessful = await sleeperService.fetchAndUpdateSleeperInfo(escape(req.body.sleeperUser), escape(req.session.userId))
     
     updateSuccessful ? res.sendStatus(200) : res.sendStatus(400)
     

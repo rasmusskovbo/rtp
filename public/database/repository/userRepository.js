@@ -36,6 +36,7 @@ export async function getUserDetailsByUserId(userId) {
             )
 
             const userDetails = await {
+                id: userId,
                 username: results[0].username,
                 email: results[0].email,
             }
@@ -104,3 +105,4 @@ export async function createUser(email, username) {
     })
 
 }
+

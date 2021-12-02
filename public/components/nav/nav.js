@@ -2,10 +2,8 @@ fetch("/session")
 .then(res => res.json())
 .then(session => {
     
-    // todo put league board behind user wall
     if (!session.isLoggedIn) {
         createNavLink("Login", "/login")
-        createNavLink("League Board", "/league-board")
     } else {
         createNavLink("League Board", "/league-board")
         createNavLink("Profile", "/profile")

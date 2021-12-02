@@ -21,6 +21,10 @@ html, body {
 .nav-link {
   font-size: 1.1em !important;
 }
+.menu-toggle {
+  border: none;
+  font-size: x-large;
+}
 
 
 /* Components */
