@@ -59,23 +59,22 @@
 }
 
 /* Single msg formatting */
-.msg-header {
-  background: none;
-  margin-bottom: -1rem;
-  display: flex;
+/* Shared */
+.msg-avatar {
+  width: 50px;
+  align-self: center;
+  height: auto;
 }
 
-.msg-avatar {
-  width: 40px;
-  padding: 0.75rem;
-  align-self: center;
-  justify-content: left;
-  height: auto;
+.msg-header {
+  background: none;
+  display: flex;
+  margin-bottom: -0.5rem;
 }
 
 .msg-username {
   overflow: hidden;
-  margin-left: 0.5rem;
+  margin-left: -0.5rem;
   padding: 0;
   align-self: center;
   justify-content: left;
@@ -85,24 +84,22 @@
 .msg-datetime {
   overflow: hidden;
   padding: 0;
-  margin-bottom: -0.5rem;
-  align-self: right;
-  text-align: right;
-  justify-content: right;
+  margin-top: -0.5rem;
+  text-align: left;
   color: gray;
   font-size: x-small;
 }
-
 
 .msg-item {
   width: fit-content;
   max-width: 100%;
   padding: 0;
   background: #efefef;
+  border-radius: 1rem;
 }
 
 .msg-content {
   margin: 0;
-  padding: 0;
+  padding: 0.5rem;
   overflow-wrap: break-word;
 }

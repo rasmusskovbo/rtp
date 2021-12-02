@@ -13,7 +13,7 @@ router.put("/profile/pw", async (req, res) => {
     const pw2 = escape(req.body.pw2)
     const currentPw = escape(req.body.currentPw)
 
-    if (pw1 == pw2) {
+    if (pw1 === pw2) {
         var userId = req.session.userId
     
         const passwordValidated = await passwordRepository.checkPassword(currentPw, userId)

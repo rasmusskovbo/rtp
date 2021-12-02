@@ -5,7 +5,7 @@ export async function getUserIdByEmail(email) {
         const db = await getDBConnection()
 
         try {
-            const [results, fields] = await db.execute(`
+            const [ results ] = await db.execute(`
                 SELECT id FROM users WHERE email = ?
                 `, 
                 [email]
@@ -29,13 +29,13 @@ export async function getUserDetailsByUserId(userId) {
 
 
         try {
-            const [results, fields] = await db.execute(`
+            const [ results ] = await db.execute(`
                 SELECT username, email FROM users WHERE id = ?
                 `,
                 [userId]
             )
 
-            const userDetails = await {
+            const userDetails = {
                 id: userId,
                 username: results[0].username,
                 email: results[0].email,

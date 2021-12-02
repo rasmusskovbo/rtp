@@ -3,26 +3,25 @@
     border-left: 6px solid green;
     height: 100%;
     left: 50%;
-  }
-  
-  .profile-headers {
-    color: hotpink;
-    font-weight: bold;
-    text-shadow: #3f3f3f;
-  }
-  
-  /* Avatar styling */
-  .avatar {
-    border-radius: 5px;
-  
-    width: 50px;
-    height: auto;
-  }
-  
-  .card-body.row.avatar {
-    border-radius: 5px;
-  
-    width: 50px;
-    height: auto;
-  }
+}
+
+.avatar-wrapper {
+}
+
+.profile-headers {
+  color: hotpink;
+  font-weight: bold;
+  text-shadow: #3f3f3f;
+}
+
+/* Avatar styling */
+.avatar {
+  border-radius: 5px;
+
+  width: 50px;
+  height: auto;
+
+  margin-left: calc(50% - 25px);
+}
+
   

@@ -20,7 +20,7 @@ router.post("/register/user", async (req, res, next) => {
     }
 
     // Does passwords match
-    if (pw1 == pw2) {
+    if (pw1 === pw2) {
         const db = await getDBConnection()
         
         const userIdFound = await userRepo.getUserIdByEmail(email)

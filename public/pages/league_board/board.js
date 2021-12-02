@@ -1,8 +1,8 @@
 const socket = io();
 
-let messages = document.getElementById('messages');
-let form = document.getElementById('form');  
-let input = document.getElementById('input');
+const messages = document.getElementById('messages');
+const form = document.getElementById('form');
+const input = document.getElementById('input');
 let user = "";
 
 fetch("/board/user")
@@ -20,47 +20,68 @@ fetch("/profile/sleeperAvatarUrl")
 // Send
 form.addEventListener('submit', function(e) {
     e.preventDefault(); 
+
+    if (input.value) {
+        const msg = mapOutgoingMessage()
+        socket.emit('chat message', msg);      
+        input.value = '';    
+    }
+
+});
+
+// Receive and display
+socket.on('chat message', function(msg) {
+    displayMessage(msg)
+});
+
+function mapOutgoingMessage() {
+
     const currentDate = new Date();
+
     // TODO map all dates to add the zero
     const adjustedDay = (currentDay) => {
         if (currentDay < 10) {
             return "0" + currentDay
+        } else {
+            return currentDay
         }
     }
     const formattedDate = `${adjustedDay(currentDate.getDate())}/${currentDate.getMonth()}/${currentDate.getFullYear()}`;
-    
+
     const adjustedHour = (currentHour) => {
         if (currentHour < 10) {
             return "0" + currentHour
+        } else {
+            return currentHour
         }
     }
     const formattedTime = `${adjustedHour(currentDate.getHours())}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`
-    
-    if (input.value) {
-        const msg = {
-            avatar: user.avatar,
-            username: user.username,
-            content: input.value,
-            publishedDate: formattedDate,
-            publishedTime: formattedTime
-        }
-        socket.emit('chat message', msg);      
-        input.value = '';    
-    }  
-});
 
+    return {
+        avatar: user.avatar,
+        username: user.username,
+        content: input.value,
+        owner: user.id,
+        publishedDate: formattedDate,
+        publishedTime: formattedTime
+    };
+}
 
-// Receive and display
-socket.on('chat message', function(msg) {
-
-    const msgHeader = document.createElement('li');
+function displayMessage(msg) {
+    const msgWrapper = document.createElement('li')
+    const msgHeader = document.createElement('div')
     const username = document.createElement('div')
     const dateTime = document.createElement('div')
-    const msgItem = document.createElement('li');
+    const msgItem = document.createElement('div')
     const content = document.createElement('div')
 
+    // Display msg left or right.
+    //if (msg.owner === user.id) {
+
+    msgWrapper.className = "receiver"
+
     // Header
-    msgHeader.classList = 'row msg-header'
+    msgHeader.className = 'row msg-header'
     username.className = 'msg-username col-7'
     dateTime.className = 'msg-datetime col-2'
 
@@ -79,17 +100,20 @@ socket.on('chat message', function(msg) {
         placeholder.className = 'msg-avatar col-1 fas fa-road'
         msgHeader.appendChild(placeholder)
     }
-    
+
     username.innerText = msg.username
     dateTime.innerText = `
-        ${msg.publishedDate}, ${msg.publishedTime}
-    `
+    ${msg.publishedDate}, ${msg.publishedTime}
+`
     content.innerText = msg.content;
 
     msgHeader.appendChild(username)
-    msgHeader.appendChild(dateTime)
     msgItem.appendChild(content)
 
-    messages.appendChild(msgHeader)
-    messages.appendChild(msgItem);    
-});
+    msgWrapper.appendChild(msgHeader)
+    msgWrapper.appendChild(msgItem)
+    msgWrapper.append(dateTime)
+
+    messages.appendChild(msgWrapper)
+
+}
