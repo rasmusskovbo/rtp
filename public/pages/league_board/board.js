@@ -10,12 +10,21 @@ fetch("/board/user")
 .then(userDetails => {
     user = userDetails
 })
+.then(
+    fetch("/profile/sleeperAvatarUrl")
+    .then(response => response.text())
+    .then(avatarURL => {
+        user.avatar = avatarURL
+    })
+)
+.then(
+    fetch("/board/messages")
+    .then(res => res.json())
+    .then(messages => {
+        messages.forEach(msg => displayMessage(msg))
+    })
+)
 
-fetch("/profile/sleeperAvatarUrl")
-.then(response => response.text())
-.then(avatarURL => {
-    user.avatar = avatarURL
-})
 
 // Send
 form.addEventListener('submit', function(e) {
@@ -127,4 +136,11 @@ function displayMessage(msg) {
     msgListItem.appendChild(msgWrapper)
     messages.append(msgListItem)
 
+    gotoBottom("messages")
+
+}
+
+function gotoBottom(id){
+    var element = document.getElementById(id);
+    element.scrollTop = element.scrollHeight - element.clientHeight;
 }

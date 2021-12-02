@@ -9,6 +9,7 @@ import dotenv from "dotenv"
 import http from "http";
 import escape from "escape-html"
 import { Server } from "socket.io";
+import * as msgRepo from "./public/database/repository/messageRepository.js"
 
 dotenv.config()
 
@@ -103,6 +104,7 @@ io.on("connection", (socket) => {
 io.on('connection', (socket) => {
     socket.on('chat message', (msg) => {
         msg.content = escape(msg.content)
+        msgRepo.insertMessage(msg)
         io.emit('chat message', msg);  
     });
 });
