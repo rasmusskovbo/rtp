@@ -34,7 +34,8 @@ app.use(
                 "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/"
             ],
             "default-src": [
-                "'self'", 
+                "'self'",
+                "https://sleeper.app",
                 "https://*.fontawesome.com"],
             "connect-src": [
                 "'self'",
