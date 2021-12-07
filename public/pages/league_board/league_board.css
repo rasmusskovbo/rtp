@@ -91,7 +91,7 @@
 .float-end .msg-datetime {
   overflow: hidden;
   padding: 0;
-  margin-top: -0.9rem;
+  margin-top: 0;
   margin-inline-end: 3rem;
   color: gray;
   font-size: xx-small;
