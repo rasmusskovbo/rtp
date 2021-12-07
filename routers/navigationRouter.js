@@ -42,7 +42,7 @@ router.get("/profile", isAuthorized, (req, res) => {
     res.send(profilePage)
 })
 
-router.get("/league-board", isAuthorized, (req, res) => {
+router.get("/league-board", (req, res) => {
     res.send(leagueBoardPage)
 })
 

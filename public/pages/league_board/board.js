@@ -41,8 +41,8 @@ function displayMessage(msg) {
     const msgWrapper = document.createElement('div')
     const msgHeader = document.createElement('div')
     const username = document.createElement('div')
-    const dateTime = document.createElement('div')
-    const msgItem = document.createElement('div')
+    const msgTimestamp = document.createElement('div')
+    const msgContent = document.createElement('div')
     const content = document.createElement('div')
 
     // Display msg left or right.
@@ -50,33 +50,33 @@ function displayMessage(msg) {
 
     // Bind data
     username.innerText = msg.username
-    dateTime.innerText = msg.publishedTime
+    msgTimestamp.innerText = msg.publishedTime
     content.innerText = msg.content
 
     // Shared
     // Message
-    msgItem.className = 'row msg-item'
-    content.className = 'msg-content col-10'
+    msgContent.className = 'msg-item'
+    content.className = 'msg-content'
 
     // Subtitle
-    dateTime.className = 'msg-datetime col-12'
+    msgTimestamp.className = 'msg-datetime'
 
     if (msg.owner === user.id) {
-        msgWrapper.className = "float-end"
+        msgWrapper.className = "owner"
     } else {
         // Header
-        msgHeader.className = 'row msg-header'
-        username.className = 'msg-username col-7'
+        msgHeader.className = 'msg-header'
+        username.className = 'msg-username'
 
         // Map avatar
-        if (msg.avatar != null)  {
+        if (msg.avatarURL != null)  {
             const avatar = document.createElement('img')
-            avatar.className ='msg-avatar col-1'
-            avatar.src = msg.avatar
+            avatar.className ='msg-avatar'
+            avatar.src = msg.avatarURL
             msgHeader.append(avatar)
         } else {
             const placeholder = document.createElement('i')
-            placeholder.className = 'msg-avatar col-1 fas fa-road'
+            placeholder.className = 'msg-avatar fas fa-road'
             msgHeader.append(placeholder)
         }
 
@@ -85,10 +85,10 @@ function displayMessage(msg) {
 
     }
 
-    msgItem.append(content)
+    msgContent.append(content)
 
-    msgWrapper.append(msgItem)
-    msgWrapper.append(dateTime)
+    msgWrapper.append(msgContent)
+    msgWrapper.append(msgTimestamp)
 
     msgListItem.appendChild(msgWrapper)
     messages.append(msgListItem)

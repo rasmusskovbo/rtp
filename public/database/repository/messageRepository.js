@@ -13,7 +13,7 @@ export async function getMessages() {
                     username,
                     content,
                     owner,
-                    avatar_url,
+                    avatar_url as avatarURL,
                     DATE_FORMAT(publishedTime, "%d-%m-%y, %H:%i") as publishedTime
                 FROM messages
                 WHERE
