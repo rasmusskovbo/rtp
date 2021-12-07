@@ -110,7 +110,7 @@
 .owner .msg-item {
   width: fit-content;
   float: right;
-  margin-right: 0rem;
+  margin-right: 0;
   max-width: 80%;
   padding: 0;
   background: #ffc0dd;

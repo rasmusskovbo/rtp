@@ -1,0 +1,47 @@
+.carousel-wrapper {
+
+}
+
+.fas {
+    color: hotpink;
+    font-size: xx-large;
+}
+
+.d-block {
+    margin-left: 15%;
+    max-width: 70%;
+    height: auto;
+}
+
+#posts-wrapper {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.post-element {
+    padding: 2rem;
+}
+
+.sub-title {
+    margin-top: -0.5rem;
+    font-size: small;
+    color: gray;
+}
+
+@media (max-width: 768px) {
+    .d-block {
+        margin-left: 10%;
+        max-width: 80%;
+        height: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    .d-block {
+        max-width: 100%;
+        margin-left: 0;
+        height: auto;
+    }
+}
+
+

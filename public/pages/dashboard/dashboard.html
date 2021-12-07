@@ -1,0 +1,59 @@
+<link href="pages/dashboard/dashboard.css" rel="stylesheet" type="text/css">
+
+<!-- Header -->
+<div class="container-fluid padding">
+    <div class="row welcome text-center">
+        <div class="col-12">
+            <h1 class="display-4">Dashboard</h1>
+        </div>
+        <hr>
+    </div>
+
+    <!-- Create post -->
+    <div class="row">
+        <div class="col-12 text-center">
+            <h4>Title</h4>
+            <input max="100" id="post_title" type="text" placeholder="Title of post..." value="Test title" required>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 text-center">
+            <h4>Content</h4>
+            <textarea cols="40" rows="10" maxlength="1000" id="post_content" placeholder="Title of post..." value="Test title" required></textarea>
+        </div>
+    </div>
+    <div class="col-12 text-center">
+        <button id="create-post-button" class="btn btn-primary btn-lg">Create post</button>
+    </div>
+    <div class="row welcome">
+        <hr>
+    </div>
+</div>
+
+<!-- Manage posts -->
+<div class="container-fluid padding">
+    <div class="row welcome text-center">
+        <div class="col-12">
+            <h1 class="display-4">Manage posts</h1>
+        </div>
+        <hr>
+    </div>
+    <table class="table text-center">
+        <thead>
+        <tr>
+            <th class="col-1" scope="col">#</th>
+            <th class="col-1" scope="col">Title</th>
+            <th class="col-1" scope="col">Content</th>
+            <th class="col-1" scope="col">Posted by</th>
+            <th class="col-1" scope="col">Published time</th>
+            <th class="col-1" scope="col">Delete</th>
+            <th class="col-1" scope="col">Update</th>
+        </tr>
+        </thead>
+        <tbody id="posts-tbody">
+        <!-- Create TR, TDs and append to tbody -->
+        </tbody>
+    </table>
+</div>
+
+<script src="./pages/dashboard/dashboard.js"></script>

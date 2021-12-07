@@ -1,5 +1,3 @@
-// TODO save board in database
-
 /// Init ////
 import express from "express"
 import session from "express-session"
@@ -7,7 +5,6 @@ import rateLimit from "express-rate-limit"
 import helmet from "helmet"
 import dotenv from "dotenv"
 import http from "http";
-import escape from "escape-html"
 import { Server } from "socket.io";
 import * as msgRepo from "./public/database/repository/messageRepository.js"
 
@@ -45,6 +42,7 @@ app.use(
                 "https://*.fontawesome.com"],
             "img-src": [
                 "'self'",
+                "data",
                 "https://sleepercdn.com", 
                 "https://*.fontawesome.com"],
             "script-src": [
@@ -53,7 +51,7 @@ app.use(
                 "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js",
                 "https://*.fontawesome.com",
                 "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js",
-                "https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+                "https://cdn.jsdelivr.net/npm/"
             ],
             "style-src": [
                 "'self'",
@@ -86,6 +84,7 @@ import registerRouter from './routers/registerRouter.js'
 import loginRouter from './routers/loginRouter.js'
 import sessionController from './util/session.js'
 import profileRouter from './routers/profileRouter.js'
+import dashboardRouter from './routers/dashboardRouter.js'
 import boardRouter from './routers/boardRouter.js'
 
 app.use(navigationRouter)
@@ -94,6 +93,7 @@ app.use(loginRouter)
 app.use(sessionController)
 app.use(profileRouter)
 app.use(boardRouter)
+app.use(dashboardRouter)
 
 // Socket.io
 io.on("connection", (socket) => {
@@ -103,7 +103,6 @@ io.on("connection", (socket) => {
 // relay
 io.on('connection', (socket) => {
     socket.on('chat message', async (msg) => {
-        msg.content = escape(msg.content)
         const formattedMsg = await msgRepo.insertMessage(msg)
         io.emit('chat message', formattedMsg)
     });

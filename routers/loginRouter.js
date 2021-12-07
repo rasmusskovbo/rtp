@@ -1,5 +1,6 @@
 import express from "express";
-import * as userRepository from "../public/database/repository/userRepository.js"
+import * as userRepo from "../public/database/repository/userRepository.js"
+import * as roleRepo from "../public/database/repository/roleRepository.js"
 import { checkPassword } from "../public/database/repository/passwordRepository.js"
 import escape from "escape-html"
 
@@ -12,7 +13,7 @@ router.post("/auth/login", async (req, res, next) => {
     var userId = -1
 
     // Get user id by email, stop with .next
-    userId = await userRepository.getUserIdByEmail(email)
+    userId = await userRepo.getUserIdByEmail(email)
 
     if (!userId) {
         res.sendStatus(400)
@@ -22,9 +23,11 @@ router.post("/auth/login", async (req, res, next) => {
     const successfulLogin = await checkPassword(password, userId)
 
     if (successfulLogin) {
+        const userDetailsByUserId = await userRepo.getUserDetailsByUserId(userId)
+        req.session.isAdmin = await roleRepo.getRoleByUserId(userId)
         req.session.userId = userId
         req.session.isLoggedIn = true
-        req.session.currentUser = email
+        req.session.currentUser = userDetailsByUserId.username
         res.sendStatus(200);
     } else {
         res.sendStatus(400)

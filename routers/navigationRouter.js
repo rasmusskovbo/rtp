@@ -24,6 +24,10 @@ const leagueBoardPage = createPage("league_board/league_board.html", {
     title: "League Board | Road To Pink"
 })
 
+const dashboardPage = createPage("dashboard/dashboard.html", {
+    title: "Dashboard | Road To Pink"
+})
+
 
 /// HTTP Requests ///
 router.get("/", (req, res) => {
@@ -42,16 +46,22 @@ router.get("/profile", isAuthorized, (req, res) => {
     res.send(profilePage)
 })
 
-router.get("/league-board", (req, res) => {
+router.get("/league-board", isAuthorized, (req, res) => {
     res.send(leagueBoardPage)
 })
 
+router.get("/dashboard", isAdmin, (req, res) => {
+    res.send(dashboardPage)
+})
+
+
+
 function isAuthorized(req, res, next) {
-    if (!req.session.isLoggedIn) {
-        res.redirect("/login")
-    } else {
-        next()
-    }
+    !req.session.isLoggedIn ? res.redirect("/login") : next()
+}
+
+function isAdmin(req, res, next) {
+    !req.session.isAdmin ? res.redirect("/") : next()
 }
 
 export default router

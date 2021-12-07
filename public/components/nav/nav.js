@@ -18,7 +18,7 @@ fetch("/session")
             text.id = "current_user"
             text.className = "nav-link"
             text.style = "color: hotpink"
-            text.innerHTML = "Currently logged in as: " + session.currentUser
+            text.innerHTML = "Logged in as: " + session.currentUser
 
         listItem.appendChild(text)
         navBar.appendChild(listItem)

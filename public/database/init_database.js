@@ -50,16 +50,44 @@ CREATE TABLE messages (
 )
 `
 
+const postsTable = `
+CREATE TABLE posts (
+    id              INT AUTO_INCREMENT,
+    title           VARCHAR(100)    NOT NULL,
+    content         VARCHAR(1000)   NOT NULL,
+    postedBy        VARCHAR(100)    NOT NULL,
+    publishedTime   TIMESTAMP       DEFAULT     CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+)
+`
+
+const rolesTable = `
+CREATE TABLE roles (
+    id              INT AUTO_INCREMENT,
+    isAdmin         BOOL    NOT NULL,
+    user_id         INT     NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+)
+`
+
 const db = await getDBConnection()
 
 db.execute("DROP TABLE IF EXISTS messages;")
 db.execute("DROP TABLE IF EXISTS sleeperInfo;")
 db.execute("DROP TABLE IF EXISTS passwords;")
 db.execute("DROP TABLE IF EXISTS users;")
+db.execute("DROP TABLE IF EXISTS posts;")
+db.execute("DROP TABLE IF EXISTS roles;")
 
 db.execute(messageTable)
 db.execute(usersTable)
 db.execute(passwordsTable)
 db.execute(sleeperInfoTable)
+db.execute(postsTable)
+db.execute(rolesTable)
 
 db.end()
