@@ -11,7 +11,7 @@ export async function registerPassword(pass, userid) {
                 try {
                     const db = await getDBConnection()
         
-                    const [results, fields] = await db.execute(`
+                    await db.execute(`
                         INSERT INTO passwords 
                         (hash, user_id)
                         VALUES
@@ -19,6 +19,7 @@ export async function registerPassword(pass, userid) {
                         `,
                         [hash, userid]
                     )
+
                     resolve(true)
                     
                 } catch (err) {
@@ -38,7 +39,7 @@ export async function updatePassword(pass, userid) {
                 try {
                     const db = await getDBConnection()
         
-                    const [results, fields] = await db.execute(`
+                    await db.execute(`
                         UPDATE passwords
                         SET hash = ?
                         WHERE user_id = ?

@@ -44,9 +44,8 @@ CREATE TABLE messages (
     username      VARCHAR(100)  NOT NULL,
     content       VARCHAR(1000) NOT NULL,
     owner         INT           NOT NULL,
-    publishedDate VARCHAR(100)  NOT NULL,
-    publishedTime VARCHAR(100)  NOT NULL,
     avatar_url    VARCHAR(100)  NOT NULL,
+    publishedTime TIMESTAMP     DEFAULT     CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 )
 `

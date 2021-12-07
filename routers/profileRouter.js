@@ -60,8 +60,8 @@ router.put("/profile/sleeper", async (req, res) => {
 
 router.get("/profile/sleeperAvatarUrl", async (req, res) => {
     const avatarUrl = await sleeperService.getSleeperAvatarUrlByUserId(req.session.userId)
-    
-    avatarUrl ? res.send(avatarUrl) : res.sendStatus(500)
+
+    avatarUrl ? res.send(avatarUrl) : res.send("N/A")
 })
 
 router.get("/profile/userDetails", async (req, res) => {

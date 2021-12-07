@@ -5,26 +5,8 @@ const form = document.getElementById('form');
 const input = document.getElementById('input');
 let user = "";
 
-fetch("/board/user")
-.then(res => res.json())
-.then(userDetails => {
-    user = userDetails
-})
-.then(
-    fetch("/profile/sleeperAvatarUrl")
-    .then(response => response.text())
-    .then(avatarURL => {
-        user.avatar = avatarURL
-    })
-)
-.then(
-    fetch("/board/messages")
-    .then(res => res.json())
-    .then(messages => {
-        messages.forEach(msg => displayMessage(msg))
-    })
-)
-
+// Load
+document.addEventListener("DOMContentLoaded", getAndDisplayMessages)
 
 // Send
 form.addEventListener('submit', function(e) {
@@ -35,7 +17,6 @@ form.addEventListener('submit', function(e) {
         socket.emit('chat message', msg);      
         input.value = '';    
     }
-
 });
 
 // Receive and display
@@ -43,36 +24,15 @@ socket.on('chat message', function(msg) {
     displayMessage(msg)
 });
 
+
 function mapOutgoingMessage() {
-
-    const currentDate = new Date();
-
-    // TODO map all dates to add the zero
-    const adjustedDay = (currentDay) => {
-        if (currentDay < 10) {
-            return "0" + currentDay
-        } else {
-            return currentDay
-        }
-    }
-    const formattedDate = `${adjustedDay(currentDate.getDate())}/${currentDate.getMonth()}/${currentDate.getFullYear()}`;
-
-    const adjustedHour = (currentHour) => {
-        if (currentHour < 10) {
-            return "0" + currentHour
-        } else {
-            return currentHour
-        }
-    }
-    const formattedTime = `${adjustedHour(currentDate.getHours())}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`
+    if (!user.avatar) user.avatar = "N/A"
 
     return {
         avatar: user.avatar,
         username: user.username,
         content: input.value,
         owner: user.id,
-        publishedDate: formattedDate,
-        publishedTime: formattedTime
     };
 }
 
@@ -90,10 +50,8 @@ function displayMessage(msg) {
 
     // Bind data
     username.innerText = msg.username
-    dateTime.innerText = `
-        ${msg.publishedDate}, ${msg.publishedTime}
-    `
-    content.innerText = msg.content;
+    dateTime.innerText = msg.publishedTime
+    content.innerText = msg.content
 
     // Shared
     // Message
@@ -102,7 +60,6 @@ function displayMessage(msg) {
 
     // Subtitle
     dateTime.className = 'msg-datetime col-12'
-
 
     if (msg.owner === user.id) {
         msgWrapper.className = "float-end"
@@ -138,6 +95,24 @@ function displayMessage(msg) {
 
     gotoBottom("messages")
 
+}
+
+function getAndDisplayMessages() {
+    fetch("/board/user")
+        .then(res => res.json())
+        .then(userDetails => user = userDetails)
+        .then(
+            fetch("/profile/sleeperAvatarUrl")
+                .then(response => response.text())
+                .then(avatarURL => user.avatar = avatarURL)
+        )
+        .then(
+            fetch("/board/messages")
+                .then(res => res.json())
+                .then(messages => {
+                    messages.forEach(msg => displayMessage(msg))
+                })
+        )
 }
 
 function gotoBottom(id){

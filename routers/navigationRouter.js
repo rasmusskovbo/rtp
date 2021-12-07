@@ -49,8 +49,9 @@ router.get("/league-board", isAuthorized, (req, res) => {
 function isAuthorized(req, res, next) {
     if (!req.session.isLoggedIn) {
         res.redirect("/login")
+    } else {
+        next()
     }
-    next()
 }
 
 export default router

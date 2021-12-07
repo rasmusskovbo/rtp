@@ -18,11 +18,11 @@ const server = http.createServer(app);
 const io = new Server(server);
 const rateLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100
+    max: 10000
 })
 const authRateLimiter = rateLimit({
     windowMs: 10 * 60 * 1000, 
-    max: 100
+    max: 10000
 })
 
 app.use(
@@ -102,10 +102,10 @@ io.on("connection", (socket) => {
 
 // relay
 io.on('connection', (socket) => {
-    socket.on('chat message', (msg) => {
+    socket.on('chat message', async (msg) => {
         msg.content = escape(msg.content)
-        msgRepo.insertMessage(msg)
-        io.emit('chat message', msg);  
+        const formattedMsg = await msgRepo.insertMessage(msg)
+        io.emit('chat message', formattedMsg)
     });
 });
 

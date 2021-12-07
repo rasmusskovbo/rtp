@@ -1,12 +1,23 @@
 import { getDBConnection } from "../connectDB.js";
 
+const MSG_EXPIRATION_IN_MONTHS = 1
+
 export async function getMessages() {
     return await new Promise(async (resolve) => {
         try {
             const db = await getDBConnection()
 
             const [results] = await db.execute(`
-                SELECT * FROM messages
+                SELECT 
+                    id,
+                    username,
+                    content,
+                    owner,
+                    avatar_url,
+                    DATE_FORMAT(publishedTime, "%d-%m-%y, %H:%i") as publishedTime
+                FROM messages
+                WHERE
+                    DATE(publishedTime) > DATE_SUB(NOW(), INTERVAL ${MSG_EXPIRATION_IN_MONTHS} MONTH)
             `,
             )
 
@@ -21,21 +32,37 @@ export async function getMessages() {
 }
 
 export async function insertMessage(msg) {
-    try {
-        const db = await getDBConnection()
+    return await new Promise(async (resolve) => {
+        try {
+            const db = await getDBConnection()
 
-        db.execute(`
-                INSERT INTO messages
-                (username, content, owner, publishedDate, publishedTime, avatar_url)
-                VALUES
-                (?, ?, ?, ?, ?, ?);
-            `,
-            [msg.username, msg.content, msg.owner, msg.publishedDate, msg.publishedTime, msg.avatar]
-        )
+            const [results] = await db.execute(`
+                    INSERT INTO messages
+                    (username, content, owner, avatar_url)
+                    VALUES (?, ?, ?, ?);
+                `,
+        [msg.username, msg.content, msg.owner, msg.avatar]
+            )
 
-        console.log(`Inserted ${msg} successfully to DB`)
-    } catch (err) {
-        console.log(err)
-    }
+            const [ formattedMsg ] = await db.execute(`
+                    SELECT
+                        id,
+                        username,
+                        content,
+                        owner,
+                        avatar_url,
+                        DATE_FORMAT(publishedTime, "%d-%m-%y, %H:%i") as publishedTime
+                    FROM messages
+                    WHERE id = ?
+                `,
+                [results.insertId]
+            )
 
+            resolve(formattedMsg[0])
+
+        } catch (err) {
+            console.log(err)
+            resolve(false)
+        }
+    })
 }
