@@ -42,6 +42,11 @@
         margin-left: 0;
         height: auto;
     }
+
+    #posts-wrapper {
+        width: 100%;
+        margin: 0 auto;
+    }
 }
 
 /* RSS FEED */
