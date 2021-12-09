@@ -12,6 +12,7 @@ export async function getRoleByUserId(userId) {
                 [userId]
             )
 
+            db.end()
             results.length > 0 ? resolve(true) : resolve(false)
 
         } catch (err) {

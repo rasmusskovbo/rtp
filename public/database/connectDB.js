@@ -2,8 +2,6 @@ import mysql from "mysql2/promise"
 import dotenv from "dotenv"
 dotenv.config()
 
-const connection = null;
-
 export async function getDBConnection() {
     return await mysql.createConnection({
         host: process.env.DB_HOST,

@@ -8,13 +8,14 @@ export async function userHasSleeperUser(userId) {
         try {
             const db = await getDBConnection()
 
-            const [results, fields] = await db.execute(`
+            const [ results ] = await db.execute(`
                     SELECT * FROM sleeperInfo
                     WHERE user_id = ?
                 `,
                 [userId]
             )
-            
+
+            db.end()
             await results.length > 0 ? resolve(true) : resolve(false)
 
         } catch (err) {
@@ -33,7 +34,7 @@ export async function updateSleeperInfoByUserId(sleeperUser, userId) {
         try {
             const db = await getDBConnection()
 
-            const [results, fields] = await db.execute(`
+            await db.execute(`
                     UPDATE sleeperInfo
                     SET 
                         sleeper_username = ?,
@@ -43,7 +44,8 @@ export async function updateSleeperInfoByUserId(sleeperUser, userId) {
                 `,
                 [sleeperUser.display_name, sleeperUser.user_id, BASEURL_SLEEPER_AVATAR + sleeperUser.avatar, userId]
             )
-            
+
+            db.end()
             resolve(true)
 
         } catch (err) {
@@ -60,7 +62,7 @@ export async function createSleeperInfoByUserid(sleeperUser, userId) {
         try {
             const db = await getDBConnection()
 
-            const [results, fields] = await db.execute(`
+            await db.execute(`
                     INSERT INTO sleeperInfo
                     (sleeper_username, sleeper_user_id, sleeper_avatar_url, user_id)
                     VALUES
@@ -68,7 +70,8 @@ export async function createSleeperInfoByUserid(sleeperUser, userId) {
                 `,
                 [sleeperUser.display_name, sleeperUser.user_id, BASEURL_SLEEPER_AVATAR + sleeperUser.avatar, userId]
             )
-            
+
+            db.end()
             resolve(true)
 
         } catch (err) {
@@ -86,12 +89,13 @@ export async function getSleeperAvatarUrlByUserId(userId) {
         try {
             const db = await getDBConnection()
 
-            const [results, fields] = await db.execute(`
+            const [ results ]  = await db.execute(`
                     SELECT sleeper_avatar_url FROM sleeperInfo WHERE user_id = ?
                 `,
                 [userId]
             )
-            
+
+            db.end()
             await results.length > 0 ? resolve(results[0].sleeper_avatar_url) : resolve(null)
 
         } catch (err) {

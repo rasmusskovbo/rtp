@@ -21,6 +21,7 @@ export async function getMessages() {
             `,
             )
 
+            db.end()
             results ? resolve(results) : resolve(null)
 
         } catch (err) {
@@ -41,7 +42,7 @@ export async function insertMessage(msg) {
                     (username, content, owner, avatar_url)
                     VALUES (?, ?, ?, ?);
                 `,
-        [msg.username, msg.content, msg.owner, msg.avatar]
+                [msg.username, msg.content, msg.owner, msg.avatar]
             )
 
             const [ formattedMsg ] = await db.execute(`
@@ -58,6 +59,7 @@ export async function insertMessage(msg) {
                 [results.insertId]
             )
 
+            db.end()
             resolve(formattedMsg[0])
 
         } catch (err) {

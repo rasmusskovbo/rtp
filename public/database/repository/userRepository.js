@@ -10,7 +10,8 @@ export async function getUserIdByEmail(email) {
                 `, 
                 [email]
             )
-    
+
+            db.end()
             return results ? resolve(results[0].id) : resolve(null)
             
         } catch (err) {
@@ -41,6 +42,7 @@ export async function getUserDetailsByUserId(userId) {
                 email: results[0].email,
             }
 
+            db.end()
             if (results.length > 0) {
                 resolve(userDetails)
             } else {

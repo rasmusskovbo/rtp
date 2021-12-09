@@ -20,6 +20,7 @@ export async function registerPassword(pass, userid) {
                         [hash, userid]
                     )
 
+                    db.end()
                     resolve(true)
                     
                 } catch (err) {
@@ -46,6 +47,8 @@ export async function updatePassword(pass, userid) {
                         `,
                         [hash, userid]
                     )
+
+                    db.end()
                     resolve(true)
                     
                 } catch (err) {
@@ -70,6 +73,7 @@ export async function checkPassword(pass, userId) {
 
         const hash = results[0].hash
 
+        db.end()
         return bcrypt.compare(pass, hash)
 
     } catch (err) {

@@ -16,6 +16,7 @@ export async function getPosts() {
             `,
             )
 
+            db.end()
             results ? resolve(results) : resolve(null)
 
         } catch (err) {
@@ -39,6 +40,7 @@ export async function insertPost(post) {
                 [post.title, post.content, post.postedBy]
             )
 
+            db.end()
             resolve(true)
 
         } catch (err) {
@@ -59,6 +61,7 @@ export async function deletePost(id) {
                 [id]
             )
 
+            db.end()
             resolve(true)
 
         } catch (err) {
@@ -83,6 +86,7 @@ export async function updatePost(post) {
                 [post.title, post.content, post.id]
             )
 
+            db.end()
             resolve(true)
 
         } catch (err) {
