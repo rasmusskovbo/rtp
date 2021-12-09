@@ -44,4 +44,16 @@
     }
 }
 
+/* RSS FEED */
+@import url("http://www.google.com/uds/solutions/dynamicfeed/gfdynamicfeedcontrol.css");
+
+#feedControl {
+    margin-top : 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width : 440px;
+    font-size: 12px;
+    color: #9CADD0;
+}
+
 
