@@ -1,3 +1,8 @@
+// TODO Rseize imgs on statspage (look at league board size)
+// impl "no img" placeholder on stats page
+// impl RTP score first filter (rearrange, next to name)
+// impl coloring (top three gold, silver, bronze) (bottom hotpink)
+
 /// Init ////
 import express from "express"
 import session from "express-session"
@@ -49,6 +54,8 @@ app.use(
             "script-src": [
                 "'self'",
                 "'unsafe-inline'",
+                "https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js",
+                "https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js",
                 "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js",
                 "https://*.fontawesome.com",
                 "https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js",
@@ -87,6 +94,7 @@ import sessionController from './util/session.js'
 import profileRouter from './routers/profileRouter.js'
 import dashboardRouter from './routers/dashboardRouter.js'
 import boardRouter from './routers/boardRouter.js'
+import statsRouter from './routers/statsRouter.js'
 
 app.use(navigationRouter)
 app.use(registerRouter)
@@ -95,6 +103,7 @@ app.use(sessionController)
 app.use(profileRouter)
 app.use(boardRouter)
 app.use(dashboardRouter)
+app.use(statsRouter)
 
 // Socket.io
 io.on("connection", (socket) => {

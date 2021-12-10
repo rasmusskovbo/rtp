@@ -3,16 +3,17 @@ import { getDBConnection } from "../public/database/connectDB.js"
 import { isEmailValid } from "../util/validation.js"
 import * as passwordRepository from "../public/database/repository/passwordRepository.js"
 import * as userRepository from "../public/database/repository/userRepository.js"
-import * as sleeperService from "../public/api/sleeper/sleeperService.js"
+import * as sleeperService from "../public/resources/sleeper/sleeperService.js"
 
 const router = express.Router()
 
-// Possibly refactor all repo calls to a service layer (e.g. sleeperservice)
+// TODO Possibly refactor all repo calls to a service layer (e.g. sleeperservice)
 router.put("/profile/pw", async (req, res) => {
     const pw1 = escape(req.body.pw1)
     const pw2 = escape(req.body.pw2)
     const currentPw = escape(req.body.currentPw)
 
+    // TODO move to validation service
     if (pw1 === pw2) {
         var userId = req.session.userId
     

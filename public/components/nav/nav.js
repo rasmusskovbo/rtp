@@ -6,6 +6,7 @@ fetch("/session")
         createNavLink("Login", "/login")
     } else {
         createNavLink("League Board", "/league-board")
+        createNavLink("Stats", "/stats")
         createNavLink("Profile", "/profile")
         createNavLink("Logout", "/logout")
         

@@ -28,6 +28,10 @@ const dashboardPage = createPage("dashboard/dashboard.html", {
     title: "Dashboard | Road To Pink"
 })
 
+const statsPage = createPage("stats/stats.html", {
+    title: "Stats | Road To Pink"
+})
+
 
 /// HTTP Requests ///
 router.get("/", (req, res) => {
@@ -52,6 +56,10 @@ router.get("/league-board", isAuthorized, (req, res) => {
 
 router.get("/dashboard", isAdmin, (req, res) => {
     res.send(dashboardPage)
+})
+
+router.get("/stats", isAuthorized, (req, res) => {
+    res.send(statsPage)
 })
 
 

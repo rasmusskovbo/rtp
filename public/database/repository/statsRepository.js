@@ -1,4 +1,4 @@
-import { getDBConnection } from "../connectDB";
+import { getDBConnection } from "../connectDB.js";
 
 export async function getPlayoffStats() {
     return await new Promise(async (resolve) => {
@@ -6,7 +6,7 @@ export async function getPlayoffStats() {
             const db = await getDBConnection()
 
             const [ results ] = await db.execute(`
-                    SELECT * FROM playoff_stats
+                    SELECT * FROM rtp_score_stats
                 `,
             )
 
