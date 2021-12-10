@@ -74,6 +74,22 @@ CREATE TABLE roles (
 )
 `
 
+const playoffStatsTable = `
+CREATE TABLE playoff_stats(
+    id                  INT AUTO_INCREMENT,
+    wins                INT NOT NULL,
+    second_place        INT NOT NULL,
+    third_place         INT NOT NULL,
+    playoff_appearances INT NOT NULL,
+    user_id             INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+`
+
 const db = await getDBConnection()
 
 db.execute("DROP TABLE IF EXISTS messages;")
@@ -82,6 +98,7 @@ db.execute("DROP TABLE IF EXISTS passwords;")
 db.execute("DROP TABLE IF EXISTS users;")
 db.execute("DROP TABLE IF EXISTS posts;")
 db.execute("DROP TABLE IF EXISTS roles;")
+db.execute("DROP TABLE IF EXISTS playoff_stats;")
 
 db.execute(messageTable)
 db.execute(usersTable)
@@ -89,5 +106,6 @@ db.execute(passwordsTable)
 db.execute(sleeperInfoTable)
 db.execute(postsTable)
 db.execute(rolesTable)
+db.execute(playoffStatsTable)
 
 db.end()
