@@ -2,11 +2,11 @@ INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_p
 INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('Chrizzo', '0', '0', '1', '1', '0', '0');
 INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('dturn619', '0', '0', '0', '0', '0', '0');
 INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('Hendawgs', '0', '0', '0', '1', '0', '0');
-INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('kasper', '0', '0', '0', '0', '0', '1');
+INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('kasperclmsn', '0', '0', '0', '0', '1', '1');
 INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('MadsNL', '0', '1', '0', '1', '0', '0');
 INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('MikkelNorqvist', '0', '0', '0', '0', '0', '0');
 INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('normann', '0', '0', '0', '0', '0', '0');
 INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('sebastianorup', '1', '0', '0', '1', '0', '0');
-INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('Tomlen', '0', '0', '0', '0', '1', '0');
+INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('Tomlen', '0', '0', '0', '1', '0', '0');
 INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('Veiloh', '0', '0', '0', '0', '0', '0');
 INSERT INTO `rtp_local`.`rtp_score_stats` (`sleeper_username`, `wins`, `second_place`, `third_place`, `playoff_appearances`, `toilet_wins`, `pinks`) VALUES ('Wildf1re', '0', '0', '0', '1', '0', '0');

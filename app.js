@@ -1,7 +1,4 @@
-// TODO Rseize imgs on statspage (look at league board size)
-// impl "no img" placeholder on stats page
-// impl RTP score first filter (rearrange, next to name)
-// impl coloring (top three gold, silver, bronze) (bottom hotpink)
+// TODO
 
 /// Init ////
 import express from "express"

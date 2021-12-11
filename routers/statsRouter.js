@@ -6,9 +6,7 @@ const router = express.Router()
 router.get("/stats/rtp-score", async (req, res) => {
     const stats = await statsService.getAndCalculateStats()
 
-    console.log("Router: ", stats)
-
-    res.send(stats)
+    stats ? res.status(200).send(stats) : res.sendStatus(500)
 })
 
 export default router
