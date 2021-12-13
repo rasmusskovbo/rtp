@@ -9,13 +9,10 @@ const PTS_PR_PLAYOFF = 1
 const PTS_PR_PINK = -5
 const PTS_PR_TOILET = -2
 
-export async function getAndCalculateStats() {
-
+export async function getAndCalculateRTPStats() {
     const stats = await statsRepo.getPlayoffStats()
 
-    const userIds = stats.map(statLine => statLine.user_id)
-    const promises = userIds.map(async (id) => sleeperService.getSleeperAvatarUrlByUserIdAsync(id))
-    const avatarResults = await Promise.all(promises)
+    const avatarResults = await fetchAvatarsAsync(stats)
 
     stats.map((statLine, index) => {
         statLine.rtp_score =
@@ -27,9 +24,53 @@ export async function getAndCalculateStats() {
             (statLine.pinks * PTS_PR_PINK)
 
         statLine.avatarURL = avatarResults[index]
-
     })
 
     return stats
+}
+
+export async function getAndMapStandingsStats() {
+    const stats = await statsRepo.getStandingsStats()
+
+    const avatarResults = await fetchAvatarsAsync(stats)
+    mapAvatars(stats, avatarResults)
+
+    return stats
+}
+
+export async function getAndMapWeeklyHighStats() {
+    const stats = await statsRepo.getWeeklyHighStats()
+
+    const avatarResults = await fetchAvatarsAsync(stats)
+    mapAvatars(stats, avatarResults)
+
+    return stats
+}
+
+export async function getAndMapPlayerHighStats() {
+    const stats = await statsRepo.getPlayerHighStats()
+
+    const avatarResults = await fetchAvatarsAsync(stats)
+    mapAvatars(stats, avatarResults)
+
+    return stats
+}
+
+export async function getAndMapYearlyFinishesStats() {
+    return await statsRepo.getYearlyFinishesStats()
+}
+
+
+//
+async function fetchAvatarsAsync(stats) {
+    const userIds = stats.map(statLine => statLine.user_id)
+    const promises = userIds.map(async (id) => sleeperService.getSleeperAvatarUrlByUserIdAsync(id))
+    return await Promise.all(promises)
+}
+
+function mapAvatars(stats, avatarResults) {
+    stats.map((statLine, index) => {
+        statLine.avatarURL = avatarResults[index]
+    })
 }
 

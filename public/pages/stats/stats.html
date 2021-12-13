@@ -4,34 +4,135 @@
 <div class="container-fluid padding">
     <div class="row welcome text-center">
         <div class="col-12">
-            <h1 class="display-4">All-time winners & playoff finishes</h1>
+            <h1 class="display-4">Road To Pink League Stats</h1>
         </div>
         <hr>
     </div>
 </div>
 
-<!-- All-time winners & play-offs -->
-<div class="container-fluid padding">
-    <table id="stats-table" class="table table-responsive text-center">
-        <thead>
-        <tr>
-            <th class="col-1" scope="col">Avatar</th>
-            <th onClick="sortTable(1)" class="col-1" scope="col">Sleeper User</th>
-            <th onClick="sortTable(2)" class="col-1" scope="col">RTP™ Score</th>
-            <th onClick="sortTable(3)" class="col-1" scope="col">Wins</th>
-            <th onClick="sortTable(4)" class="col-1" scope="col">Second Places</th>
-            <th onClick="sortTable(5)" class="col-1" scope="col">Third Places</th>
-            <th onClick="sortTable(6)" class="col-1" scope="col">Playoff Appearances</th>
-            <th onClick="sortTable(7)" class="col-1" scope="col">Pink Finishes</th>
-            <th onClick="sortTable(8)" class="col-1" scope="col">Toilet Bowl Wins</th>
-
-        </tr>
-        </thead>
-        <tbody id="stats-tbody">
-        <!-- Create TR, TDs and append to tbody -->
-        </tbody>
-    </table>
+<!-- Tabs -->
+<div class="tab">
+    <button class="tablinks" onclick="openTab(event, 'rtp_score_tab')">All-time Winners</button>
+    <button class="tablinks" onclick="openTab(event, 'standings_tab')">All-time Standings</button>
+    <button class="tablinks" onclick="openTab(event, 'weekly_high_tab')">All-time Weekly High Scores</button>
+    <button class="tablinks" onclick="openTab(event, 'player_high_tab')">All-time Player High Scores</button>
+    <button class="tablinks" onclick="openTab(event, 'yearly_finishes_tab')">Yearly Finishes & Legacy Stats</button>
 </div>
 
+<!-- RTP Score / All-time winners -->
+<div id="rtp_score_tab" class="tabcontent">
+    <div class="container-fluid padding">
+        <table id="rtp-score-table" class="table table-responsive text-center">
+            <thead>
+            <tr>
+                <th class="col-1" scope="col">Avatar</th>
+                <th onClick="sortTable(1, 'rtp-score-table')" class="col-1" scope="col">Sleeper User</th>
+                <th onClick="sortTable(2, 'rtp-score-table')" class="col-1" scope="col">RTP™ Score</th>
+                <th onClick="sortTable(3, 'rtp-score-table')" class="col-1" scope="col">Wins</th>
+                <th onClick="sortTable(4, 'rtp-score-table')" class="col-1" scope="col">Second Places</th>
+                <th onClick="sortTable(5, 'rtp-score-table')" class="col-1" scope="col">Third Places</th>
+                <th onClick="sortTable(6, 'rtp-score-table')" class="col-1" scope="col">Playoff Appearances</th>
+                <th onClick="sortTable(7, 'rtp-score-table')" class="col-1" scope="col">Pink Finishes</th>
+                <th onClick="sortTable(8, 'rtp-score-table')" class="col-1" scope="col">Toilet Bowl Wins</th>
+
+            </tr>
+            </thead>
+            <tbody id="rtp-score-tbody">
+            <!-- Create TR, TDs and append to tbody -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- All-time standings -->
+<div id="standings_tab" class="tabcontent">
+    <div class="container-fluid padding">
+        <table id="standings-table" class="table table-responsive text-center">
+            <thead>
+            <tr>
+                <th class="col-1" scope="col">Avatar</th>
+                <th class="col-1" scope="col">Sleeper User</th>
+                <th class="col-1" scope="col">Record</th>
+                <th onClick="sortTable(3, 'standings-table')" class="col-1" scope="col">Win%</th>
+                <th onClick="sortTable(4, 'standings-table')" class="col-1" scope="col">PF</th>
+                <th onClick="sortTable(5, 'standings-table')" class="col-1" scope="col">PA</th>
+                <th onClick="sortTable(6, 'standings-table')" class="col-1" scope="col">Diff.</th>
+                <th onClick="sortTable(7, 'standings-table')" class="col-1" scope="col">Trans.</th>
+                <th onClick="sortTable(8, 'standings-table')" class="col-1" scope="col">Msgs.</th>
+            </tr>
+            </thead>
+            <tbody id="standings-tbody">
+            <!-- Create TR, TDs and append to tbody -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Weekly-high Stats -->
+<div id="weekly_high_tab" class="tabcontent">
+    <div class="container-fluid padding">
+        <table id="weekly-high-table" class="table table-responsive text-center">
+            <thead>
+            <tr>
+                <th class="col-1" scope="col">Avatar</th>
+                <th class="col-1" scope="col">Sleeper User</th>
+                <th onClick="sortTable(2, 'weekly-high-table')" class="col-2" scope="col">Score</th>
+                <th onClick="sortTable(3, 'weekly-high-table')" class="col-2" scope="col">Year</th>
+                <th onClick="sortTable(4, 'weekly-high-table')" class="col-2" scope="col">Week</th>
+            </tr>
+            </thead>
+            <tbody id="weekly-high-tbody">
+            <!-- Create TR, TDs and append to tbody -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Player-high stats -->
+<div id="player_high_tab" class="tabcontent">
+    <div class="container-fluid padding">
+        <table id="player-high-table" class="table table-responsive text-center">
+            <thead>
+            <tr>
+                <th class="col-1" scope="col">Avatar</th>
+                <th class="col-1" scope="col">Sleeper User</th>
+                <th class="col-1" scope="col">Player Name</th>
+                <th onClick="sortTable(3, 'player-high-table')" class="col-2" scope="col">Score</th>
+                <th onClick="sortTable(4, 'player-high-table')" class="col-2" scope="col">Year</th>
+                <th onClick="sortTable(5, 'player-high-table')" class="col-2" scope="col">Week</th>
+            </tr>
+            </thead>
+            <tbody id="player-high-tbody">
+            <!-- Create TR, TDs and append to tbody -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Yearly finishes & Legacy stats -->
+<div id="yearly_finishes_tab" class="tabcontent">
+    <div class="container-fluid padding">
+        <table id="yearly-finishes-table" class="table table-responsive text-center">
+            <thead>
+            <tr>
+                <th class="col-1" scope="col">Year</th>
+                <th class="col-1" scope="col">Winner</th>
+                <th class="col-1" scope="col">Second Place</th>
+                <th class="col-1" scope="col">Third Place</th>
+                <th class="col-1" scope="col">Last Place (Regular Season)</th>
+                <th class="col-1" scope="col">Last Place (Playoffs)</th>
+                <th class="col-1" scope="col">League Size</th>
+            </tr>
+            </thead>
+            <tbody id="yearly-finishes-tbody">
+            <!-- Create TR, TDs and append to tbody -->
+            </tbody>
+        </table>
+    </div>
+</div>
 
 <script src="./pages/stats/stats.js"></script>
+<script>
+    // Initial display
+    document.getElementById("rtp_score_tab").style.display = "block";
+</script>

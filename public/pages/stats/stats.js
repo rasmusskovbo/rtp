@@ -1,7 +1,7 @@
 fetch("/stats/rtp-score/")
     .then(response => response.json())
     .then(( stats ) => {
-        const postsTable = document.getElementById("stats-tbody");
+        const postsTable = document.getElementById("rtp-score-tbody");
 
         stats.map((statLine, index) => {
             let row = postsTable.insertRow(index)
@@ -19,19 +19,108 @@ fetch("/stats/rtp-score/")
             row.insertCell(8).innerHTML = `<p id="pinks">${statLine.pinks}</p></td>`
         });
 
-        sortTable(2)
-        sortTable(2)
+        sortTable(2, 'rtp-score-table')
+        sortTable(2, 'rtp-score-table')
     });
 
 
+fetch("/stats/standings/")
+    .then(response => response.json())
+    .then(( stats ) => {
+        const postsTable = document.getElementById("standings-tbody");
 
-function sortTable(n) {
+        stats.map((statLine, index) => {
+            let row = postsTable.insertRow(index)
+            statLine.avatarURL ?
+                row.insertCell(0).innerHTML = `<img id=avatar src="${statLine.avatarURL}">`
+                :
+                row.insertCell(0).innerHTML = `<p></p>`
+            row.insertCell(1).innerHTML = `<p id="sleeper_username">${escapeHTML(statLine.sleeper_username)}</p></td>`
+            row.insertCell(2).innerHTML = `<p id="record">${statLine.record}</p></td>`
+            row.insertCell(3).innerHTML = `<p id="win_p">${statLine.win_p}</p></td>`
+            row.insertCell(4).innerHTML = `<p id="pf">${statLine.pf}</p></td>`
+            row.insertCell(5).innerHTML = `<p id="pa">${statLine.pa}</p></td>`
+            row.insertCell(6).innerHTML = `<p id="diff">${statLine.diff}</p></td>`
+            row.insertCell(7).innerHTML = `<p id="trans">${statLine.trans}</p></td>`
+            row.insertCell(8).innerHTML = `<p id="msgs">${statLine.msgs}</p></td>`
+        });
+
+        sortTable(3, 'standings-table')
+        sortTable(3, 'standings-table')
+    })
+
+fetch("/stats/weekly-high/")
+    .then(response => response.json())
+    .then(( stats ) => {
+        const table = document.getElementById("weekly-high-tbody");
+
+        stats.map((statLine, index) => {
+            let row = table.insertRow(index)
+            statLine.avatarURL ?
+                row.insertCell(0).innerHTML = `<img id=avatar src="${statLine.avatarURL}">`
+                :
+                row.insertCell(0).innerHTML = `<p></p>`
+            row.insertCell(1).innerHTML = `<p id="sleeper_username">${escapeHTML(statLine.sleeper_username)}</p></td>`
+            row.insertCell(2).innerHTML = `<p id="score">${statLine.score}</p></td>`
+            row.insertCell(3).innerHTML = `<p id="year">${statLine.year}</p></td>`
+            row.insertCell(4).innerHTML = `<p id="week">${statLine.week}</p></td>`
+        });
+
+        sortTable(2, 'weekly-high-table')
+        sortTable(2, 'weekly-high-table')
+    })
+
+fetch("/stats/player-high/")
+    .then(response => response.json())
+    .then(( stats ) => {
+        const table = document.getElementById("player-high-tbody");
+
+        stats.map((statLine, index) => {
+            let row = table.insertRow(index)
+            statLine.avatarURL ?
+                row.insertCell(0).innerHTML = `<img id=avatar src="${statLine.avatarURL}">`
+                :
+                row.insertCell(0).innerHTML = `<p></p>`
+            row.insertCell(1).innerHTML = `<p id="sleeper_username">${escapeHTML(statLine.sleeper_username)}</p></td>`
+            row.insertCell(2).innerHTML = `<p id="player_name">${escapeHTML(statLine.player_name)}</p></td>`
+            row.insertCell(3).innerHTML = `<p id="score">${statLine.score}</p></td>`
+            row.insertCell(4).innerHTML = `<p id="year">${statLine.year}</p></td>`
+            row.insertCell(5).innerHTML = `<p id="week">${statLine.week}</p></td>`
+        });
+
+        sortTable(3, 'player-high-table')
+        sortTable(3, 'player-high-table')
+    })
+
+fetch("/stats/yearly-finishes/")
+    .then(response => response.json())
+    .then(( stats ) => {
+        const table = document.getElementById("yearly-finishes-tbody");
+
+        stats.map((statLine, index) => {
+            let row = table.insertRow(index)
+            row.insertCell(0).innerHTML = `<p id="year">${statLine.year}</p></td>`
+            row.insertCell(1).innerHTML = `<p id="winner">${escapeHTML(statLine.winner)}</p></td>`
+            row.insertCell(2).innerHTML = `<p id="second">${escapeHTML(statLine.second)}</p></td>`
+            row.insertCell(3).innerHTML = `<p id="third">${escapeHTML(statLine.third)}</p></td>`
+            row.insertCell(4).innerHTML = `<p id="last_regular">${escapeHTML(statLine.last_regular)}</p></td>`
+            row.insertCell(5).innerHTML = `<p id="last_playoffs">${escapeHTML(statLine.last_playoffs)}</p></td>`
+            row.insertCell(6).innerHTML = `<p id="league_size">${statLine.league_size}</p></td>`
+        });
+
+        sortTable(0, 'yearly-finishes-table')
+        sortTable(0, 'yearly-finishes-table')
+        const rows = Array.from(document.getElementById('yearly-finishes-table').rows);
+        rows.map(row => row.className = "")
+    })
+
+
+
+function sortTable(n, tableID) {
     let table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-    table = document.getElementById("stats-table");
+    table = document.getElementById(tableID);
     switching = true;
     dir = "asc";
-
-
 
     while (switching) {
         switching = false;
@@ -41,23 +130,26 @@ function sortTable(n) {
         rows[1].className = ""
         rows[2].className = ""
         rows[3].className = ""
-        rows[10].className = ""
-        rows[11].className = ""
-        rows[12].className = ""
+        rows[rows.length-3].className = ""
+        rows[rows.length-2].className = ""
+        rows[rows.length-1].className = ""
 
         for (i = 1; i < (rows.length - 1); i++) {
             shouldSwitch = false;
 
-            x = rows[i].getElementsByTagName("TD")[n];
-            y = rows[i + 1].getElementsByTagName("TD")[n];
+            x = rows[i].getElementsByTagName("TD")[n].getElementsByTagName("p")
+            y = rows[i + 1].getElementsByTagName("TD")[n].getElementsByTagName("p")
+
+            const xAsNumber = parseFloat(x[0].innerHTML)
+            const yAsNumber = parseFloat(y[0].innerHTML)
 
             if (dir == "asc") {
-                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                if (xAsNumber > yAsNumber) {
                     shouldSwitch = true;
                     break;
                 }
             } else if (dir == "desc") {
-                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                if (xAsNumber < yAsNumber) {
                     shouldSwitch = true;
                     break;
                 }
@@ -79,11 +171,32 @@ function sortTable(n) {
         rows[1].className = "first"
         rows[2].className = "second"
         rows[3].className = "third"
-        rows[12].className = "last"
+        rows[rows.length-1].className = "last"
     } else {
-        rows[12].className = "first"
-        rows[11].className = "second"
-        rows[10].className = "third"
+        rows[rows.length-1].className = "first"
+        rows[rows.length-2].className = "second"
+        rows[rows.length-3].className = "third"
         rows[1].className = "last"
     }
+}
+
+function openTab(evt, tabName) {
+    // Declare all variables
+    let i, tabcontent, tablinks;
+
+    // Get all elements with class="tabcontent" and hide them
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // Show the current tab, and add an "active" class to the button that opened the tab
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
 }
