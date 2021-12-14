@@ -61,7 +61,7 @@ export async function getAndMapYearlyFinishesStats() {
 }
 
 
-//
+// TODO rewrite to use single db connection.
 async function fetchAvatarsAsync(stats) {
     const userIds = stats.map(statLine => statLine.user_id)
     const promises = userIds.map(async (id) => sleeperService.getSleeperAvatarUrlByUserIdAsync(id))

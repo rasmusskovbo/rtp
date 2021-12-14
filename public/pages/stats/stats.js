@@ -1,10 +1,10 @@
 fetch("/stats/rtp-score/")
     .then(response => response.json())
     .then(( stats ) => {
-        const postsTable = document.getElementById("rtp-score-tbody");
+        const table = document.getElementById("rtp-score-tbody");
 
         stats.map((statLine, index) => {
-            let row = postsTable.insertRow(index)
+            let row = table.insertRow(index)
             statLine.avatarURL ?
                 row.insertCell(0).innerHTML = `<img id=avatar src="${statLine.avatarURL}">`
                 :
@@ -18,6 +18,18 @@ fetch("/stats/rtp-score/")
             row.insertCell(7).innerHTML = `<p id="toilet_wins">${statLine.toilet_wins}</p></td>`
             row.insertCell(8).innerHTML = `<p id="pinks">${statLine.pinks}</p></td>`
         });
+
+        // Get specific table headers
+        const headerRow = document.getElementById("rtp-score-table").getElementsByTagName("thead")[0].children[0]
+        const rows = Array.from(headerRow.children)
+
+        // For loop for custom starting point (no listeners on strings is wanted)
+        for (let i = 2; i < rows.length; i++) {
+            console.log("adding listener for", i)
+            rows[i].addEventListener("click", function(){
+                sortTable(i, "rtp-score-table")
+            })
+        }
 
         sortTable(2, 'rtp-score-table')
         sortTable(2, 'rtp-score-table')
