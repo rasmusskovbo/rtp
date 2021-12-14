@@ -6,5 +6,5 @@ INSERT INTO weekly_high_stats (`sleeper_username`, `score`, `year`, `week`) VALU
 INSERT INTO weekly_high_stats (`sleeper_username`, `score`, `year`, `week`) VALUES ('MikkelNorqvist', '163.08', '2021', '5');
 INSERT INTO weekly_high_stats (`sleeper_username`, `score`, `year`, `week`) VALUES ('Tomlen', '159.50', '2020', '1');
 INSERT INTO weekly_high_stats (`sleeper_username`, `score`, `year`, `week`) VALUES ('MikkelNorqvist', '157.20', '2020', '5');
-INSERT INTO weekly_high_stats (`sleeper_username`, `score`, `year`, `week`) VALUES ('Wildf1re', '156.84', '2020', '9');
+INSERT INTO weekly_high_stats (`sleeper_username`, `score`,s `year`, `week`) VALUES ('Wildf1re', '156.84', '2020', '9');
 INSERT INTO weekly_high_stats (`sleeper_username`, `score`, `year`, `week`) VALUES ('alohnes15', '155.30', '2021', '13');
