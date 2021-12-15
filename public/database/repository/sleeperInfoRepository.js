@@ -21,9 +21,7 @@ export async function userHasSleeperUser(userId) {
             console.log(err)
             resolve(false)
         }
-    
     })
-
 }
 
 export async function updateSleeperInfoByUserId(sleeperUser, userId) {
@@ -51,7 +49,6 @@ export async function updateSleeperInfoByUserId(sleeperUser, userId) {
             console.log(err)
             resolve(false)
         }
-    
     })
 }
 
@@ -77,9 +74,7 @@ export async function createSleeperInfoByUserid(sleeperUser, userId) {
             console.log(err)
             resolve(false)
         }
-    
     })
-
 }
 
 export async function getSleeperAvatarUrlByUserId(userId) {
@@ -95,7 +90,7 @@ export async function getSleeperAvatarUrlByUserId(userId) {
             )
 
             db.end()
-            await results.length > 0 ? resolve(results[0].sleeper_avatar_url) : resolve(null)
+            results.length > 0 ? resolve(results[0].sleeper_avatar_url) : resolve(null)
 
         } catch (err) {
             console.log(err)

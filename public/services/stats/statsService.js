@@ -1,6 +1,7 @@
 import * as statsRepo from "../../database/repository/statsRepository.js"
 import * as sleeperService from "../../resources/sleeper/sleeperService.js"
-import util from "util";
+
+const BASEURL_SLEEPER_AVATAR = "https://sleepercdn.com/avatars/thumbs/" // + <avatar_id>
 
 const PTS_PR_WIN = 5
 const PTS_PR_SECOND_PLACE = 3
@@ -60,12 +61,13 @@ export async function getAndMapYearlyFinishesStats() {
     return await statsRepo.getYearlyFinishesStats()
 }
 
-
-// TODO rewrite to use single db connection.
 async function fetchAvatarsAsync(stats) {
-    const userIds = stats.map(statLine => statLine.user_id)
-    const promises = userIds.map(async (id) => sleeperService.getSleeperAvatarUrlByUserIdAsync(id))
-    return await Promise.all(promises)
+    const sleeperUsernames = stats.map(statLine => statLine.sleeper_username)
+
+    const promises = sleeperUsernames.map(async (username) => sleeperService.getSleeperAvatarUrlBySleeperUsernameAsync(username))
+    const avatarIds = await Promise.all(promises)
+
+    return avatarIds.map(avatarId => BASEURL_SLEEPER_AVATAR + avatarId)
 }
 
 function mapAvatars(stats, avatarResults) {

@@ -13,7 +13,6 @@ export async function fetchAndUpdateSleeperInfo(sleeperUserName, userId) {
     } else {
         return false 
     }
-
 }
 
 export async function getSleeperAvatarUrlByUserId(userId) {
@@ -22,6 +21,8 @@ export async function getSleeperAvatarUrlByUserId(userId) {
     return avatarURL ? avatarURL : null
 }
 
-export async function getSleeperAvatarUrlByUserIdAsync(userId) {
-    return sleeperRepo.getSleeperAvatarUrlByUserId(userId)
+export async function getSleeperAvatarUrlBySleeperUsernameAsync(username) {
+    const sleeperUser = await sleeperRessource.getSleeperUserByUsername(username)
+
+    return sleeperUser.avatar
 }
