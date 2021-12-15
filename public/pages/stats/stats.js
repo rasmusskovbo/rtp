@@ -19,17 +19,7 @@ fetch("/stats/rtp-score/")
             row.insertCell(8).innerHTML = `<p id="pinks">${statLine.pinks}</p></td>`
         });
 
-        // Get specific table headers
-        const headerRow = document.getElementById("rtp-score-table").getElementsByTagName("thead")[0].children[0]
-        const rows = Array.from(headerRow.children)
-
-        // For loop for custom starting point (no listeners on strings is wanted)
-        for (let i = 2; i < rows.length; i++) {
-            console.log("adding listener for", i)
-            rows[i].addEventListener("click", function(){
-                sortTable(i, "rtp-score-table")
-            })
-        }
+        addEventListenersToTable('rtp-score-table', 2)
 
         sortTable(2, 'rtp-score-table')
         sortTable(2, 'rtp-score-table')
@@ -57,6 +47,8 @@ fetch("/stats/standings/")
             row.insertCell(8).innerHTML = `<p id="msgs">${statLine.msgs}</p></td>`
         });
 
+        addEventListenersToTable('standings-table', 3)
+
         sortTable(3, 'standings-table')
         sortTable(3, 'standings-table')
     })
@@ -64,7 +56,7 @@ fetch("/stats/standings/")
 fetch("/stats/weekly-high/")
     .then(response => response.json())
     .then(( stats ) => {
-        const table = document.getElementById("weekly-high-tbody");
+        const table = document.getElementById("weekly-high-tbody")
 
         stats.map((statLine, index) => {
             let row = table.insertRow(index)
@@ -77,6 +69,8 @@ fetch("/stats/weekly-high/")
             row.insertCell(3).innerHTML = `<p id="year">${statLine.year}</p></td>`
             row.insertCell(4).innerHTML = `<p id="week">${statLine.week}</p></td>`
         });
+
+        addEventListenersToTable('weekly-high-table', 2)
 
         sortTable(2, 'weekly-high-table')
         sortTable(2, 'weekly-high-table')
@@ -100,13 +94,14 @@ fetch("/stats/player-high/")
             row.insertCell(5).innerHTML = `<p id="week">${statLine.week}</p></td>`
         });
 
+        addEventListenersToTable('player-high-table', 3)
+
         sortTable(3, 'player-high-table')
         sortTable(3, 'player-high-table')
     })
 
 fetch("/stats/yearly-finishes/")
-    .then(response => response.json())
-    .then(( stats ) => {
+    .then(response => response.json())    .then(( stats ) => {
         const table = document.getElementById("yearly-finishes-tbody");
 
         stats.map((statLine, index) => {
@@ -192,23 +187,33 @@ function sortTable(n, tableID) {
     }
 }
 
-function openTab(evt, tabName) {
+function openTab(tabName) {
     // Declare all variables
-    let i, tabcontent, tablinks;
+   let tabcontent, tablinks;
 
     // Get all elements with class="tabcontent" and hide them
     tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-    }
+    Array.from(tabcontent).forEach(tab => tab.style.display = "none")
 
     // Get all elements with class="tablinks" and remove the class "active"
     tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-    }
+    Array.from(tablinks).forEach(link => link.className.replace(" active", ""))
 
     // Show the current tab, and add an "active" class to the button that opened the tab
     document.getElementById(tabName).style.display = "block";
-    evt.currentTarget.className += " active";
+    document.getElementById(tabName).className += " active";
 }
+
+function addEventListenersToTable(table, startingIndex) {
+    // Get specific table headers
+    const headerRow = document.getElementById(table).getElementsByTagName("thead")[0].children[0]
+    const rows = Array.from(headerRow.children)
+
+    // For loop for custom starting point (no listeners on strings is wanted)
+    for (let i = startingIndex; i < rows.length; i++) {
+        rows[i].addEventListener("click", function(){
+            sortTable(i, "rtp-score-table")
+        })
+    }
+}
+

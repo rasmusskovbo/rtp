@@ -7,7 +7,6 @@ function login() {
             pw1: document.getElementById("pw").value
         })
     }).then(res => {
-        console.log("Response: " + res.status)
         if (res.status == 200) {
             toastr.success("Logging in...")
             setTimeout(() => location.href= "/profile", 1000);

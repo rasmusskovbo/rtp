@@ -10,8 +10,7 @@ function updateUserDetails() {
     fetch("/profile/userDetails")
     .then(response => response.json())
     .then(userDetails => {
-        console.log(userDetails)
-        console.log(userDetails.username)
+
         document.getElementById("username").innerHTML = userDetails.username;
         document.getElementById("email").innerHTML = userDetails.email;
     })
