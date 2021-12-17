@@ -1,4 +1,4 @@
-import { getDBConnection } from "../connectDB.js";
+import { getDBConnection } from "../connectDB.js"
 
 export async function getUserIdByEmail(email) {
     return await new Promise(async (resolve) => {
@@ -16,7 +16,7 @@ export async function getUserIdByEmail(email) {
             
         } catch (err) {
             console.log(err)
-            resolve(null);
+            resolve(null)
         }       
 
     })

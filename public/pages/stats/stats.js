@@ -1,7 +1,7 @@
 fetch("/stats/rtp-score/")
     .then(response => response.json())
     .then(( stats ) => {
-        const table = document.getElementById("rtp-score-tbody");
+        const table = document.getElementById("rtp-score-tbody")
 
         stats.map((statLine, index) => {
             let row = table.insertRow(index)
@@ -17,19 +17,19 @@ fetch("/stats/rtp-score/")
             row.insertCell(6).innerHTML = `<p id="playoff_appearances">${statLine.playoff_appearances}</p></td>`
             row.insertCell(7).innerHTML = `<p id="toilet_wins">${statLine.toilet_wins}</p></td>`
             row.insertCell(8).innerHTML = `<p id="pinks">${statLine.pinks}</p></td>`
-        });
+        })
 
         addEventListenersToTable('rtp-score-table', 2)
 
         sortTable(2, 'rtp-score-table')
         sortTable(2, 'rtp-score-table')
-    });
+    })
 
 
 fetch("/stats/standings/")
     .then(response => response.json())
     .then(( stats ) => {
-        const postsTable = document.getElementById("standings-tbody");
+        const postsTable = document.getElementById("standings-tbody")
 
         stats.map((statLine, index) => {
             let row = postsTable.insertRow(index)
@@ -45,7 +45,7 @@ fetch("/stats/standings/")
             row.insertCell(6).innerHTML = `<p id="diff">${statLine.diff}</p></td>`
             row.insertCell(7).innerHTML = `<p id="trans">${statLine.trans}</p></td>`
             row.insertCell(8).innerHTML = `<p id="msgs">${statLine.msgs}</p></td>`
-        });
+        })
 
         addEventListenersToTable('standings-table', 3)
 
@@ -68,7 +68,7 @@ fetch("/stats/weekly-high/")
             row.insertCell(2).innerHTML = `<p id="score">${statLine.score}</p></td>`
             row.insertCell(3).innerHTML = `<p id="year">${statLine.year}</p></td>`
             row.insertCell(4).innerHTML = `<p id="week">${statLine.week}</p></td>`
-        });
+        })
 
         addEventListenersToTable('weekly-high-table', 2)
 
@@ -79,7 +79,7 @@ fetch("/stats/weekly-high/")
 fetch("/stats/player-high/")
     .then(response => response.json())
     .then(( stats ) => {
-        const table = document.getElementById("player-high-tbody");
+        const table = document.getElementById("player-high-tbody")
 
         stats.map((statLine, index) => {
             let row = table.insertRow(index)
@@ -102,7 +102,7 @@ fetch("/stats/player-high/")
 
 fetch("/stats/yearly-finishes/")
     .then(response => response.json())    .then(( stats ) => {
-        const table = document.getElementById("yearly-finishes-tbody");
+        const table = document.getElementById("yearly-finishes-tbody")
 
         stats.map((statLine, index) => {
             let row = table.insertRow(index)

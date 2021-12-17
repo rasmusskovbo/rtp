@@ -1,7 +1,8 @@
-fetch("/session")
+fetch("/session" , {
+    method: "POST"
+})
 .then(res => res.json())
 .then(session => {
-    
     if (!session.isLoggedIn) {
         createNavLink("Login", "/login")
     } else {

@@ -1,4 +1,4 @@
-import { getDBConnection } from "../../database/connectDB.js";
+import { getDBConnection } from "../../database/connectDB.js"
 
 const BASEURL_SLEEPER_AVATAR = "https://sleepercdn.com/avatars/thumbs/" // + <avatar_id>
 

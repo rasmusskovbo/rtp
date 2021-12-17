@@ -4,7 +4,7 @@ import { registerPassword } from "../public/database/repository/passwordReposito
 import { isEmailValid } from "../util/validation.js"
 import * as userRepo from "../public/database/repository/userRepository.js"
 import escape from "escape-html"
-const router = express.Router();
+const router = express.Router()
 
 // refactor to use userRepository
 router.post("/register/user", async (req, res, next) => {

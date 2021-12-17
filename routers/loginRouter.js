@@ -1,16 +1,17 @@
-import express from "express";
+import express from "express"
 import * as userRepo from "../public/database/repository/userRepository.js"
 import * as roleRepo from "../public/database/repository/roleRepository.js"
 import { checkPassword } from "../public/database/repository/passwordRepository.js"
+import { isAuthorizedOrigin } from '../util/authentication.js'
 import escape from "escape-html"
 
-const router = express.Router();
+const router = express.Router()
 
 
-router.post("/auth/login", async (req, res, next) => {
+router.post("/auth/login", isAuthorizedOrigin, async (req, res, next) => {
     const password = escape(req.body.pw1)
     const email = escape(req.body.email)
-    var userId = -1
+    let userId = -1
 
     // Get user id by email, stop with .next
     userId = await userRepo.getUserIdByEmail(email)
@@ -28,7 +29,7 @@ router.post("/auth/login", async (req, res, next) => {
         req.session.userId = userId
         req.session.isLoggedIn = true
         req.session.currentUser = userDetailsByUserId.username
-        res.sendStatus(200);
+        res.sendStatus(200)
     } else {
         res.sendStatus(400)
     } 

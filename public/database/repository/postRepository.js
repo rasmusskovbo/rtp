@@ -1,4 +1,4 @@
-import { getDBConnection } from "../connectDB.js";
+import { getDBConnection } from "../connectDB.js"
 
 export async function getPosts() {
     return await new Promise(async (resolve) => {

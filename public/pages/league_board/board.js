@@ -1,28 +1,28 @@
-const socket = io();
+const socket = io()
 
-const messages = document.getElementById('messages');
-const form = document.getElementById('form');
-const input = document.getElementById('input');
-let user = "";
+const messages = document.getElementById('messages')
+const form = document.getElementById('form')
+const input = document.getElementById('input')
+let user = ""
 
 // Load
 document.addEventListener("DOMContentLoaded", getAndDisplayMessages)
 
 // Send
 form.addEventListener('submit', function(e) {
-    e.preventDefault(); 
+    e.preventDefault()
 
     if (input.value) {
         const msg = mapOutgoingMessage()
-        socket.emit('chat message', msg);      
-        input.value = '';    
+        socket.emit('chat message', msg)
+        input.value = ''
     }
-});
+})
 
 // Receive and display
 socket.on('chat message', function(msg) {
     displayMessage(msg)
-});
+})
 
 
 function mapOutgoingMessage() {
@@ -33,7 +33,7 @@ function mapOutgoingMessage() {
         username: user.username,
         content: input.value,
         owner: user.id,
-    };
+    }
 }
 
 function displayMessage(msg) {
@@ -116,6 +116,6 @@ function getAndDisplayMessages() {
 }
 
 function gotoBottom(id){
-    var element = document.getElementById(id);
-    element.scrollTop = element.scrollHeight - element.clientHeight;
+    let element = document.getElementById(id)
+    element.scrollTop = element.scrollHeight - element.clientHeight
 }

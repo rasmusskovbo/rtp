@@ -23,7 +23,7 @@ function register() {
             }).then(res => {
                 console.log("Response: " + res.status)
                 if (res.status == 200) {
-                    setTimeout(() => location.href= "/", 1500);
+                    setTimeout(() => location.href= "/", 1500)
                 } else {
                     toastr.info("Login currently unavailable, try again later")
                 }

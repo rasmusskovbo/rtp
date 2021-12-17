@@ -1,4 +1,4 @@
-import { getDBConnection } from "../connectDB.js";
+import { getDBConnection } from "../connectDB.js"
 
 const MSG_EXPIRATION_IN_MONTHS = 1
 
