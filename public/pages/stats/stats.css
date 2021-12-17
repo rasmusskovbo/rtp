@@ -24,6 +24,10 @@
     background-color: hotpink;
 }
 
+.container-fluid {
+    overflow: auto;
+}
+
 /********* Tab styling ***********/
 /* Style the tab */
 .tab {
