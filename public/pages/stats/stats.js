@@ -212,7 +212,7 @@ function addEventListenersToTable(table, startingIndex) {
     // For loop for custom starting point (no listeners on strings is wanted)
     for (let i = startingIndex; i < rows.length; i++) {
         rows[i].addEventListener("click", function(){
-            sortTable(i, "rtp-score-table")
+            sortTable(i, table)
         })
     }
 }
