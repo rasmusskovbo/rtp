@@ -7,22 +7,18 @@ import escape from "escape-html"
 
 const router = express.Router()
 
-
 router.post("/auth/login", isAuthorizedOrigin, async (req, res, next) => {
     const password = escape(req.body.pw1)
     const email = escape(req.body.email)
     let userId = -1
 
-    // Get user id by email, stop with .next
     userId = await userRepo.getUserIdByEmail(email)
-
     if (!userId) {
         res.sendStatus(400)
         return next()
     }
 
     const successfulLogin = await checkPassword(password, userId)
-
     if (successfulLogin) {
         const userDetailsByUserId = await userRepo.getUserDetailsByUserId(userId)
         req.session.isAdmin = await roleRepo.getRoleByUserId(userId)
@@ -32,17 +28,13 @@ router.post("/auth/login", isAuthorizedOrigin, async (req, res, next) => {
         res.sendStatus(200)
     } else {
         res.sendStatus(400)
-    } 
-            
-    
-    
+    }
 })
 
 router.post("/auth/recover", async (req, res, next) => {
-    // todo nodemailer reset link
+    // TODO Possible with nodemailer reset link?
 })
 
-// todo toastr then timeout (make sure toastr cdns are in header and footer)
 router.get("/logout", (req, res) => {
     req.session.destroy()
     res.redirect("/")

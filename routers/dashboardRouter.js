@@ -3,7 +3,7 @@ import * as postRepo from "../public/database/repository/postRepository.js"
 const router = express.Router()
 import { isAdmin } from '../util/authentication.js'
 
-const mockProjects = [
+const mockPosts = [
     {
         id: 1,
         title: "The playoffs are set!",
@@ -34,13 +34,9 @@ router.get("/dashboard/posts", isAdmin, async (req, res) => {
     posts ? res.send(posts) : res.sendStatus(500)
 })
 
-
 router.get("/dashboard/mock", (req, res) => {
-    res.send( mockProjects )
+    res.send( mockPosts )
 })
-
-export default router
-
 
 router.delete("/dashboard/posts/:postId", isAdmin, async (req, res) => {
     const IDofPostToDelete = req.params.postId
@@ -52,5 +48,6 @@ router.put("/dashboard/posts/", isAdmin, async (req, res) => {
     const updatedPost = req.body
 
     await postRepo.updatePost(updatedPost) ? res.sendStatus(200): res.sendStatus(500)
-
 })
+
+export default router

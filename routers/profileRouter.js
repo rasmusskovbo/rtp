@@ -1,6 +1,6 @@
 import express from "express"
 import { getDBConnection } from "../public/database/connectDB.js"
-import { isEmailValid } from "../util/validation.js"
+import {passwordsMatch, isEmailValid} from "../util/validation.js"
 import { isAuthorized } from '../util/authentication.js'
 import * as passwordRepository from "../public/database/repository/passwordRepository.js"
 import * as userRepository from "../public/database/repository/userRepository.js"
@@ -8,14 +8,12 @@ import * as sleeperService from "../public/resources/sleeper/sleeperService.js"
 
 const router = express.Router()
 
-// TODO Possibly refactor all repo calls to a service layer (e.g. sleeperservice, statsservice)
 router.put("/profile/pw", isAuthorized, async (req, res) => {
     const pw1 = escape(req.body.pw1)
     const pw2 = escape(req.body.pw2)
     const currentPw = escape(req.body.currentPw)
 
-    // TODO move to validation service
-    if (pw1 === pw2) {
+    if (passwordsMatch(pw1, pw2)) {
         let userId = req.session.userId
     
         const passwordValidated = await passwordRepository.checkPassword(currentPw, userId)
@@ -39,8 +37,6 @@ router.put("/profile/email", isAuthorized, async (req, res, next) => {
         res.sendStatus(400)
         return next()
     }
-
-    const db = await getDBConnection()
 
     const updateSuccessful = await userRepository.updateEmailById(email, userId)
 
