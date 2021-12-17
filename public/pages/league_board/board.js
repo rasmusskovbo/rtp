@@ -69,7 +69,7 @@ function displayMessage(msg) {
         username.className = 'msg-username'
 
         // Map avatar
-        if (msg.avatarURL != null)  {
+        if (msg.avatarURL !== "N/A")  {
             const avatar = document.createElement('img')
             avatar.className ='msg-avatar'
             avatar.src = msg.avatarURL
