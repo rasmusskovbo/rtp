@@ -1,7 +1,8 @@
-import express from "express";
+import express from "express"
 import { createPage } from '../util/render.js'
+import { isAdmin, isAuthorized } from '../util/authentication.js'
 
-const router = express.Router();
+const router = express.Router()
 
 /// Ready HTML pages using createPage js ///
 const frontpagePage = createPage("frontpage/frontpage.html", {
@@ -62,15 +63,6 @@ router.get("/stats", isAuthorized, (req, res) => {
     res.send(statsPage)
 })
 
-
-
-function isAuthorized(req, res, next) {
-    !req.session.isLoggedIn ? res.redirect("/login") : next()
-}
-
-function isAdmin(req, res, next) {
-    !req.session.isAdmin ? res.redirect("/") : next()
-}
 
 export default router
 

@@ -1,7 +1,7 @@
 fetch("/dashboard/posts/")
     .then(response => response.json())
     .then(( posts ) => {
-        const postsTable = document.getElementById("posts-tbody");
+        const postsTable = document.getElementById("posts-tbody")
 
         posts.map((post, index) => {
             let row = postsTable.insertRow(index)
@@ -30,8 +30,8 @@ fetch("/dashboard/posts/")
                 updateProject(row)
             }
 
-        });
-    });
+        })
+    })
 
 function createPost() {
     fetch("/dashboard/posts", {

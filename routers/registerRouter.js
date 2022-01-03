@@ -1,10 +1,9 @@
 import express from "express"
-import { getDBConnection } from "../public/database/connectDB.js"
 import { registerPassword } from "../public/database/repository/passwordRepository.js"
-import { isEmailValid } from "../util/validation.js"
+import { isEmailValid, passwordsMatch } from "../util/validation.js"
 import * as userRepo from "../public/database/repository/userRepository.js"
 import escape from "escape-html"
-const router = express.Router();
+const router = express.Router()
 
 // refactor to use userRepository
 router.post("/register/user", async (req, res, next) => {
@@ -13,24 +12,17 @@ router.post("/register/user", async (req, res, next) => {
     const pw2 = escape(req.body.pw2)
     const username = escape(req.body.username)
 
-    // Is email valid
     if (!isEmailValid(email)) {
         res.sendStatus(403)
         return next()
     }
 
-    // Does passwords match
-    if (pw1 === pw2) {
-        const db = await getDBConnection()
-        
-        const userIdFound = await userRepo.getUserIdByEmail(email)
-       
+    if (passwordsMatch(pw1, pw2)) {
         // is email already in use for another account
+        const userIdFound = await userRepo.getUserIdByEmail(email)
         if (!userIdFound) {
-
-            const results = await userRepo.createUser(email, username)
-
             // Was creation successful
+            const results = await userRepo.createUser(email, username)
             if (results) {
                 // Did password get saved
                 return await registerPassword(pw1, results.insertId) ? res.sendStatus(200) : res.sendStatus(500)

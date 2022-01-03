@@ -1,8 +1,8 @@
-import express from 'express';
-const router = express.Router();
+import express from 'express'
+const router = express.Router()
+import { isAuthorizedOrigin } from '../util/authentication.js'
 
-// todo impl auth
-router.get("/session", (req, res) => {
+router.post("/session", isAuthorizedOrigin,(req, res) => {
     res.send(req.session)
 })
 

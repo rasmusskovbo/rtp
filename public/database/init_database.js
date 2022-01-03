@@ -1,4 +1,4 @@
-import { getDBConnection } from "./connectDB.js";
+import { getDBConnection } from "./connectDB.js"
 
 // team, sleeper, password tables has a user id
 const usersTable = `

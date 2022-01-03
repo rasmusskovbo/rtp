@@ -1,8 +1,8 @@
-import express from "express";
-import bcrypt from "bcrypt";
-import { getDBConnection } from "../connectDB.js";
-const saltRounds = 10;
-const router = express.Router();
+import express from "express"
+import bcrypt from "bcrypt"
+import { getDBConnection } from "../connectDB.js"
+const saltRounds = 10
+const router = express.Router()
 
 export async function registerPassword(pass, userid) {
     return await new Promise((resolve, reject) => {

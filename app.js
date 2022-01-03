@@ -6,15 +6,15 @@ import session from "express-session"
 import rateLimit from "express-rate-limit"
 import helmet from "helmet"
 import dotenv from "dotenv"
-import http from "http";
-import { Server } from "socket.io";
+import http from "http"
+import { Server } from "socket.io"
 import * as msgRepo from "./public/database/repository/messageRepository.js"
 
 dotenv.config()
 
 const app = express()
-const server = http.createServer(app);
-const io = new Server(server);
+const server = http.createServer(app)
+const io = new Server(server)
 const rateLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10000
@@ -112,8 +112,8 @@ io.on('connection', (socket) => {
     socket.on('chat message', async (msg) => {
         const formattedMsg = await msgRepo.insertMessage(msg)
         io.emit('chat message', formattedMsg)
-    });
-});
+    })
+})
 
 /// PORT setup ///
 const PORT = process.env.PORT || 3000

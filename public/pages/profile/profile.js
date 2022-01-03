@@ -2,7 +2,7 @@ function updateAvatar() {
     fetch("/profile/sleeperAvatarUrl")
     .then(response => response.text())
     .then(avatarURL => {
-        document.getElementById("sleeper_avatar").src = avatarURL;
+        document.getElementById("sleeper_avatar").src = avatarURL
     })
 }
 
@@ -11,8 +11,8 @@ function updateUserDetails() {
     .then(response => response.json())
     .then(userDetails => {
 
-        document.getElementById("username").innerHTML = userDetails.username;
-        document.getElementById("email").innerHTML = userDetails.email;
+        document.getElementById("username").innerHTML = userDetails.username
+        document.getElementById("email").innerHTML = userDetails.email
     })
 }
 

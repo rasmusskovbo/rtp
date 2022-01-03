@@ -1,8 +1,9 @@
 import express from "express"
 import * as postRepo from "../public/database/repository/postRepository.js"
 const router = express.Router()
+import { isAdmin } from '../util/authentication.js'
 
-const mockProjects = [
+const mockPosts = [
     {
         id: 1,
         title: "The playoffs are set!",
@@ -17,9 +18,9 @@ const mockProjects = [
         postedBy: "sebastianorup",
         publishedTime: "09/02/2021, 23:03"
     }
-];
+]
 
-router.post("/dashboard/posts", async (req, res) => {
+router.post("/dashboard/posts", isAdmin,async (req, res) => {
     const newPost = req.body
     newPost.postedBy = req.session.currentUser
     const success = await postRepo.insertPost(newPost)
@@ -27,29 +28,26 @@ router.post("/dashboard/posts", async (req, res) => {
     success ? res.sendStatus(200) : res.sendStatus(500)
 })
 
-router.get("/dashboard/posts", async (req, res) => {
+router.get("/dashboard/posts", isAdmin, async (req, res) => {
     const posts = await postRepo.getPosts()
 
     posts ? res.send(posts) : res.sendStatus(500)
 })
 
-
 router.get("/dashboard/mock", (req, res) => {
-    res.send( mockProjects )
-});
+    res.send( mockPosts )
+})
 
-export default router
-
-
-router.delete("/dashboard/posts/:postId", async (req, res) => {
+router.delete("/dashboard/posts/:postId", isAdmin, async (req, res) => {
     const IDofPostToDelete = req.params.postId
 
     await postRepo.deletePost(IDofPostToDelete) ? res.sendStatus(200): res.sendStatus(500)
 })
 
-router.put("/dashboard/posts/", async (req, res) => {
+router.put("/dashboard/posts/", isAdmin, async (req, res) => {
     const updatedPost = req.body
 
     await postRepo.updatePost(updatedPost) ? res.sendStatus(200): res.sendStatus(500)
-
 })
+
+export default router

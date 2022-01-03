@@ -1,4 +1,4 @@
-import { getDBConnection } from "./connectDB.js";
+import { getDBConnection } from "./connectDB.js"
 import fs from "fs"
 
 const db = await getDBConnection()

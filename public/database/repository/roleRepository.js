@@ -1,4 +1,4 @@
-import { getDBConnection } from "../connectDB.js";
+import { getDBConnection } from "../connectDB.js"
 
 export async function getRoleByUserId(userId) {
 
