@@ -16,7 +16,7 @@ export class RedisStack extends cdk.Stack {
         super(scope, id, props);
 
         const subnetGroup = new CfnSubnetGroup(this, `${id}-SubnetGroup`, {
-            cacheSubnetGroupName: `-${id}-SubnetGroup`,
+            cacheSubnetGroupName: `${id}-SubnetGroup`,
             description: `List of subnets used for redis cache ${id}`,
             subnetIds: props.vpc.privateSubnets.map(subnet => subnet.subnetId)
         });

@@ -35,10 +35,10 @@ export class AppStack extends cdk.Stack {
     })
 
     // Provide ECS example integr as well, Fargate version below
-    const fargateService = new ApplicationLoadBalancedFargateService(this, `${props.projectName}-Cluster`, {
+    const fargateService = new ApplicationLoadBalancedFargateService(this, `${props.projectName}-Fargate-Service`, {
       cluster: cluster,
       taskImageOptions: { 
-        image: ContainerImage.fromEcrRepository(props.repository, "TAG"),
+        image: ContainerImage.fromEcrRepository(props.repository, "TAG"), // streamline tag naming
         environment: {
           "PORT": "80",
           "REDIS_HOST": props.redisHost,
@@ -58,11 +58,8 @@ export class AppStack extends cdk.Stack {
     props.bucket.grantReadWrite(fargateService.taskDefinition.taskRole)
     this.fargateService = fargateService.service;
 
-    // Next step, setup CI/CD & connect redis + postgres
-    // Use redis/postgres to setup connections with fargateService -> provide the port details in the container env automatically
+    // Next step, setup CI/CD
     // Check for other relevant or interesting features to include.
-    
-
 
   }
 }

@@ -36,9 +36,9 @@ export class PostgresStack extends cdk.Stack {
             },
             allocatedStorage: 10,
             backupRetention: Duration.days(7),
-            deletionProtection: true,
+            deletionProtection: false, // Should be TRUE when prod - but now obviously FALSE
             databaseName: props.dbIdentifier,
-            removalPolicy: RemovalPolicy.RETAIN
+            removalPolicy: RemovalPolicy.DESTROY // Should be RETAIN when prod - but now obviously DESTROY
         })
     }
 }

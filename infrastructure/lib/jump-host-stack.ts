@@ -22,7 +22,7 @@ export class JumpHostStack extends cdk.Stack {
 
         // S3 bucket for downloading files from jumphost
         this.jumphostBucket = new s3.Bucket(this, 'JumphostBucket', {
-          bucketName: `${props.projectName}-jumphostbucket`,
+          bucketName: `${props.projectName.toLowerCase()}-jumphostbucket`,
           blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
           removalPolicy: RemovalPolicy.DESTROY
         });
@@ -35,7 +35,7 @@ export class JumpHostStack extends cdk.Stack {
         this.jumphostBucket.grantPut(this.jumpHost.role);
         this.jumphostBucket.grantRead(this.jumpHost.role);
 
-        // Investigate
+        // Investigate, should install correct cli's and need to investigate how to verify SSH keys (how to upload to server)
         this.jumpHost.instance.userData.addCommands(
           'amazon-linux-extras install -y postgresql10',
           'amazon-linux-extras install -y redis4.0'
