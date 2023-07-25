@@ -1,4 +1,6 @@
-/* ################# STATS ################## */
+/*
+/* #####
+############ STATS ################## */
 #avatar {
     display:inline;
     width: 30px;
@@ -39,6 +41,8 @@
     justify-content: center;
 }
 
+
+
 /* Style the buttons that are used to open the tab content */
 .tab button {
     background-color: inherit;
@@ -50,14 +54,14 @@
     transition: 0.3s;
 }
 
-/* Change background color of buttons on hover */
-.tab button:hover {
-    background-color: #ddd;
+.tab button.active {
+    color: hotpink !important;
 }
 
-/* Create an active/current tablink class */
-.tab button.active {
-    background-color: #ccc;
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #9a2b2b;
 }
 
 /* Style the tab content */

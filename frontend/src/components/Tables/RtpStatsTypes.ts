@@ -3,31 +3,33 @@
 interface AllTimeWinnersStats {
     id: number,
     avatar: string,
-    sleeperUser: string,
+    sleeper_username: string,
     rtpScore: number,
     wins: number,
-    secondPlaces: number,
-    thirdPlaces: number,
-    playoffAppearances: number,
-    toiletBowlWins: number,
-    pinkFinishes: number
+    second_place: number,
+    third_place: number,
+    playoff_appearances: number,
+    toilet_wins: number,
+    pinks: number
 }
 
 export interface AllTimeWinnersProps {
     stats: AllTimeWinnersStats[];
 }
 
+// TODO change names to match DB data structure
+// applay avatar css
 interface AllTimeStandingsStats {
     id: number,
     avatar: string,
-    sleeperUser: string,
+    sleeper_username: string,
     record: number,
-    winPercent: number,
-    pointsFor: number,
-    pointsAgainst: number,
-    difference: number,
-    transactions: number,
-    messages: number
+    win_p: number,
+    pf: number,
+    pa: number,
+    diff: number,
+    trans: number,
+    msgs: number
 }
 
 export interface AllTimeStandingsProps {
@@ -37,7 +39,7 @@ export interface AllTimeStandingsProps {
 interface WeeklyHighScoresStats {
     id: number,
     avatar: string,
-    sleeperUser: string,
+    sleeper_username: string,
     score: number,
     year: number,
     week: number,
@@ -50,8 +52,8 @@ export interface WeeklyHighScoresProps {
 interface PlayerHighScoresStats {
     id: number,
     avatar: string,
-    sleeperUser: string,
-    playerName: string,
+    sleeper_username: string,
+    player_name: string,
     score: number,
     year: number,
     week: number,
@@ -65,11 +67,11 @@ interface YearlyFinishesStats {
     id: number,
     year: number,
     winner: string,
-    secondPlace: string,
-    thirdPlace: string,
-    lastPlaceRegular: string,
-    lastPlacePlayoffs: string,
-    leagueSize: number
+    second: string,
+    third: string,
+    last_regular: string,
+    last_playoffs: string,
+    league_size: number
 }
 
 export interface YearlyFinishesProps {

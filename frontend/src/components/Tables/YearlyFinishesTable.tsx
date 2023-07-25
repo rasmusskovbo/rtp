@@ -1,7 +1,10 @@
 import {YearlyFinishesProps} from "@/components/Tables/RtpStatsTypes";
 import styles from "@/components/Tables/tables.module.css";
 
-const YearlyFinishesTable: React.FC<YearlyFinishesProps> = ({ stats }) => (
+const YearlyFinishesTable: React.FC<YearlyFinishesProps> = ({ stats }) => {
+    stats.sort((a, b) => b.year - a.year);
+
+    return (
     <div className={`${styles.tabcontent} container-fluid padding`}>
         <table className="table table-striped table-responsive text-center">
             <thead>
@@ -20,16 +23,17 @@ const YearlyFinishesTable: React.FC<YearlyFinishesProps> = ({ stats }) => (
                 <tr key={stat.id}>
                     <td>{stat.year}</td>
                     <td>{stat.winner}</td>
-                    <td>{stat.secondPlace}</td>
-                    <td>{stat.thirdPlace}</td>
-                    <td>{stat.lastPlaceRegular}</td>
-                    <td>{stat.lastPlacePlayoffs}</td>
-                    <td>{stat.leagueSize}</td>
+                    <td>{stat.second}</td>
+                    <td>{stat.third}</td>
+                    <td>{stat.last_regular}</td>
+                    <td>{stat.last_playoffs}</td>
+                    <td>{stat.league_size}</td>
                 </tr>
             ))}
             </tbody>
         </table>
     </div>
-);
+    )
+};
 
 export default YearlyFinishesTable;

@@ -193,6 +193,32 @@ footer {
     padding: 1rem;
 }
 
+#avatar {
+  display:inline;
+  width: 30px;
+  height: auto;
+}
+
+.first {
+  background-color: gold;
+}
+
+.second {
+  background-color: silver;
+}
+
+.third {
+  background-color: sandybrown;
+}
+
+.last {
+  background-color: hotpink;
+}
+
+.table {
+  --bs-table-bg: initial !important;
+}
+
 
 
 

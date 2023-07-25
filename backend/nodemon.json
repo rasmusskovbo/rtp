@@ -1,3 +1,5 @@
 {
-    "ext": "html, mjs, json, js, css"
+  "watch": ["src"],
+  "ext": "ts",
+  "exec": "ts-node ./src/index.ts"
 }

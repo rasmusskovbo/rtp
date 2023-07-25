@@ -1,8 +1,10 @@
 import {AllTimeWinnersProps} from "@/components/Tables/RtpStatsTypes";
-import styles from "@/components/Tables/tables.module.css";
+import {useEffect} from "react";
 
-const AllTimeWinnersTable: React.FC<AllTimeWinnersProps> = ({ stats }) => (
-    <div className={`${styles.tabcontent} container-fluid padding`}>
+const AllTimeWinnersTable: React.FC<AllTimeWinnersProps> = ({ stats }) => {
+    stats.sort((a, b) => b.rtpScore - a.rtpScore);
+
+    return (<div className={`tabcontent container-fluid padding`}>
         <table className="table table-striped table-responsive text-center">
             <thead>
             <tr>
@@ -18,22 +20,31 @@ const AllTimeWinnersTable: React.FC<AllTimeWinnersProps> = ({ stats }) => (
             </tr>
             </thead>
             <tbody>
-            {stats.map((stat) => (
-                <tr key={stat.id}>
-                    <td>{stat.avatar}</td>
-                    <td>{stat.sleeperUser}</td>
-                    <td>{stat.rtpScore}</td>
-                    <td>{stat.wins}</td>
-                    <td>{stat.secondPlaces}</td>
-                    <td>{stat.thirdPlaces}</td>
-                    <td>{stat.playoffAppearances}</td>
-                    <td>{stat.toiletBowlWins}</td>
-                    <td>{stat.pinkFinishes}</td>
-                </tr>
-            ))}
+            {stats.map((stat, index) => {
+                let rowStyle = '';
+                if (index === 0) rowStyle = "first";
+                else if (index === 1) rowStyle = "second";
+                else if (index === 2) rowStyle = "third";
+                else if (index === stats.length - 1) rowStyle = "last";
+                return (
+                    <tr key={stat.id} className={rowStyle}>
+                        <td>
+                            <img id="avatar" src={stat.avatar} alt="Avatar"/>
+                        </td>
+                        <td>{stat.sleeper_username}</td>
+                        <td>{stat.rtpScore}</td>
+                        <td>{stat.wins}</td>
+                        <td>{stat.second_place}</td>
+                        <td>{stat.third_place}</td>
+                        <td>{stat.playoff_appearances}</td>
+                        <td>{stat.toilet_wins}</td>
+                        <td>{stat.pinks}</td>
+                    </tr>
+                );
+            })}
             </tbody>
         </table>
-    </div>
-);
+    </div>)
+};
 
 export default AllTimeWinnersTable;

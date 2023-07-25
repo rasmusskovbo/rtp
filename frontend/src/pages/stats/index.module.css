@@ -30,7 +30,8 @@
 
 /* Create an active/current tablink class */
 .tab button.active {
-    background-color: #ccc;
+    background-color: #ffffff;
+    color: hotpink;
 }
 
 /* ################# STATS ################## */
@@ -45,7 +46,9 @@
 }
 
 .first {
-    background-color: gold;
+    background-color: gold !important;
+    color: gold;
+    background: gold;
 }
 
 .second {
