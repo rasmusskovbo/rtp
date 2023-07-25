@@ -30,7 +30,7 @@ const dashboardPage = createPage("dashboard/dashboard.html", {
 })
 
 const statsPage = createPage("stats/stats.html", {
-    title: "Stats | Road To Pink"
+    title: "Index | Road To Pink"
 })
 
 

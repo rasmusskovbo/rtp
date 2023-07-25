@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: passw0rd
+      POSTGRES_USER: rtp
+      POSTGRES_DB: rtp
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"

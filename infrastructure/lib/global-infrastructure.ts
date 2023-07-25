@@ -14,7 +14,7 @@ export class GlobalInfrastructureStack extends cdk.Stack {
     public readonly dockerHubAccessToken: Secret;
     public readonly bucket: Bucket;
     public readonly vpc: Vpc;
-    //public readonly loadBalancer: ApplicationLoadBalancer;
+    //public_old readonly loadBalancer: ApplicationLoadBalancer;
 
     constructor(scope: Construct, id: string, props: GlobalStackProps) {
         super(scope, id, props)
