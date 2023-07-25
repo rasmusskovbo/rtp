@@ -3,6 +3,8 @@ import Navbar from '../components/Navbar'
 import PostPreview from '../components/PostPreview'
 import Layout from "@/components/Layout";
 import ImageCarousel from "@/components/ImageCarousel";
+import RoadToPinkHead from "@/components/RoadToPinkHead";
+import Header from "@/components/Header";
 
 const Home: React.FC = () => {
     const imagePaths = [
@@ -15,14 +17,9 @@ const Home: React.FC = () => {
     return (
         <Layout>
             <div>
-                <Head>
-                    <title>Road To Pink</title>
-                    <link rel="icon" href="/assets/favicon.ico" />
-                    <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" />
-                    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" />
-                </Head>
-
+                <RoadToPinkHead title={"Home"}/>
                 <Navbar/>
+                <Header title={"Road To Pink"} subtitle={"A League Of Would-Be Champions"}/>
                 <ImageCarousel images={imagePaths}/>
 
                 <div className="container px-4 px-lg-5">

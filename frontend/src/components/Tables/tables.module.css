@@ -1,4 +1,31 @@
 /* ################# STATS ################## */
+#avatar {
+    display:inline;
+    width: 30px;
+    height: auto;
+}
+
+#rtp_score, #score, #win_p  {
+    font-weight: bold;
+}
+
+.table-striped tbody tr.first {
+    background-color: gold;
+}
+
+.table-striped tbody tr.second {
+    background-color: silver;
+}
+
+.table-striped tbody tr.third {
+    background-color: sandybrown;
+}
+
+.table-striped tbody tr.last {
+    background-color: hotpink;
+}
+
+
 .container-fluid {
     overflow: auto;
 }
@@ -33,39 +60,9 @@
     background-color: #ccc;
 }
 
-/* ################# STATS ################## */
-#avatar {
-    display:inline;
-    width: 30px;
-    height: auto;
+/* Style the tab content */
+.tabcontent {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
 }
-
-#rtp_score, #score, #win_p  {
-    font-weight: bold;
-}
-
-.first {
-    background-color: gold;
-}
-
-.second {
-    background-color: silver;
-}
-
-.third {
-    background-color: sandybrown;
-}
-
-.last {
-    background-color: hotpink;
-}
-
-.container-fluid {
-    overflow: auto;
-}
-
-
-
-
-
-

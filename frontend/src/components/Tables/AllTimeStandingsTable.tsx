@@ -1,8 +1,9 @@
 import {AllTimeStandingsProps} from "@/components/Tables/RtpStatsTypes";
+import styles from './tables.module.css';
 
 const AllTimeStandingsTable: React.FC<AllTimeStandingsProps> = ({ stats }) => (
-    <div>
-        <table>
+    <div className={`${styles.tabcontent} container-fluid padding`}>
+        <table className="table table-striped table-responsive text-center">
             <thead>
             <tr>
                 <th className="col-1" scope="col">Avatar</th>
@@ -18,7 +19,7 @@ const AllTimeStandingsTable: React.FC<AllTimeStandingsProps> = ({ stats }) => (
             </thead>
             <tbody>
             {stats.map((stat) => (
-                <tr key={stat.sleeperUser}>
+                <tr key={stat.id}>
                     <td>{stat.avatar}</td>
                     <td>{stat.sleeperUser}</td>
                     <td>{stat.record}</td>

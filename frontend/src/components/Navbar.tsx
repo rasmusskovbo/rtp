@@ -3,6 +3,7 @@ import {FaBars, FaRoad} from "react-icons/fa"
 import {useState} from "react";
 import Image from 'next/image'
 import rtpLogo from "../assets/rtp_logo_clean.png";
+import ActiveLink from "@/components/ActiveLink";
 
 const Navbar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -30,24 +31,24 @@ const Navbar: React.FC = () => {
                 <div className={`collapse navbar-collapse justify-content-center ${isOpen ? 'show' : ''}`} id="navbarNav">
                     <ul className="navbar-nav" id="dynamic-nav">
                         <li className="nav-item">
-                            <Link href="/">
+                            <ActiveLink href="/">
                                 <span className="nav-link" aria-current="page">Home</span>
-                            </Link>
+                            </ActiveLink>
                         </li>
                         <li className="nav-item">
-                            <Link href="/stats">
+                            <ActiveLink href="/stats">
                                 <span className="nav-link" aria-current="page">Stats</span>
-                            </Link>
+                            </ActiveLink>
                         </li>
                         <li className="nav-item">
-                            <Link href="/upload">
+                            <ActiveLink href="/upload">
                                 <span className="nav-link" aria-current="page">Upload</span>
-                            </Link>
+                            </ActiveLink>
                         </li>
                         <li className="nav-item">
-                            <Link href="/archive">
+                            <ActiveLink href="/archive">
                                 <span className="nav-link" aria-current="page">Archive</span>
-                            </Link>
+                            </ActiveLink>
                         </li>
                     </ul>
                 </div>

@@ -12,7 +12,7 @@ html, body {
 }
 .navbar {
   padding: .8rem;
-  background-color: hotpink;
+  background-color: lightgray;
 }
 .navbar-nav li {
   padding-right: 20px;
@@ -21,13 +21,17 @@ html, body {
   text-decoration: none;
 }
 .navbar .navbar-nav .nav-link {
+  color: dimgrey;
+}
+
+.navbar .navbar-nav .nav-link:hover {
   color: white;
 }
 
-
-.nav-item {
-  color: white;
+.navbar .navbar-nav .nav-link.active {
+  color: hotpink;
 }
+
 
 /* ##### CAROUSEL ###### */
 .carousel-indicators li {
@@ -188,6 +192,7 @@ footer {
 [class*="col-"] {
     padding: 1rem;
 }
+
 
 
 

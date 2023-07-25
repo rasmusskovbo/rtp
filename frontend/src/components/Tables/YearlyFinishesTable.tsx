@@ -1,8 +1,9 @@
 import {YearlyFinishesProps} from "@/components/Tables/RtpStatsTypes";
+import styles from "@/components/Tables/tables.module.css";
 
 const YearlyFinishesTable: React.FC<YearlyFinishesProps> = ({ stats }) => (
-    <div>
-        <table>
+    <div className={`${styles.tabcontent} container-fluid padding`}>
+        <table className="table table-striped table-responsive text-center">
             <thead>
             <tr>
                 <th className="col-1" scope="col">Year</th>
@@ -16,7 +17,8 @@ const YearlyFinishesTable: React.FC<YearlyFinishesProps> = ({ stats }) => (
             </thead>
             <tbody>
             {stats.map((stat) => (
-                <tr key={stat.year}>
+                <tr key={stat.id}>
+                    <td>{stat.year}</td>
                     <td>{stat.winner}</td>
                     <td>{stat.secondPlace}</td>
                     <td>{stat.thirdPlace}</td>

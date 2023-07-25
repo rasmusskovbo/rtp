@@ -1,6 +1,7 @@
 // statsTypes.ts
 
 interface AllTimeWinnersStats {
+    id: number,
     avatar: string,
     sleeperUser: string,
     rtpScore: number,
@@ -17,6 +18,7 @@ export interface AllTimeWinnersProps {
 }
 
 interface AllTimeStandingsStats {
+    id: number,
     avatar: string,
     sleeperUser: string,
     record: number,
@@ -33,6 +35,7 @@ export interface AllTimeStandingsProps {
 }
 
 interface WeeklyHighScoresStats {
+    id: number,
     avatar: string,
     sleeperUser: string,
     score: number,
@@ -45,9 +48,10 @@ export interface WeeklyHighScoresProps {
 }
 
 interface PlayerHighScoresStats {
+    id: number,
     avatar: string,
     sleeperUser: string,
-    playerName: number,
+    playerName: string,
     score: number,
     year: number,
     week: number,
@@ -58,6 +62,7 @@ export interface PlayerHighScoresProps {
 }
 
 interface YearlyFinishesStats {
+    id: number,
     year: number,
     winner: string,
     secondPlace: string,

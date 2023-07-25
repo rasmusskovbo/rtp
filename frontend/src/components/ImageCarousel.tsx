@@ -1,66 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import Image from "next/image";
+import React, { useState } from 'react';
+import Carousel from 'react-bootstrap/Carousel';
+import Image from 'next/image';
+import {Container} from "react-bootstrap";
 
-interface ImageCarouselProps {
+interface CarouselComponentProps {
     images: string[];
 }
 
+const ImageCarousel: React.FC<CarouselComponentProps> = ({ images }) => {
+    const [index, setIndex] = useState<number>(0);
 
-
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
-
-    const [index, setIndex] = useState(0);
-
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setIndex((prevIndex) => {
-                return (prevIndex + 1) % images.length;
-            });
-        }, 5000);
-        return () => clearInterval(timer);
-    }, [images]);
-
-    const handlePrevious = () => {
-        setIndex((prevIndex) => {
-            return (prevIndex - 1 + images.length) % images.length;
-        });
-    };
-
-    const handleNext = () => {
-        setIndex((prevIndex) => {
-            return (prevIndex + 1) % images.length;
-        });
+    const handleSelect = (selectedIndex: number, e: Record<string, unknown> | null) => {
+        setIndex(selectedIndex);
     };
 
     return (
-        <div className="carousel slide" data-ride="carousel">
-            <div className="carousel-inner">
+        <Container>
+            <Carousel activeIndex={index} onSelect={handleSelect} interval={5000}>
                 {images.map((image, idx) => (
-                    <div key={idx} className={`carousel-item ${idx === index ? 'active' : ''}`}>
-                        <Image src={image} alt="carousel" width={1024} height={576} layout="responsive" className="d-block w-100" />
-                    </div>
+                    <Carousel.Item key={idx}>
+                        <Image src={image} alt={`carousel ${idx}`} width={1024} height={576} layout="responsive" className="d-block w-100" />
+                    </Carousel.Item>
                 ))}
-            </div>
-            <ol className="carousel-indicators">
-                {images.map((_, idx) => (
-                    <li
-                        key={idx}
-                        data-target="#carouselExampleIndicators"
-                        data-slide-to={idx}
-                        className={idx === index ? 'active' : ''}
-                    ></li>
-                ))}
-            </ol>
-            <button className="carousel-control-prev" type="button" onClick={handlePrevious}>
-                <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span className="visually-hidden">Previous</span>
-            </button>
-            <button className="carousel-control-next" type="button" onClick={handleNext}>
-                <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                <span className="visually-hidden">Next</span>
-            </button>
-        </div>
+            </Carousel>
+        </Container>
     );
-};
+}
 
 export default ImageCarousel;

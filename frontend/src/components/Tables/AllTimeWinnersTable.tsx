@@ -1,8 +1,9 @@
 import {AllTimeWinnersProps} from "@/components/Tables/RtpStatsTypes";
+import styles from "@/components/Tables/tables.module.css";
 
 const AllTimeWinnersTable: React.FC<AllTimeWinnersProps> = ({ stats }) => (
-    <div>
-        <table>
+    <div className={`${styles.tabcontent} container-fluid padding`}>
+        <table className="table table-striped table-responsive text-center">
             <thead>
             <tr>
                 <th className="col-1" scope="col">Avatar</th>
@@ -18,7 +19,7 @@ const AllTimeWinnersTable: React.FC<AllTimeWinnersProps> = ({ stats }) => (
             </thead>
             <tbody>
             {stats.map((stat) => (
-                <tr key={stat.sleeperUser}>
+                <tr key={stat.id}>
                     <td>{stat.avatar}</td>
                     <td>{stat.sleeperUser}</td>
                     <td>{stat.rtpScore}</td>
