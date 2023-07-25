@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const BASEURL_SLEEPER_USER_INFO: string = "https://api.sleeper.app/v1/user/";
 
-interface SleeperUser {
+export interface SleeperUser {
     username: string,
     user_id: string,
     display_name: string,

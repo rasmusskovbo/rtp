@@ -7,6 +7,7 @@ import {PlayerHighScoreEntity} from "../database/entities/PlayerHighScoreEntity"
 import {YearlyFinishesEntity} from "../database/entities/YearlyFinishesEntity";
 import {getSleeperAvatarUrlBySleeperUsername} from "../services/sleeperService";
 import {ISleeperUser} from "../database/entities/ISleeperUser";
+import {SleeperUserEntity} from "../database/entities/SleeperUserEntity";
 
 const statsRouter = Router();
 
@@ -61,6 +62,7 @@ statsRouter.get('/stats', async (req, res) => {
 
 export default statsRouter;
 
+// todo put into mapper
 function calculateRtpScore(statLine: AllTimeWinnersEntity): number {
     const positiveRtpScore =
         statLine.wins * 40 +

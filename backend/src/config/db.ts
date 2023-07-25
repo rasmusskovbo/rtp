@@ -4,6 +4,7 @@ import {AllTimeStandingsEntity} from "../database/entities/AllTimeStandingsEntit
 import {PlayerHighScoreEntity} from "../database/entities/PlayerHighScoreEntity";
 import {WeeklyHighScoreEntity} from "../database/entities/WeeklyHighScoreEntity";
 import {YearlyFinishesEntity} from "../database/entities/YearlyFinishesEntity";
+import {SleeperUserEntity} from "../database/entities/SleeperUserEntity";
 
 export const connectToDb = async (): Promise<Connection> => {
     return createConnection({
@@ -18,7 +19,8 @@ export const connectToDb = async (): Promise<Connection> => {
             AllTimeStandingsEntity,
             PlayerHighScoreEntity,
             WeeklyHighScoreEntity,
-            YearlyFinishesEntity
+            YearlyFinishesEntity,
+            SleeperUserEntity
         ],
         synchronize: true,
     });
