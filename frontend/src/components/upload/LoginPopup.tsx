@@ -1,7 +1,7 @@
-import React, {FormEvent, ChangeEvent, useState} from 'react';
+import React, {FormEvent, ChangeEvent, useState, useContext} from 'react';
 import {toast} from "react-toastify";
 import {Button, Form, Modal} from "react-bootstrap";
-
+import {AuthContext } from '../../auth/AuthProvider';
 
 interface UserCredentials {
     username: string;
@@ -16,6 +16,13 @@ interface LoginPopupProps {
 
 const LoginPopup: React.FC<LoginPopupProps> = ({ show, handleShow, handleClose }) => {
     const [credentials, setCredentials] = useState<UserCredentials>({ username: '', password: '' });
+    const authContext = useContext(AuthContext);
+
+    if (!authContext) {
+        throw new Error("AuthContext is undefined");
+    }
+
+    const { setIsLoggedIn } = authContext;
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -41,17 +48,17 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ show, handleShow, handleClose }
                 position: toast.POSITION.TOP_RIGHT
             });
 
+            const user = { name: credentials.username };
+            localStorage.setItem('loggedInUser', JSON.stringify(user));
+            setIsLoggedIn(true);
 
             setTimeout(() => {
                 window.location.href = '/upload';
             }, 1000);
         } else {
-
             toast.error('Login unsuccessful. Please try again.', {
                 position: toast.POSITION.TOP_RIGHT
             });
-
-
         }
     }
 

@@ -1,20 +1,29 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import Image from 'next/image';
 import rtpLogo from "@/assets/rtp_logo_clean.png";
 import { Navbar, Nav } from 'react-bootstrap';
 import { FaBars } from "react-icons/fa";
 import LoginPopup from "@/components/upload/LoginPopup";
+import {AuthContext } from '../../auth/AuthProvider';
 
 const NavbarComponent: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [show, setShow] = useState(false);
+    const authContext = useContext(AuthContext);
 
+    if (!authContext) {
+        throw new Error("AuthContext is undefined");
+    }
+
+    const { isLoggedIn } = authContext;
     const handleToggle = () => {
         setIsOpen(!isOpen);
     };
 
     const handleShow = () => setShow(true);
     const handleClose = () => setShow(false);
+
+    const uploadOnClick = isLoggedIn ? () => { window.location.href='/upload' } : handleShow;
 
     return (
         <>
@@ -39,7 +48,7 @@ const NavbarComponent: React.FC = () => {
                         <Nav.Item>
                             <Nav.Link href="/stats">Stats</Nav.Link>
                         </Nav.Item>
-                        <Nav.Item onClick={handleShow}>
+                        <Nav.Item onClick={uploadOnClick}>
                             <Nav.Link>Upload</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
