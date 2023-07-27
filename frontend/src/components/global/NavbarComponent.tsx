@@ -3,7 +3,7 @@ import Image from 'next/image';
 import rtpLogo from "@/assets/rtp_logo_clean.png";
 import { Navbar, Nav } from 'react-bootstrap';
 import { FaBars } from "react-icons/fa";
-import LoginPopup from "@/components/global/LoginPopup";
+import LoginPopup from "@/components/upload/LoginPopup";
 
 const NavbarComponent: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +18,7 @@ const NavbarComponent: React.FC = () => {
 
     return (
         <>
+            <LoginPopup show={show} handleShow={handleShow} handleClose={handleClose} />
             <Navbar expand="lg" bg="light" fixed="top">
                 <Navbar.Brand href="/">
                     <Image
@@ -45,7 +46,6 @@ const NavbarComponent: React.FC = () => {
                             <Nav.Link href="/archive">Archive</Nav.Link>
                         </Nav.Item>
                     </Nav>
-                    <LoginPopup show={show} handleShow={handleShow} handleClose={handleClose} />
                 </Navbar.Collapse>
             </Navbar>
         </>

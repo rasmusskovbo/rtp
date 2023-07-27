@@ -8,7 +8,6 @@ function RoadToPinkApp({ Component, pageProps }: AppProps) {
     return (
         <>
             <Component {...pageProps} />
-            <ToastContainer autoClose={3000} hideProgressBar />
         </>
     );
 }

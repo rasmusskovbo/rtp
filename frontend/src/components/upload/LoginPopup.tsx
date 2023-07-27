@@ -44,7 +44,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ show, handleShow, handleClose }
 
             setTimeout(() => {
                 window.location.href = '/upload';
-            }, 2000);
+            }, 1000);
         } else {
 
             toast.error('Login unsuccessful. Please try again.', {

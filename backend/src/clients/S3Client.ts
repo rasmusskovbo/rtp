@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import aws from 'aws-sdk';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
@@ -11,6 +12,7 @@ aws.config.update({
 const s3: any = new aws.S3();
 
 const upload: multer.Multer = multer({
+
     storage: multerS3({
         s3: s3,
         bucket: process.env.S3_BUCKET_NAME!,
