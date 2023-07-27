@@ -1,4 +1,4 @@
-import express, { Router, Request, Response, NextFunction } from 'express';
+import express, {NextFunction, Request, Response, Router} from 'express';
 import upload from '../clients/S3Client'
 import {ContentType, PostsEntity} from "../database/entities/PostEntity";
 import {getRepository} from "typeorm";
@@ -24,9 +24,10 @@ uploadRouter.post(
         newPost.author = author;
         newPost.type = type as ContentType;
 
-        if (newPost.type === ContentType.TEXT) {
+        if (newPost.type === ContentType.TEXT || newPost.type == ContentType.PDF)  {
             newPost.content = content;
-        } else if (file) {
+        }
+        if (file) {
             newPost.contentLink = file.location;
         }
 

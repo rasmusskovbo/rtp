@@ -1,5 +1,6 @@
 import React, { ChangeEvent, FormEvent, useState } from 'react';
 import {Button, Container, Form, Row, Col} from 'react-bootstrap';
+import {toast} from "react-toastify";
 
 enum ContentType {
     TEXT = 'text',
@@ -7,7 +8,7 @@ enum ContentType {
     PDF = 'pdf'
 }
 
-// TODO Add validation of file selector, so that it only accepts known video formats & pdf respectively
+// add validation on file selected.
 const PostForm = () => {
     const [title, setTitle] = useState<string>('');
     const [author, setAuthor] = useState<string>('');
@@ -29,10 +30,9 @@ const PostForm = () => {
         formData.append('title', title);
         formData.append('author', author);
         formData.append('type', type);
+        formData.append('content', content);
 
-        if (type === ContentType.TEXT) {
-            formData.append('content', content);
-        } else if (file) {
+        if (file) {
             formData.append('file', file, file.name);
         }
 
@@ -43,11 +43,13 @@ const PostForm = () => {
             });
 
             if (!response.ok) {
+                toast.error("Error occurred while attempting to upload. Check with admin before trying again");
                 throw new Error(`HTTP error! status: ${response.status}`);
+            } else {
+                toast.success("Your update has been posted!");
             }
 
             const data = await response.json();
-            console.log(data);
         } catch (error) {
             console.error('Error:', error);
         }
@@ -75,7 +77,7 @@ const PostForm = () => {
                                 <option value={ContentType.PDF}>PDF</option>
                             </Form.Control>
                         </Form.Group>
-                        {type === ContentType.TEXT && (
+                        {(type === ContentType.TEXT || type === ContentType.PDF) && (
                             <Form.Group controlId='content' className='mb-3'>
                                 <Form.Label>Content</Form.Label>
                                 <Form.Control as='textarea' rows={3} value={content} onChange={(e) => setContent(e.target.value)} required />
