@@ -1,16 +1,15 @@
 import React from 'react';
 import { useState } from 'react'
-import Layout from "@/components/Layout";
-import Navbar from "@/components/Navbar";
-import AllTimeWinnersTable from "@/components/Tables/AllTimeWinnersTable";
-import {RtpStatsProps} from "@/components/Tables/RtpStatsTypes";
-import AllTimeStandingsTable from "@/components/Tables/AllTimeStandingsTable";
-import WeeklyHighScoresTable from "@/components/Tables/WeeklyHighScoresTable";
-import PlayerHighScoresTable from "@/components/Tables/PlayerHighScoresTable";
-import YearlyFinishesTable from "@/components/Tables/YearlyFinishesTable";
-import RoadToPinkHead from "@/components/RoadToPinkHead";
+import Layout from "@/components/global/Layout";
+import AllTimeWinnersTable from "@/components/tables/AllTimeWinnersTable";
+import {RtpStatsProps} from "@/components/tables/RtpStatsTypes";
+import AllTimeStandingsTable from "@/components/tables/AllTimeStandingsTable";
+import WeeklyHighScoresTable from "@/components/tables/WeeklyHighScoresTable";
+import PlayerHighScoresTable from "@/components/tables/PlayerHighScoresTable";
+import YearlyFinishesTable from "@/components/tables/YearlyFinishesTable";
+import RoadToPinkHead from "@/components/global/RoadToPinkHead";
 import styles from './index.module.css';
-import Header from "@/components/Header";
+import Header from "@/components/global/Header";
 
 type Tab = 'allTimeWinners' | 'allTimeStandings' | 'weeklyHighScores' | 'playerHighScores' | 'yearlyFinishes';
 
@@ -23,8 +22,7 @@ const Index = ({ statProps }: RtpStatsProps) => {
         <Layout>
             <div>
                 <RoadToPinkHead title={"Stats"}/>
-                <Navbar/>
-                <Header title={"Road To Pink Stats"} subtitle={""}/>
+                <Header title={"Road To Pink Stats"} subtitle={"Where Peter comes to weep"}/>
 
                 <div className={styles.container + " mt-3"}>
                     <div className={styles.tab + " row text-center"}>

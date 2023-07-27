@@ -1,10 +1,9 @@
-import Head from 'next/head'
-import Navbar from '../components/Navbar'
-import PostPreview from '../components/PostPreview'
-import Layout from "@/components/Layout";
-import ImageCarousel from "@/components/ImageCarousel";
-import RoadToPinkHead from "@/components/RoadToPinkHead";
-import Header from "@/components/Header";
+import PostPreview from '@/components/frontpage/PostPreview'
+import Layout from "@/components/global/Layout";
+import ImageCarousel from "@/components/frontpage/ImageCarousel";
+import RoadToPinkHead from "@/components/global/RoadToPinkHead";
+import Header from "@/components/global/Header";
+
 
 const Home: React.FC = () => {
     const imagePaths = [
@@ -18,7 +17,6 @@ const Home: React.FC = () => {
         <Layout>
             <div>
                 <RoadToPinkHead title={"Home"}/>
-                <Navbar/>
                 <Header title={"Road To Pink"} subtitle={"A League Of Would-Be Champions"}/>
                 <ImageCarousel images={imagePaths}/>
 

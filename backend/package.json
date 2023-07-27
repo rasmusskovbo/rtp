@@ -10,9 +10,17 @@
   "author": "Rasmus Skovbo",
   "license": "ISC",
   "dependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "@types/multer": "^1.4.7",
+    "@types/multer-s3": "^3.0.0",
+    "aws-sdk": "^2.1422.0",
     "axios": "^1.4.0",
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "multer-s3": "^2.10.0",
     "pg": "^8.11.1",
     "redis": "^4.6.7",
     "ts-node": "^10.9.1",
@@ -20,6 +28,7 @@
     "typescript": "^5.1.6"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/node": "^20.4.4",
     "nodemon": "^3.0.1"

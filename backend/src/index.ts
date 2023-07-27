@@ -1,7 +1,10 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import {connectToDb} from "./config/db";
-import statsRouter from "./routes/Stats";
+import statsRouter from "./routes/StatsRoute";
+import uploadRouter from "./routes/UploadRoute";
+import cors from 'cors';
+import loginRouter from "./routes/LoginRoute";
 
 const app = express();
 
@@ -9,8 +12,17 @@ dotenv.config();
 
 connectToDb().then(() => {
 
+    app.use(cors({
+        origin: 'http://localhost:3000' // Replace with your actual origin
+    }));
+    app.use(express.json());
+
     app.use('/api', statsRouter);
+    app.use('/api', uploadRouter);
+    app.use('/auth', loginRouter)
     //app.use('/api', uploadRouter);
+
+
 
 }).catch(error => console.log(error));
 

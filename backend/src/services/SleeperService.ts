@@ -1,4 +1,4 @@
-import {getSleeperUserByUsername} from "../clients/sleeperClient";
+import {getSleeperUserByUsername} from "../clients/SleeperClient";
 import {RedisCache} from "../cache/RedisClient";
 
 const BASEURL_SLEEPER_AVATAR = "https://sleepercdn.com/avatars/thumbs/";
