@@ -15,12 +15,17 @@
 /* Style the buttons that are used to open the tab content */
 .tab button {
     background-color: inherit;
+    color: black;
     float: left;
     border: none;
     outline: none;
     cursor: pointer;
     padding: 14px 16px;
     transition: 0.3s;
+    margin: 0 10px;
+    width: 150px; /* add a fixed width */
+    height: 100px;
+    text-align: center; /* center the text within the button */
 }
 
 /* Change background color of buttons on hover */
@@ -47,8 +52,6 @@
 
 .first {
     background-color: gold !important;
-    color: gold;
-    background: gold;
 }
 
 .second {

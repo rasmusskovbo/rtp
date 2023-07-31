@@ -28,7 +28,7 @@ const NavbarComponent: React.FC = () => {
     return (
         <>
             <LoginPopup show={show} handleShow={handleShow} handleClose={handleClose} />
-            <Navbar expand="lg" bg="light" fixed="top">
+            <Navbar expand="sm" bg="light" fixed="top">
                 <Navbar.Brand href="/">
                     <Image
                         src={rtpLogo}
@@ -37,8 +37,8 @@ const NavbarComponent: React.FC = () => {
                         alt="RTP Logo"
                     />
                 </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" onClick={handleToggle}>
-                    <FaBars color={"white"}/>
+                <Navbar.Toggle style={{border: "none"}} aria-controls="basic-navbar-nav" onClick={handleToggle}>
+                    <FaBars color={"hotpink"} size={"30"}/>
                 </Navbar.Toggle>
                 <Navbar.Collapse id="basic-navbar-nav" className={isOpen ? 'show' : ''}>
                     <Nav className="mr-auto">

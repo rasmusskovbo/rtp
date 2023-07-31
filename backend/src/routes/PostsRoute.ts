@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { PostMapper } from '../mappers/PostMapper';
 
 const router = express.Router();
 
-// add query with number to take
-router.get('/posts', async (req, res) => {
-    const postsDTO = await PostMapper.toDTO();
+router.get('/posts', async (req: Request, res: Response) => {
+    const numberToTake = req.query.amount ? parseInt(req.query.amount as string) : undefined;
+    const postsDTO = await PostMapper.toDTO(numberToTake);
     res.json(postsDTO);
 });
 

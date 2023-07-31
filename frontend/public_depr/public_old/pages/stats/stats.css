@@ -8,22 +8,6 @@
     font-weight: bold;
 }
 
-.first {
-    background-color: gold;
-}
-
-.second {
-    background-color: silver;
-}
-
-.third {
-    background-color: sandybrown;
-}
-
-.last {
-    background-color: hotpink;
-}
-
 .container-fluid {
     overflow: auto;
 }
