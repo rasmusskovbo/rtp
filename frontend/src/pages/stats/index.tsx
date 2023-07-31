@@ -89,9 +89,6 @@ export async function getServerSideProps() {
 
     const data = await res.json();
 
-    console.log(data)
-    console.log(data.statProps)
-
     // Parse the response data to match your frontend data model
     const statProps = data.statProps;
 

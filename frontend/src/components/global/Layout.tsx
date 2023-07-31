@@ -13,7 +13,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <ToastContainer autoClose={3000} hideProgressBar />
         <div className="d-flex flex-column min-vh-100">
             <NavbarComponent/>
-            <main className="flex-grow-1" style={{ paddingTop: '100px' }}>{children}</main> {/* Adjust the paddingTop value to match your Navbar's height */}
+            <main className="flex-grow-1" style={{ paddingTop: '125px' }}>{children}</main> {/* Adjust the paddingTop value to match your Navbar's height */}
             <Footer />
         </div>
         </>

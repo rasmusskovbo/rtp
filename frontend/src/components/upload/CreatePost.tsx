@@ -30,7 +30,10 @@ const PostForm = () => {
         formData.append('title', title);
         formData.append('author', author);
         formData.append('type', type);
-        formData.append('content', content);
+
+        if (content) {
+            formData.append('content', content.replace(/\r\n|\r|\n/g, '\n'));
+        }
 
         if (file) {
             formData.append('file', file, file.name);
@@ -48,8 +51,6 @@ const PostForm = () => {
             } else {
                 toast.success("Your update has been posted!");
             }
-
-            const data = await response.json();
         } catch (error) {
             console.error('Error:', error);
         }

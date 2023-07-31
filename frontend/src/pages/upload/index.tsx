@@ -8,7 +8,7 @@ const UploadPage: NextPage = () => {
     return (
         <Layout>
             <div>
-                <RoadToPinkHead title={"Home"}/>
+                <RoadToPinkHead title={"Upload"}/>
                 <Header title={"Create Post"} subtitle={"Make it look nice Seb!"}/>
                 <CreatePost/>
             </div>

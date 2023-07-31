@@ -3,7 +3,7 @@ import Layout from "@/components/global/Layout";
 import ImageCarousel from "@/components/frontpage/ImageCarousel";
 import RoadToPinkHead from "@/components/global/RoadToPinkHead";
 import Header from "@/components/global/Header";
-import PostDisplay from "@/components/frontpage/PostDisplay";
+import PostDisplay from "@/components/posts/PostDisplay";
 import { Container, Row, Col } from 'react-bootstrap';
 
 const Home: React.FC = () => {
@@ -19,7 +19,7 @@ const Home: React.FC = () => {
     useEffect(() => {
         fetch('http://localhost:4001/api/posts')
             .then(response => response.json())
-            .then(data => setPosts(data.slice(0, 10)));
+            .then(data => setPosts(data));
     }, []);
 
     return (
