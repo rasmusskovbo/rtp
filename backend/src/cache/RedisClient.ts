@@ -4,6 +4,7 @@ export class RedisCache {
     private client;
 
     constructor() {
+        console.log("PROD: " + process.env.HEROKU_DEPLOYMENT);
         let connectionString = "";
         if (process.env.HEROKU_DEPLOYMENT) {
             connectionString = process.env.REDIS_URL!;
