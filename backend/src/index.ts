@@ -14,7 +14,6 @@ dotenv.config();
 connectToDb().then(() => {
 
     app.use(cors({
-        origin: process.env.CORS_ORIGIN // Replace with your actual origin
     }));
     app.use(express.json());
 

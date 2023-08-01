@@ -12,19 +12,13 @@ import dotenv from "dotenv";
 dotenv.config()
 
 export const connectToDb = async (): Promise<Connection> => {
-    const dbConfig = process.env.HEROKU_DEPLOYMENT
-        ? parsePostgresUrl(process.env.DATABASE_URL!)
-        : {
-            host: process.env.DB_HOST,
-            port: parseInt(process.env.DB_PORT!),
-            username: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME
-        };
-
     return createConnection({
         type: "postgres",
-        ...dbConfig,
+        host: process.env.DB_HOST,
+        port: parseInt(process.env.DB_PORT!),
+        username: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
         entities: [
             AllTimeWinnersEntity,
             AllTimeStandingsEntity,
@@ -37,21 +31,6 @@ export const connectToDb = async (): Promise<Connection> => {
         ],
         synchronize: true,
     });
-}
-
-function parsePostgresUrl(url: string) {
-    const parsedUrl = new URL(url);
-    const [username, password] = parsedUrl.username.split(':');
-    const [host, port] = parsedUrl.host.split(':');
-    const database = parsedUrl.pathname.slice(1);
-
-    return {
-        username,
-        password,
-        host,
-        port: parseInt(port),
-        database
-    };
 }
 
 
