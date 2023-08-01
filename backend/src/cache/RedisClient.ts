@@ -22,9 +22,10 @@ export class RedisCache {
         }
 
         this.client = createClient(config);
-        this.client.connect().catch((error) => {
+        this.client.connect().catch((error: any) => {
             console.error("Failed to connect to Redis:", error)
         })
+
     }
 
     async put(key: string, value: string, expiration: number, fieldName: string) {
