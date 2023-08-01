@@ -37,7 +37,9 @@ export class AppStack extends cdk.Stack {
 
     // Bucket for CDN
      const cdnBucket = new Bucket(this, `${props.projectName.toLowerCase()}-frontend-bucket`, {
-      removalPolicy: RemovalPolicy.DESTROY // testing
+       removalPolicy: RemovalPolicy.DESTROY,
+       websiteIndexDocument: "index.html",
+       publicReadAccess: true
     })
 
     const uploadBucket = new Bucket(this, `${props.projectName.toLowerCase()}-upload-bucket`, {
@@ -63,7 +65,7 @@ export class AppStack extends cdk.Stack {
 
     // Deploy the Next.js frontend to the S3 bucket
     new aws_s3_deployment.BucketDeployment(this, 'DeployWithInvalidation', {
-      sources: [aws_s3_deployment.Source.asset('../frontend/.next')], // TODO check this path
+      sources: [aws_s3_deployment.Source.asset('../frontend/out')], // TODO check this path
       destinationBucket: cdnBucket,
       distribution,
       distributionPaths: ['/*'],
