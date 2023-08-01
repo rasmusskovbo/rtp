@@ -4,7 +4,7 @@ export const uploadFile = async (file: File): Promise<any> => {
 
     console.log("Starting upload request: " + file.name)
 
-    const response = await fetch('http://localhost:4001/api/upload', {
+    const response = await fetch(`${process.env.API_URL}/api/upload`, {
         method: 'POST',
         body: formData,
     });

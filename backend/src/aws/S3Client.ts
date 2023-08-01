@@ -4,9 +4,9 @@ import multer from 'multer';
 import multerS3 from 'multer-s3';
 
 aws.config.update({
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    region: 'eu-central-1' // Your AWS region
+    region: process.env.AWS_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || undefined,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || undefined,
 });
 
 const s3: any = new aws.S3();

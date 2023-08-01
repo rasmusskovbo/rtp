@@ -14,14 +14,17 @@ const ArchivePage: FC = () => {
     const [isLoading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        fetch('http://localhost:4001/api/posts')
+        fetch(`${process.env.API_URL}/api/posts`)
             .then(response => response.json())
             .then(data => setPosts(data))
             .then(() => setLoading(false))
     }, []);
 
     if (isLoading) {
-        return <Spinner animation="border" />;
+        return (
+            <div className="spinnerContainer">
+                <Spinner animation="border" />
+            </div>)
     }
 
     const filteredAndSortedPosts = posts

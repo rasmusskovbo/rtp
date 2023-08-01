@@ -31,7 +31,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ show, handleShow, handleClose }
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        const response = await fetch('http://localhost:4001/auth/login', {
+        const response = await fetch(`${process.env.API_URL}/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

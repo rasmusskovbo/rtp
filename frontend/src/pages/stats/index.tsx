@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Spinner, Button, Container, Row, Col } from 'react-bootstrap';
 import Layout from "@/components/global/Layout";
 import AllTimeWinnersTable from "@/components/tables/AllTimeWinnersTable";
@@ -13,15 +13,27 @@ import Header from "@/components/global/Header";
 
 type Tab = 'allTimeWinners' | 'allTimeStandings' | 'weeklyHighScores' | 'playerHighScores' | 'yearlyFinishes';
 
-const Index = ({ statProps }: RtpStatsProps) => {
+const Index = () => {
     const [tab, setTab] = useState<Tab>('allTimeWinners');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [statProps, setStatProps] = useState<RtpStatsProps | null>(null);
 
-    if (loading) {
+    useEffect(() => {
+        const fetchStats = async () => {
+            const res = await fetch(`${process.env.API_URL}/api/stats`);
+            const data: RtpStatsProps = await res.json();
+            setStatProps(data);
+            setLoading(false);
+        };
+
+        fetchStats();
+    }, []);
+
+    if (loading || !statProps) {
         return (
-            <Spinner animation="border" role="status">
-                <span className="sr-only">Loading...</span>
-            </Spinner>
+            <div className="spinnerContainer">
+                <Spinner animation="border" />
+            </div>
         )
     }
 
@@ -74,23 +86,14 @@ const Index = ({ statProps }: RtpStatsProps) => {
                     </Col>
                 </Row>
 
-                {tab === 'allTimeWinners' && <AllTimeWinnersTable stats={statProps.allTimeWinners.stats} />}
-                {tab === 'allTimeStandings' && <AllTimeStandingsTable stats={statProps.allTimeStandings.stats} />}
-                {tab === 'weeklyHighScores' && <WeeklyHighScoresTable stats={statProps.weeklyHighScores.stats} />}
-                {tab === 'playerHighScores' && <PlayerHighScoresTable stats={statProps.playerHighScores.stats} />}
-                {tab === 'yearlyFinishes' && <YearlyFinishesTable stats={statProps.yearlyFinishes.stats} />}
+                {tab === 'allTimeWinners' && <AllTimeWinnersTable stats={statProps.statProps.allTimeWinners.stats} />}
+                {tab === 'allTimeStandings' && <AllTimeStandingsTable stats={statProps.statProps.allTimeStandings.stats} />}
+                {tab === 'weeklyHighScores' && <WeeklyHighScoresTable stats={statProps.statProps.weeklyHighScores.stats} />}
+                {tab === 'playerHighScores' && <PlayerHighScoresTable stats={statProps.statProps.playerHighScores.stats} />}
+                {tab === 'yearlyFinishes' && <YearlyFinishesTable stats={statProps.statProps.yearlyFinishes.stats} />}
             </Container>
         </Layout>
     );
 };
 
 export default Index;
-
-export async function getServerSideProps() {
-    const res = await fetch('http://localhost:4001/api/stats');
-
-    const data = await res.json();
-    const statProps = data.statProps;
-
-    return { props: { statProps } };
-}

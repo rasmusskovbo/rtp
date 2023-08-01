@@ -40,7 +40,7 @@ const PostForm = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:4001/api/upload', {
+            const response = await fetch(`${process.env.API_URL}/api/upload`, {
                 method: 'POST',
                 body: formData
             });

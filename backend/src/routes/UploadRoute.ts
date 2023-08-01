@@ -1,5 +1,5 @@
 import express, {NextFunction, Request, Response, Router} from 'express';
-import upload from '../clients/S3Client'
+import upload from '../aws/S3Client'
 import {ContentType, PostsEntity} from "../database/entities/PostEntity";
 import {getRepository} from "typeorm";
 

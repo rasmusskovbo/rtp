@@ -14,7 +14,7 @@ dotenv.config();
 connectToDb().then(() => {
 
     app.use(cors({
-        origin: 'http://localhost:3000' // Replace with your actual origin
+        origin: process.env.CORS_ORIGIN // Replace with your actual origin
     }));
     app.use(express.json());
 
@@ -22,10 +22,6 @@ connectToDb().then(() => {
     app.use('/api', uploadRouter);
     app.use('/api', postsRoute);
     app.use('/auth', loginRouter);
-
-    //app.use('/api', uploadRouter);
-
-
 
 }).catch(error => console.log(error));
 

@@ -17,7 +17,7 @@ const Home: React.FC = () => {
     const [posts, setPosts] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:4001/api/posts?amount=10')
+        fetch(`${process.env.API_URL}/api/posts?amount=10`)
             .then(response => response.json())
             .then(data => setPosts(data));
     }, []);
