@@ -30,6 +30,11 @@ export const connectToDb = async (): Promise<Connection> => {
             UserEntity
         ],
         synchronize: true,
+        extra: {
+            ssl: {
+                rejectUnauthorized: false
+            }
+        }
     });
 }
 
