@@ -4,13 +4,18 @@ export class RedisCache {
     private client;
 
     constructor() {
-        const username = process.env.REDIS_USER;
-        const password = process.env.REDIS_PASSWORD;
-        const host = process.env.REDIS_HOST;
-        const port = process.env.REDIS_PORT;
+        let connectionString = "";
+        if (process.env.HEROKU_DEPLOYMENT) {
+            connectionString = process.env.REDIS_URL!;
+        } else {
+            const username = process.env.REDIS_USER;
+            const password = process.env.REDIS_PASSWORD;
+            const host = process.env.REDIS_HOST;
+            const port = process.env.REDIS_PORT;
 
-        const connectionString = (username == null || password == null)
-            ? `redis://${host}:${port}` : `redis://${username}:${password}@${host}:${port}`;
+            connectionString = (username == null || password == null)
+                ? `redis://${host}:${port}` : `redis://${username}:${password}@${host}:${port}`;
+        }
 
         const config: RedisClientOptions = {
             url: connectionString

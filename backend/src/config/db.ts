@@ -7,42 +7,53 @@ import {YearlyFinishesEntity} from "../database/entities/YearlyFinishesEntity";
 import {SleeperUserEntity} from "../database/entities/SleeperUserEntity";
 import {PostsEntity} from "../database/entities/PostEntity";
 import {UserEntity} from "../database/entities/UserEntity";
-import {getSecretValue} from "../aws/AwsSecretsClient";
 import dotenv from "dotenv";
 
 dotenv.config()
 
 export const connectToDb = async (): Promise<Connection> => {
-    let DB_PASSWORD = process.env.POSTGRES_PASSWORD;
+    const dbConfig = process.env.HEROKU_DEPLOYMENT
+        ? parsePostgresUrl(process.env.DATABASE_URL!)
+        : {
+            host: process.env.DB_HOST,
+            port: parseInt(process.env.DB_PORT!),
+            username: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME
+        };
 
-    if (process.env.DB_PASSWORD_SECRET!) {
-        await getSecretValue(process.env.DB_PASSWORD_SECRET!)
-            .then(secret => {
-                DB_PASSWORD = secret ? secret : process.env.POSTGRES_PASSWORD
-            });
-    }
-
-    console.log("DB PW: " + DB_PASSWORD)
     return createConnection({
-                type: "postgres",
-                host: process.env.DB_HOST,
-                port: parseInt(process.env.DB_PORT!),
-                username: process.env.DB_USER,
-                password: DB_PASSWORD,
-                database: process.env.DB_NAME,
-                entities: [
-                    AllTimeWinnersEntity,
-                    AllTimeStandingsEntity,
-                    PlayerHighScoreEntity,
-                    WeeklyHighScoreEntity,
-                    YearlyFinishesEntity,
-                    SleeperUserEntity,
-                    PostsEntity,
-                    UserEntity
-                ],
-                synchronize: true,
+        type: "postgres",
+        ...dbConfig,
+        entities: [
+            AllTimeWinnersEntity,
+            AllTimeStandingsEntity,
+            PlayerHighScoreEntity,
+            WeeklyHighScoreEntity,
+            YearlyFinishesEntity,
+            SleeperUserEntity,
+            PostsEntity,
+            UserEntity
+        ],
+        synchronize: true,
     });
 }
+
+function parsePostgresUrl(url: string) {
+    const parsedUrl = new URL(url);
+    const [username, password] = parsedUrl.username.split(':');
+    const [host, port] = parsedUrl.host.split(':');
+    const database = parsedUrl.pathname.slice(1);
+
+    return {
+        username,
+        password,
+        host,
+        port: parseInt(port),
+        database
+    };
+}
+
 
 
 
