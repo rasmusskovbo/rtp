@@ -1,21 +1,28 @@
-import React, { FC } from 'react';
+import React from 'react';
+import { Container, Row, Col } from 'react-bootstrap';
 
 interface HeaderProps {
     title: string;
-    subtitle: string;
+    subtitle?: string;
 }
 
-const Header: FC<HeaderProps> = ({ title, subtitle }) => {
+const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
     return (
-        <div className="row welcome text-center">
-            <div className="col-12">
-                <h1 className="display-4">{title}</h1>
-            </div>
-            <div className="col-12">
-                <h4>{subtitle}</h4>
-            </div>
-            <hr />
-        </div>
+        <Container className="welcome text-center">
+            <Row>
+                <Col>
+                    <h1 className="display-4">{title}</h1>
+                </Col>
+            </Row>
+            {subtitle && (
+                <Row>
+                    <Col>
+                        <h4>{subtitle}</h4>
+                    </Col>
+                </Row>
+            )}
+            <hr className="centered-hr" />
+        </Container>
     );
 };
 

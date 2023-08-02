@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import express, { Request, Response } from 'express';
+import express from 'express';
 import {connectToDb} from "./config/db";
 import statsRouter from "./routes/StatsRoute";
 import uploadRouter from "./routes/UploadRoute";
@@ -13,8 +13,7 @@ dotenv.config();
 
 connectToDb().then(() => {
 
-    app.use(cors({
-    }));
+    app.use(cors({})); // Set origin later
     app.use(express.json());
 
     app.use('/api', statsRouter);

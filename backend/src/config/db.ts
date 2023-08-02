@@ -1,4 +1,4 @@
-import {createConnection, Connection} from "typeorm";
+import {createConnection, Connection, ConnectionOptions} from "typeorm";
 import {AllTimeWinnersEntity} from "../database/entities/AllTimeWinnersEntity";
 import {AllTimeStandingsEntity} from "../database/entities/AllTimeStandingsEntity";
 import {PlayerHighScoreEntity} from "../database/entities/PlayerHighScoreEntity";
@@ -12,12 +12,12 @@ import dotenv from "dotenv";
 dotenv.config()
 
 export const connectToDb = async (): Promise<Connection> => {
-    return createConnection({
+    let connectionOptions: ConnectionOptions = {
         type: "postgres",
         host: process.env.DB_HOST,
         port: parseInt(process.env.DB_PORT!),
         username: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
+        password: process.env.DB_PASSWORD!,
         database: process.env.DB_NAME,
         entities: [
             AllTimeWinnersEntity,
@@ -29,13 +29,21 @@ export const connectToDb = async (): Promise<Connection> => {
             PostsEntity,
             UserEntity
         ],
-        synchronize: true,
-        extra: {
-            ssl: {
-                rejectUnauthorized: false
+        synchronize: true
+    };
+
+    if (process.env.HEROKU_DEPLOYMENT === "true") {
+        connectionOptions = {
+            ...connectionOptions,
+            extra: {
+                ssl: {
+                    rejectUnauthorized: false
+                }
             }
-        }
-    });
+        };
+    }
+
+    return createConnection(connectionOptions);
 }
 
 

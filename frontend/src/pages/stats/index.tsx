@@ -40,7 +40,7 @@ const Index = () => {
     return (
         <Layout>
             <RoadToPinkHead title={"Stats"}/>
-            <Header title={"Road To Pink Stats"} subtitle={"Where Peter comes to weep"}/>
+            <Header title={"Road To Pink Stats"}/>
 
             <Container className={`${styles.container} mt-3`}>
                 <Row className={`${styles.tab} text-center`}>
