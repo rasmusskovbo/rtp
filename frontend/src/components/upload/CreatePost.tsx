@@ -1,6 +1,7 @@
-import React, { ChangeEvent, FormEvent, useState } from 'react';
-import {Button, Container, Form, Row, Col} from 'react-bootstrap';
+import React, {ChangeEvent, FormEvent, useContext, useEffect, useState} from 'react';
+import {Button, Container, Form, Row, Col, Spinner} from 'react-bootstrap';
 import {toast} from "react-toastify";
+import {AuthContext} from "@/auth/AuthProvider";
 
 enum ContentType {
     TEXT = 'text',
@@ -8,19 +9,44 @@ enum ContentType {
     PDF = 'pdf'
 }
 
-// add validation on file selected.
 const PostForm = () => {
+    const authContext = useContext(AuthContext); // Use the context
+    const {loggedInUser, loading} = authContext; // Assume there's a `loading` state provided
+
     const [title, setTitle] = useState<string>('');
-    const [author, setAuthor] = useState<string>('');
     const [type, setType] = useState<ContentType | ''>('');
     const [content, setContent] = useState<string>('');
     const [file, setFile] = useState<File | null>(null);
     const [fileName, setFileName] = useState<string>('');
+    const [author, setAuthor] = useState<string>('');
+
+    useEffect(() => {
+        if (!loading) {
+            setAuthor(loggedInUser ? loggedInUser.name : '');
+        }
+    }, [loading, loggedInUser]);
+
+    if (loading) {
+        return (
+            <div className="spinnerContainer">
+                <Spinner animation="border" />
+            </div>)
+    }
 
     const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files ? event.target.files[0] : null;
-        setFile(selectedFile);
-        setFileName(selectedFile ? selectedFile.name : '');
+        if (selectedFile) {
+            const extension = selectedFile.name.split('.').pop()?.toLowerCase();
+            if (type === ContentType.PDF && extension !== 'pdf') {
+                toast.error('Only PDF files are accepted');
+                return;
+            } else if (type === ContentType.VIDEO && extension !== 'mp4') {
+                toast.error('Only MP4 files are accepted');
+                return;
+            }
+            setFile(selectedFile);
+            setFileName(selectedFile ? selectedFile.name : '');
+        }
     };
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -67,7 +93,13 @@ const PostForm = () => {
                         </Form.Group>
                         <Form.Group controlId='author' className='mb-3'>
                             <Form.Label>Author</Form.Label>
-                            <Form.Control type='text' value={author} onChange={(e) => setAuthor(e.target.value)} required />
+                            <Form.Control
+                                type='text'
+                                value={author}
+                                readOnly
+                                required
+                                className='text-muted'
+                            />
                         </Form.Group>
                         <Form.Group controlId='type' className='mb-3'>
                             <Form.Label>Content Type</Form.Label>
@@ -88,7 +120,7 @@ const PostForm = () => {
                             <>
                                 <Form.Group className='mb-3' controlId='file'>
                                     <Form.Label>File input</Form.Label>
-                                    <Form.Control type="file" onChange={onFileChange} />
+                                    <Form.Control type="file" onChange={onFileChange} accept={type === ContentType.PDF ? '.pdf' : type === ContentType.VIDEO ? '.mp4' : '*'} />
                                     <Form.Text className='text-muted'>
                                         {fileName}
                                     </Form.Text>

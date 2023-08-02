@@ -23,7 +23,7 @@ router.post("/auth/login", isAuthorizedOrigin, async (req, res, next) => {
         const userDetailsByUserId = await userRepo.getUserDetailsByUserId(userId)
         req.session.isAdmin = await roleRepo.getRoleByUserId(userId)
         req.session.userId = userId
-        req.session.isLoggedIn = true
+        req.session.loggedInUser = true
         req.session.currentUser = userDetailsByUserId.username
         res.sendStatus(200)
     } else {

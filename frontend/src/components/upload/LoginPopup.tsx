@@ -49,8 +49,9 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ show, handleShow, handleClose }
             });
 
             const user = { name: credentials.username };
+            console.log("Setting username in localStorage: " + user.name)
             localStorage.setItem('loggedInUser', JSON.stringify(user));
-            setIsLoggedIn(true);
+            setIsLoggedIn(user);
 
             setTimeout(() => {
                 window.location.href = '/upload';

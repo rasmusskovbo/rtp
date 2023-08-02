@@ -17,12 +17,11 @@ const upload: multer.Multer = multer({
         s3: s3,
         bucket: process.env.S3_BUCKET_NAME!,
         acl: 'public-read',
+        contentType: multerS3.AUTO_CONTENT_TYPE,
         metadata: (req, file, cb) => {
-            console.log(`Handling metadata for file: ${file.fieldname}`);
             cb(null, { fieldName: file.fieldname });
         },
         key: (req, file, cb) => {
-            console.log(`Handling metadata for file: ${file.originalname}`);
             cb(null, Date.now().toString())
         }
     })

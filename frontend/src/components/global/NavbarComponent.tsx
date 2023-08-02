@@ -15,7 +15,7 @@ const NavbarComponent: React.FC = () => {
         throw new Error("AuthContext is undefined");
     }
 
-    const { isLoggedIn } = authContext;
+    const { loggedInUser } = authContext;
     const handleToggle = () => {
         setIsOpen(!isOpen);
     };
@@ -23,7 +23,7 @@ const NavbarComponent: React.FC = () => {
     const handleShow = () => setShow(true);
     const handleClose = () => setShow(false);
 
-    const uploadOnClick = isLoggedIn ? () => { window.location.href='/upload' } : handleShow;
+    const uploadOnClick = loggedInUser ? () => { window.location.href='/upload' } : handleShow;
 
     return (
         <>

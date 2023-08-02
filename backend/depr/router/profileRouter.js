@@ -70,7 +70,7 @@ router.get("/profile/userDetails", isAuthorized, async (req, res) => {
 
 
 router.get("/logout", isAuthorized, (req, res, next) => {
-    req.session.isLoggedIn = false
+    req.session.loggedInUser = false
     res.redirect("/")
     next()
 })
