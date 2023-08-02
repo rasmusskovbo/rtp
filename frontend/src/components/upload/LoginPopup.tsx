@@ -42,20 +42,19 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ show, handleShow, handleClose }
         const data = await response.json();
 
         if (data.success) {
-            handleClose();
-
             toast.success('Login successful!', {
                 position: toast.POSITION.TOP_RIGHT
             });
 
-            const user = { name: credentials.username };
-            console.log("Setting username in localStorage: " + user.name)
+            const user = { name: data.username };
             localStorage.setItem('loggedInUser', JSON.stringify(user));
             setIsLoggedIn(user);
 
             setTimeout(() => {
                 window.location.href = '/upload';
             }, 1000);
+
+            handleClose();
         } else {
             toast.error('Login unsuccessful. Please try again.', {
                 position: toast.POSITION.TOP_RIGHT

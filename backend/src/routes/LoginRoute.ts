@@ -14,7 +14,7 @@ router.post('/login', async (req: Request, res: Response) => {
             // login successful
             // depending on your setup, you might want to create a JWT and send it here
             console.log("Login was successful")
-            return res.json({ success: true });
+            return res.json({ success: true, username: user.username });
         } else {
             // login failed
             console.log("Login was unsuccessful")
