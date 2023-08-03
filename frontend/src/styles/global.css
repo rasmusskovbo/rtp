@@ -204,6 +204,10 @@ footer {
   height: auto;
 }
 
+.v-center {
+  vertical-align: middle !important;
+}
+
 .first {
   background-color: gold;
 }
@@ -257,7 +261,7 @@ footer {
 }
 
 .collapsed-hover-grow:hover {
-  padding-left: 20px;
+  padding-left: 20px !important;
 }
 
 

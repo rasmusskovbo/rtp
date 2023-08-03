@@ -28,8 +28,20 @@
     border: none;
     outline: none;
     cursor: pointer;
-    padding: 14px 16px;
+    padding: 200px 16px;
     transition: 0.3s;
+}
+
+@media (min-width: 992px) { /* for lg devices and above */
+    .tab button {
+        width: 50%; /* adjust as needed */
+    }
+}
+
+@media (max-width: 991px) { /* for md devices and below */
+    .tab button {
+        width: 200%; /* adjust as needed */
+    }
 }
 
 /* Change background color of buttons on hover */

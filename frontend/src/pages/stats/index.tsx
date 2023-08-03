@@ -44,7 +44,7 @@ const Index = () => {
 
             <Container className={`${styles.container} mt-3`}>
                 <Row className={`${styles.tab} text-center`}>
-                    <Col lg={2} xs={6}>
+                    <Col lg={2} xs={12}>
                         <Button
                             className={`${styles.button} ${tab === 'allTimeWinners' ? styles.active : ''}`}
                             onClick={() => setTab('allTimeWinners')}
@@ -52,7 +52,7 @@ const Index = () => {
                             All-time Winners
                         </Button>
                     </Col>
-                    <Col lg={2} xs={6}>
+                    <Col lg={2} xs={12}>
                         <Button
                             className={`${styles.button} ${tab === 'allTimeStandings' ? styles.active : ''}`}
                             onClick={() => setTab('allTimeStandings')}
@@ -60,7 +60,7 @@ const Index = () => {
                             All-time Standings
                         </Button>
                     </Col>
-                    <Col lg={2} xs={6}>
+                    <Col lg={2} xs={12}>
                         <Button
                             className={`${styles.button} ${tab === 'weeklyHighScores' ? styles.active : ''}`}
                             onClick={() => setTab('weeklyHighScores')}
@@ -68,7 +68,7 @@ const Index = () => {
                             All-time Weekly High Scores
                         </Button>
                     </Col>
-                    <Col lg={2} xs={6}>
+                    <Col lg={2} xs={12}>
                         <Button
                             className={`${styles.button} ${tab === 'playerHighScores' ? styles.active : ''}`}
                             onClick={() => setTab('playerHighScores')}
@@ -76,7 +76,7 @@ const Index = () => {
                             All-time Player High Scores
                         </Button>
                     </Col>
-                    <Col lg={2} xs={6}>
+                    <Col lg={2} xs={12}>
                         <Button
                             className={`${styles.button} ${tab === 'yearlyFinishes' ? styles.active : ''}`}
                             onClick={() => setTab('yearlyFinishes')}

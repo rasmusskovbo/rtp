@@ -1,19 +1,19 @@
 import { WeeklyHighScoresProps } from "@/components/tables/RtpStatsTypes";
-import styles from './tables.module.css'
+import { Table, Figure } from 'react-bootstrap';
 
 const WeeklyHighScoresTable: React.FC<WeeklyHighScoresProps> = ({ stats }) => {
     stats.sort((a, b) => b.score - a.score);
 
     return (
-        <div className={`${styles.tabcontent} container-fluid padding`}>
-            <table id="weekly-high-table" className="table table-striped table-responsive text-center">
+        <div className="container-fluid padding">
+            <Table id="weekly-high-table" striped responsive="sm" className="text-center">
                 <thead>
                 <tr>
-                    <th className="col-1" scope="col">Avatar</th>
-                    <th className="col-1" scope="col">Sleeper User</th>
-                    <th className="col-2" scope="col">Score</th>
-                    <th className="col-2" scope="col">Year</th>
-                    <th className="col-2" scope="col">Week</th>
+                    <th scope="col">Avatar</th>
+                    <th scope="col">Sleeper User</th>
+                    <th scope="col">Score</th>
+                    <th scope="col">Year</th>
+                    <th scope="col">Week</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -26,28 +26,26 @@ const WeeklyHighScoresTable: React.FC<WeeklyHighScoresProps> = ({ stats }) => {
                     return (
                         <tr key={stat.id} className={rowStyle}>
                             <td>
-                                <img id="avatar" src={stat.avatar} alt="Avatar"/>
+                                <Figure id="avatar">
+                                    <Figure.Image
+                                        width={32}
+                                        height={40}
+                                        alt="Avatar"
+                                        src={stat.avatar}
+                                    />
+                                </Figure>
                             </td>
-                            <td>{stat.sleeper_username}</td>
-                            <td>{stat.score}</td>
-                            <td>{stat.year}</td>
-                            <td>{stat.week}</td>
+                            <td className="v-center">{stat.sleeper_username}</td>
+                            <td className="v-center">{stat.score}</td>
+                            <td className="v-center">{stat.year}</td>
+                            <td className="v-center">{stat.week}</td>
                         </tr>
                     );
                 })}
                 </tbody>
-            </table>
+            </Table>
         </div>
     )
 };
 
 export default WeeklyHighScoresTable;
-
-
-/*
-
-Use this source (that uses bootstrap)
-And this css:
-To update this table component so that it ends up with the same visual result:
-
- */

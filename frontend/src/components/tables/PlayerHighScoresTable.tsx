@@ -1,44 +1,53 @@
-import {PlayerHighScoresProps} from "@/components/tables/RtpStatsTypes";
-import styles from "@/components/tables/tables.module.css";
+import { PlayerHighScoresProps } from "@/components/tables/RtpStatsTypes";
+import { Table, Figure } from 'react-bootstrap';
 
 const PlayerHighScoresTable: React.FC<PlayerHighScoresProps> = ({ stats }) => {
     stats.sort((a, b) => b.score - a.score);
 
-    return (<div className={`${styles.tabcontent} container-fluid padding`}>
-        <table className="table table-striped table-responsive text-center">
-            <thead>
-            <tr>
-                <th className="col-1" scope="col">Sleeper User</th>
-                <th className="col-1" scope="col">Avatar</th>
-                <th className="col-1" scope="col">Player Name</th>
-                <th className="col-1" scope="col">Score</th>
-                <th className="col-1" scope="col">Year</th>
-                <th className="col-1" scope="col">Week</th>
-            </tr>
-            </thead>
-            <tbody>
-            {stats.map((stat, index) => {
-                let rowStyle = '';
-                if (index === 0) rowStyle = "first";
-                else if (index === 1) rowStyle = "second";
-                else if (index === 2) rowStyle = "third";
-                else if (index === stats.length - 1) rowStyle = "last";
-                return (
-                    <tr key={stat.id} className={rowStyle}>
-                        <td>
-                            <img id="avatar" src={stat.avatar} alt="Avatar"/>
-                        </td>
-                        <td>{stat.sleeper_username}</td>
-                        <td>{stat.player_name}</td>
-                        <td>{stat.score}</td>
-                        <td>{stat.year}</td>
-                        <td>{stat.week}</td>
-                    </tr>
-                );
-            })}
-            </tbody>
-        </table>
-    </div>)
+    return (
+        <div className="container-fluid padding">
+            <Table striped responsive="sm" className="text-center">
+                <thead>
+                <tr>
+                    <th scope="col">Sleeper User</th>
+                    <th scope="col">Avatar</th>
+                    <th scope="col">Player Name</th>
+                    <th scope="col">Score</th>
+                    <th scope="col">Year</th>
+                    <th scope="col">Week</th>
+                </tr>
+                </thead>
+                <tbody>
+                {stats.map((stat, index) => {
+                    let rowStyle = '';
+                    if (index === 0) rowStyle = "first";
+                    else if (index === 1) rowStyle = "second";
+                    else if (index === 2) rowStyle = "third";
+                    else if (index === stats.length - 1) rowStyle = "last";
+                    return (
+                        <tr key={stat.id} className={rowStyle}>
+                            <td>
+                                <Figure id="avatar">
+                                    <Figure.Image
+                                        width={32}
+                                        height={40}
+                                        alt="Avatar"
+                                        src={stat.avatar}
+                                    />
+                                </Figure>
+                            </td>
+                            <td className="v-center">{stat.sleeper_username}</td>
+                            <td className="v-center">{stat.player_name}</td>
+                            <td className="v-center">{stat.score}</td>
+                            <td className="v-center">{stat.year}</td>
+                            <td className="v-center">{stat.week}</td>
+                        </tr>
+                    );
+                })}
+                </tbody>
+            </Table>
+        </div>
+    )
 };
 
 export default PlayerHighScoresTable;

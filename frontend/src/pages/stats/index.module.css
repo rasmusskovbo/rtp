@@ -22,10 +22,22 @@
     cursor: pointer;
     padding: 14px 16px;
     transition: 0.3s;
-    margin: 0 10px;
-    width: 150px; /* add a fixed width */
-    height: 100px;
+    margin: 0 0px;
+    width: 180px; /* add a fixed width */
+    height: 80px;
     text-align: center; /* center the text within the button */
+}
+
+@media (max-width: 576px) { /* targeting small devices */
+    .tab {
+        display: flex; /* turns the container into a flexbox container */
+        justify-content: center; /* centers the flex items along the horizontal line */
+        flex-wrap: wrap; /* allows the flex items to wrap onto multiple lines */
+    }
+
+    .tab button {
+        margin: 10px auto; /* gives equal margin to top/bottom and auto margin to left/right */
+    }
 }
 
 /* Change background color of buttons on hover */
