@@ -12,7 +12,8 @@ const PostPreview: FC<PostPreviewProps> = ({ post }) => {
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    const displayContent = post.type === ContentType.TEXT ? post.content.substring(0, 100) : post.type.toLocaleUpperCase();
+    const displayContent = post.type === ContentType.TEXT ?
+        post.content.substring(0, 100) : "Type: " + capitalizeFirstLetter(post.type);;
 
     return (
         <>
@@ -21,7 +22,7 @@ const PostPreview: FC<PostPreviewProps> = ({ post }) => {
                     <Card.Title>{post.title}</Card.Title>
                     <Card.Text className="text-overflow">{displayContent}</Card.Text>
                     <Button variant="primary" onClick={handleShow}>
-                        Read More
+                        See more
                     </Button>
                 </Card.Body>
                 <Card.Footer>
@@ -45,5 +46,9 @@ const PostPreview: FC<PostPreviewProps> = ({ post }) => {
         </>
     );
 };
+
+function capitalizeFirstLetter(string: string): string {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
 
 export default PostPreview;

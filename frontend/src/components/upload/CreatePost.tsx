@@ -1,7 +1,8 @@
 import React, {ChangeEvent, FormEvent, useContext, useEffect, useState} from 'react';
-import {Button, Container, Form, Row, Col, Spinner} from 'react-bootstrap';
+import {Button, Container, Form, Row, Col, Spinner, ProgressBar, Modal} from 'react-bootstrap';
 import {toast} from "react-toastify";
 import {AuthContext} from "@/auth/AuthProvider";
+import axios from 'axios';
 
 enum ContentType {
     TEXT = 'text',
@@ -19,6 +20,8 @@ const PostForm = () => {
     const [file, setFile] = useState<File | null>(null);
     const [fileName, setFileName] = useState<string>('');
     const [author, setAuthor] = useState<string>('');
+    const [uploading, setUploading] = useState<boolean>(false);
+    const [uploadProgress, setUploadProgress] = useState<number>(0);
 
     useEffect(() => {
         if (!loading) {
@@ -51,6 +54,7 @@ const PostForm = () => {
 
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setUploading(true);
 
         const formData = new FormData();
         formData.append('title', title);
@@ -66,19 +70,28 @@ const PostForm = () => {
         }
 
         try {
-            const response = await fetch(`${process.env.API_URL}/api/upload`, {
+            const response = await axios({
+                url: `${process.env.API_URL}/api/upload`,
                 method: 'POST',
-                body: formData
+                data: formData,
+                onUploadProgress: progressEvent => {
+                    let percentCompleted = progressEvent.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
+                    setUploadProgress(percentCompleted);
+                }
+
             });
 
-            if (!response.ok) {
+            if (response.status >= 200 && response.status < 300) {
+                toast.success("Your update has been posted!");
+            } else {
                 toast.error("Error occurred while attempting to upload. Check with admin before trying again");
                 throw new Error(`HTTP error! status: ${response.status}`);
-            } else {
-                toast.success("Your update has been posted!");
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error when uploading:', error);
+        } finally {
+            setUploading(false);
+            setUploadProgress(0);
         }
     };
 
@@ -127,12 +140,21 @@ const PostForm = () => {
                                 </Form.Group>
                             </>
                         )}
-                        <Button variant='primary' type='submit'>
-                            Submit
+                        <Button variant='primary' type='submit' disabled={uploading}>
+                            {uploading ? 'Uploading...' : 'Submit'}
                         </Button>
                     </Form>
                 </Col>
             </Row>
+
+            <Modal show={uploading} backdrop="static" centered>
+                <Modal.Header>
+                    <Modal.Title>Uploading...</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <ProgressBar animated now={uploadProgress} label={`${uploadProgress}%`} />
+                </Modal.Body>
+            </Modal>
         </Container>
     );
 };

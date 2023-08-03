@@ -31,6 +31,7 @@ const NavbarComponent: React.FC = () => {
             <Navbar expand="sm" bg="light" fixed="top">
                 <Navbar.Brand href="/">
                     <Image
+                        className="hover-grow"
                         src={rtpLogo}
                         width={80}
                         height={80}
@@ -38,21 +39,21 @@ const NavbarComponent: React.FC = () => {
                     />
                 </Navbar.Brand>
                 <Navbar.Toggle style={{border: "none"}} aria-controls="basic-navbar-nav" onClick={handleToggle}>
-                    <FaBars color={"hotpink"} size={"30"}/>
+                    <FaBars className="hover-grow" color={"hotpink"} size={"30"}/>
                 </Navbar.Toggle>
                 <Navbar.Collapse id="basic-navbar-nav" className={isOpen ? 'show' : ''}>
                     <Nav className="mr-auto">
                         <Nav.Item>
-                            <Nav.Link href="/">Home</Nav.Link>
+                            <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'} href="/">Home</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
-                            <Nav.Link href="/stats">Stats</Nav.Link>
+                            <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'} href="/stats">Stats</Nav.Link>
                         </Nav.Item>
                         <Nav.Item onClick={uploadOnClick}>
-                            <Nav.Link>Upload</Nav.Link>
+                            <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'}>Upload</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
-                            <Nav.Link href="/archive">Archive</Nav.Link>
+                            <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'} href="/archive">Archive</Nav.Link>
                         </Nav.Item>
                     </Nav>
                 </Navbar.Collapse>

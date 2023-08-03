@@ -1,7 +1,8 @@
-import React, { FC } from 'react';
+import React, {FC, useState} from 'react';
 import Player from 'react-player';
 import { Card } from 'react-bootstrap';
-import parse from 'html-react-parser';
+import axios from 'axios';
+import {GiAmericanFootballHelmet} from "react-icons/gi";
 
 export enum ContentType {
     TEXT = "text",
@@ -16,6 +17,7 @@ export interface PostsEntity {
     type: ContentType;
     content: string;
     contentLink: string;
+    upvotes: number;
     createdAt: Date;
 }
 
@@ -24,9 +26,16 @@ interface PostDisplayProps {
 }
 
 const PostDisplay: FC<PostDisplayProps> = ({ post }) => {
+    const [upvotes, setUpvotes] = useState(post.upvotes);
+
     const formatDate = (date: Date) => {
         const options = { day: '2-digit', month: 'short', year: 'numeric' } as const;
         return new Intl.DateTimeFormat('en-GB', options).format(date);
+    }
+
+    const handleUpvote = async () => {
+        setUpvotes(prevUpvotes => prevUpvotes + 1);
+        await axios.post(`${process.env.API_URL}/api/posts/upvote/${post.id}`);
     }
 
     return (
@@ -47,9 +56,24 @@ const PostDisplay: FC<PostDisplayProps> = ({ post }) => {
                     </>
                 }
             </Card.Body>
-            <Card.Footer>
-                <small className="text-muted">Posted by {post.author} at {formatDate(new Date(post.createdAt))}</small>
+            <Card.Footer className="d-flex justify-content-between align-items-center">
+                <small className="text-muted">
+                    Posted by {post.author} at {formatDate(new Date(post.createdAt))}
+                </small>
+                <div className="d-flex align-items-center">
+                    <button
+                        className="btn btn-link hover-grow"
+                        onClick={handleUpvote}
+                        style={{color: 'pink'}}
+                    >
+                        <GiAmericanFootballHelmet color="hotpink" size="28.8" />
+                    </button>
+                    <small style={{color: 'hotpink'}}>
+                        {upvotes}
+                    </small>
+                </div>
             </Card.Footer>
+
         </Card>
     );
 };

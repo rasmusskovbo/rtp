@@ -25,11 +25,11 @@ html, body {
 }
 
 .navbar .navbar-nav .nav-link:hover {
-  color: white;
+  color: hotpink;
 }
 
 .navbar .navbar-nav .nav-link.active {
-  color: hotpink;
+  color: white;
 }
 
 
@@ -229,6 +229,38 @@ footer {
 .card-text pre {
   white-space: pre-wrap;
 }
+
+
+/** HOVER GROW ANIM ***/
+.hover-grow {
+  transition: transform 0.3s;
+  cursor: pointer;
+}
+
+.hover-grow:hover {
+  transform: scale(1.15);
+}
+
+.hover-grow {
+  transition: transform 0.3s;
+  cursor: pointer;
+}
+
+.hover-grow:hover {
+  transform: scale(1.2);
+}
+
+/* New class for collapsed menu */
+.collapsed-hover-grow {
+  transition: padding 0.3s;
+  cursor: pointer;
+}
+
+.collapsed-hover-grow:hover {
+  padding-left: 20px;
+}
+
+
 
 /* PostPreview.css */
 

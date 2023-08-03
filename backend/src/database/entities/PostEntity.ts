@@ -37,6 +37,9 @@ export class PostsEntity {
     @Column({ type: 'varchar', nullable: true })
     contentLink!: string;
 
+    @Column({ type: 'int', default: 0})
+    upvotes!: number;
+
     @CreateDateColumn({ type: 'timestamp' })
     createdAt!: Date;
 
@@ -44,6 +47,9 @@ export class PostsEntity {
     async checkContent() {
         if (this.type == ContentType.TEXT && !this.content) {
             throw new Error("Content cannot be null for type 'text'");
+        }
+        if (!this.upvotes) {
+            this.upvotes = 0;
         }
     }
 }
