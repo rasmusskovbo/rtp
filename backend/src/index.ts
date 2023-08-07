@@ -6,6 +6,7 @@ import uploadRouter from "./routes/UploadRoute";
 import cors from 'cors';
 import loginRouter from "./routes/LoginRoute";
 import postsRoute from "./routes/PostsRoute";
+import teamsRoute from "./routes/TeamsRoute";
 
 const app = express();
 
@@ -19,6 +20,7 @@ connectToDb().then(() => {
     app.use('/api', statsRouter);
     app.use('/api', uploadRouter);
     app.use('/api', postsRoute);
+    app.use('/api', teamsRoute);
     app.use('/auth', loginRouter);
 
 }).catch(error => console.log(error));

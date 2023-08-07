@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { PostsService } from '../mappers/PostsService';
+import { PostsService } from '../services/PostsService';
 
 const router = express.Router();
 

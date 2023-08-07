@@ -7,18 +7,25 @@ import {YearlyFinishesEntity} from "../database/entities/YearlyFinishesEntity";
 import {SleeperUserEntity} from "../database/entities/SleeperUserEntity";
 import {PostsEntity} from "../database/entities/PostEntity";
 import {UserEntity} from "../database/entities/UserEntity";
+import {TeamEntity} from "../database/entities/TeamEntity";
 import dotenv from "dotenv";
+import {PlayerEntity} from "../database/entities/PlayerEntity";
+import {SleeperRosterEntity} from "../database/entities/SleeperRosterEntity";
+import {parse} from 'pg-connection-string'
 
 dotenv.config()
 
 export const connectToDb = async (): Promise<Connection> => {
+    const connectionString = process.env.DATABASE_URL!;
+    const connectionParams = parse(connectionString);
+
     let connectionOptions: ConnectionOptions = {
         type: "postgres",
-        host: process.env.DB_HOST,
-        port: parseInt(process.env.DB_PORT!),
-        username: process.env.DB_USER,
-        password: process.env.DB_PASSWORD!,
-        database: process.env.DB_NAME,
+        host: connectionParams.host!,
+        port: parseInt(connectionParams.port!),
+        username: connectionParams.user,
+        password: connectionParams.password!,
+        database: connectionParams.database!,
         entities: [
             AllTimeWinnersEntity,
             AllTimeStandingsEntity,
@@ -26,8 +33,11 @@ export const connectToDb = async (): Promise<Connection> => {
             WeeklyHighScoreEntity,
             YearlyFinishesEntity,
             SleeperUserEntity,
+            SleeperRosterEntity,
             PostsEntity,
-            UserEntity
+            UserEntity,
+            TeamEntity,
+            PlayerEntity
         ],
         synchronize: true
     };

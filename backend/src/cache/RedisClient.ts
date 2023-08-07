@@ -40,7 +40,17 @@ export class RedisCache {
             return result
         } catch (e) {
             console.error('An error occurred:', e);
-            throw e;  // or handle the error in some other way
+            throw e;
         }
+    }
+
+    async putObject(key: string, value: object, expiration: number, fieldName: string) {
+        const stringifiedValue = JSON.stringify(value);
+        await this.put(key, stringifiedValue, expiration, fieldName);
+    }
+
+    async getObject<T>(key: string, fieldName: string): Promise<T | undefined> {
+        const result = await this.get(key, fieldName);
+        return result ? JSON.parse(result) as T : undefined;
     }
 }
