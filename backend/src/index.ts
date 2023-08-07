@@ -7,6 +7,8 @@ import cors from 'cors';
 import loginRouter from "./routes/LoginRoute";
 import postsRoute from "./routes/PostsRoute";
 import teamsRoute from "./routes/TeamsRoute";
+import  "./scheduler/RosterUpdater";
+import  "./scheduler/PlayerUpdater";
 
 const app = express();
 

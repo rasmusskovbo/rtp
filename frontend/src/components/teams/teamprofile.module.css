@@ -1,0 +1,95 @@
+.player-item {
+    display: flex;
+    align-items: center;
+}
+
+.player-position {
+    width: 3ch;
+    display: inline-block;
+    text-align: center;
+    margin-right: 10px; /* or any desired padding */
+}
+
+.container {
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+.images-wrapper {
+    display: flex;
+    justify-content: space-around;
+}
+
+.team-logo, .owner-image {
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* ... rest of the CSS remains the same */
+
+
+.owner-image {
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.card {
+    margin: 20px 0;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.player-item {
+    display: flex;
+    align-items: center;
+}
+
+.player-position {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.stat-label {
+    width: 250px; /* or any other width that fits your content */
+    display: inline-block;
+    text-align: left;
+    margin-right: 10px; /* or any desired padding */
+    font-weight: bold;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+}
+
+.team-name,
+.team-detail {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.team-name {
+    font-size: 32px; /* Adjust as needed */
+    font-style: italic;
+}
+
+.team-detail,
+.team-bio {
+    font-size: 16px; /* Adjust as needed */
+    margin-bottom: 0.5rem;
+}
+
+.label {
+    font-weight: bold;
+}
+
+.player-position-QB { color: #ff004b; }
+.player-position-WR { color: #55a1f4; }
+.player-position-RB { color: #08c6b2; }
+.player-position-TE { color: #f3a757; }
+
+
+/* ... rest of the CSS remains the same */
+
+
+/* ... rest of the CSS remains the same */
+
+

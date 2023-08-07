@@ -12,7 +12,7 @@ dotenv.config()
 const BASEURL_SLEEPER_AVATAR = "https://sleepercdn.com/avatars/thumbs/";
 const CACHE_FIELD = "sleeperService";
 const AVATAR_EXPIRATION = 60 * 60 * 24; // 24 hours
-const ROSTER_EXPIRATION = 60 * 60 * 24 * 2; // 2 Days
+const ROSTER_EXPIRATION = 60 * 60 * 24; // 24 hours
 const SLEEPER_LEAGUE_ID = "976587245010333696";
 const DYNASTY_TEST_ID = "917218485867139072";
 
@@ -26,10 +26,48 @@ export class SleeperService {
     public async getSleeperAvatarUrlBySleeperUsername(username: string): Promise<string> {
         const cachedAvatarUrl = await this.cache.get(username, CACHE_FIELD)
 
-        return cachedAvatarUrl ? cachedAvatarUrl : await this.fetchAndInsertSleeperUser(username)
+        return cachedAvatarUrl ? cachedAvatarUrl : await this.fetchAvatarURLAndInsertSleeperUser(username)
     }
 
-    private async fetchAndInsertSleeperUser(username: string): Promise<string> {
+    public async getSleeperUserByUsername(username: string): Promise<SleeperUserEntity | null> {
+        // Check cache for user
+        console.log(`Checking cache for user with username: ${username}`);
+        const cachedUser = await this.cache.getObject<SleeperUserEntity>(username, CACHE_FIELD);
+        if (cachedUser) {
+            console.log("CACHE HIT. Returning result.");
+            return cachedUser;
+        }
+
+        // Check the database
+        console.log("NO CACHE. Checking database...");
+        const sleeperRepo = getRepository(SleeperUserEntity);
+        let dbSleeperUser = await sleeperRepo.findOne({ where: { username } });
+        if (dbSleeperUser) {
+            console.log("DATABASE HIT. Caching and returning result.");
+            this.cache.putObject(username, dbSleeperUser, ROSTER_EXPIRATION, CACHE_FIELD);
+            return dbSleeperUser;
+        }
+
+        // Fetch new data using sleeperClient
+        console.log("No user found in Database or Cache. Fetching new data...");
+        const sleeperUser = await getSleeperUserByUsername(username);
+        if (sleeperUser) {
+            // Insert or update the database
+            dbSleeperUser = dbSleeperUser ? dbSleeperUser : new SleeperUserEntity();
+            Object.assign(dbSleeperUser, sleeperUser);
+            await sleeperRepo.save(dbSleeperUser);
+
+            // Save in cache
+            this.cache.putObject(username, dbSleeperUser, ROSTER_EXPIRATION, CACHE_FIELD);
+            console.log("User was successfully fetched and cached. Returning user.");
+            return dbSleeperUser;
+        } else {
+            throw new Error(`Unable to find user for username ${username}`);
+        }
+    }
+
+
+    private async fetchAvatarURLAndInsertSleeperUser(username: string): Promise<string> {
         try {
             const sleeperUser = await getSleeperUserByUsername(username);
 
@@ -65,7 +103,7 @@ export class SleeperService {
     }
 
     // Owner ID = user_id in SleeperUserEntity table
-    public async fetchAndUpsertRosters(ownerId: string): Promise<SleeperRosterEntity> {
+    public async getSleeperRosterForOwnerId(ownerId: string): Promise<SleeperRosterEntity> {
         // Checking the cache
         console.log("Checking cache for roster with owner ID: " + ownerId)
         let roster = await this.cache.getObject<SleeperRosterEntity>(ownerId, CACHE_FIELD);
@@ -84,69 +122,93 @@ export class SleeperService {
         roster = await repo.findOne({ where: { owner_id: ownerId }, relations: ["starters"] }) || undefined;
 
         if (roster) {
-            console.log("DATABASE HIT. Updating Sleeper Players...")
-            // Update players in database
-            await this.fetchAndSavePlayers();
+            console.log("DATABASE HIT..")
 
-            // fetch roster again but with updated player info
-            console.log("Fetching updated roster from database...")
-            roster = await repo.findOne({ where: { owner_id: ownerId } }) as SleeperRosterEntity;
-
-            // todo need to update roster here as well. otherwise active roster id of players will quickly become outdated.
-            console.log("Caching updated roster...")
-            // cache the updated roster
-            this.cache.putObject(ownerId, roster!, AVATAR_EXPIRATION, CACHE_FIELD);
+            console.log("Caching roster...")
+            this.cache.putObject(ownerId, roster!, ROSTER_EXPIRATION, CACHE_FIELD);
 
             console.log("Returning updated roster.")
             return roster;
         }
 
-        // todo we shouldndt call the roster endpoint for every single team. it should be called once before hand and results saved
-        // If we're here, there was no cache hit in memory or database
-        // Fetching from the API
-        console.log("NO CACHE HIT. NO DATABASE HIT.")
-        console.log("Fetching rosters from Sleeper API...")
-        const rosters : SleeperRoster[] = await getRostersByLeagueId(SLEEPER_LEAGUE_ID);
+        console.log("No roster found in Database or Cache. Force refreshing...");
+        // If roster wasnt in cache or database, force refresh all rosters and insert into the db.
+        await this.fetchAndUpsertRostersJob()
 
-        // Finding the roster for the team
-        const sleeperRoster = rosters.find(r => r.owner_id === ownerId);
+        roster = await repo.findOne({ where: { owner_id: ownerId }, relations: ["starters"] }) || undefined;
 
-        if (sleeperRoster) {
-            roster = new SleeperRosterEntity();
-            const playerRepository = getRepository(PlayerEntity);
-
-            // Get latest players
-            await this.fetchAndSavePlayers();
-
-            // Here you should fill your entity with the data fetched from the API
-            roster.owner_id = sleeperRoster.owner_id;
-            roster.league_id = SLEEPER_LEAGUE_ID;
-            roster.roster_id = sleeperRoster.roster_id;
-            roster.players = await playerRepository.findByIds(sleeperRoster.players);
-            roster.starters = await playerRepository.findByIds(sleeperRoster.players);
-            roster.reserve = await playerRepository.findByIds(sleeperRoster.players);
-            roster.settings = sleeperRoster.settings;
-
-            await repo.save(roster);
-
-            // Updating the cache
-            this.cache.putObject(ownerId, roster, AVATAR_EXPIRATION, CACHE_FIELD);
-
-            return roster;
+        if (roster) {
+            console.log("Roster was sucessfully refreshed. Returning roster.")
+            this.cache.putObject(ownerId, roster!, ROSTER_EXPIRATION, CACHE_FIELD);
+            return roster
+        } else {
+            throw new Error(`Unable to find roster for ownerId ${ownerId}`);
         }
-
-        // If we're here, we couldn't find the team roster in the API response
-        // Handle this case as you see fit
-        throw new Error(`Unable to find roster for ownerId ${ownerId}`);
     }
 
-    private async fetchAndSavePlayers(): Promise<void> {
-        const sleeperPlayers = await fetchAllPlayers();
+    // todo do something for initial load (if both roster and player repo is empty call a loader)
+    public async fetchAndUpsertRostersJob(): Promise<void> {
+        const rosters: SleeperRoster[] = await getRostersByLeagueId(DYNASTY_TEST_ID);
+        const repo = getRepository(SleeperRosterEntity);
+        const playerRepo = getRepository(PlayerEntity);
 
-        // Get the repository for PlayerEntity
-        const playerRepository = getRepository(PlayerEntity);
+        for (const roster of rosters) {
+            // Check if the roster is already in the database
+            let rosterEntity = await repo.findOne({ where: { owner_id: roster.owner_id } });
 
-        // Save the players in the database
-        await playerRepository.save(sleeperPlayers);
+            // Concatenate all the IDs
+            const allIds = [
+                ...(roster.players || []),
+                ...(roster.starters || []),
+                ...(roster.reserve || []),
+            ];
+
+            // Find all the corresponding entities
+            const allEntities = await playerRepo.findByIds(allIds);
+
+            // Separate them back into their original categories
+            const players = allEntities.filter((player) => roster.players?.includes(player.player_id));
+            const starters = allEntities.filter((player) => roster.starters?.includes(player.player_id));
+            const reserves = allEntities.filter((player) => roster.reserve?.includes(player.player_id));
+
+            if (rosterEntity) {
+                // If the roster exists, update the fields
+                rosterEntity.settings = roster.settings;
+                rosterEntity.roster_id = roster.roster_id;
+                rosterEntity.starters = starters;
+                rosterEntity.players = players;
+                rosterEntity.reserve = reserves;
+            } else {
+                // If the roster doesn't exist, create a new one
+                rosterEntity = new SleeperRosterEntity();
+                rosterEntity.owner_id = roster.owner_id;
+                rosterEntity.league_id = DYNASTY_TEST_ID; // replace with the actual league_id
+                rosterEntity.roster_id = roster.roster_id;
+                rosterEntity.settings = roster.settings;
+                rosterEntity.starters = starters;
+                rosterEntity.players = players;
+                rosterEntity.reserve = reserves;
+            }
+
+            // Save the updated or new roster
+            await repo.save(rosterEntity);
+        }
+    }
+
+    public async updatePlayersJob(): Promise<void> {
+        const players: PlayerEntity[] = await fetchAllPlayers();
+        const repo = getRepository(PlayerEntity);
+
+        for (const player of players) {
+            const existingPlayer = await repo.findOne({ where: { player_id: player.player_id } });
+            if (existingPlayer) {
+                Object.assign(existingPlayer, player); // Updates the existing player with new data
+                await repo.save(existingPlayer);
+            } else {
+                await repo.save(player); // Insert new player if not found
+            }
+        }
+
+        console.log('Players updated successfully.');
     }
 }

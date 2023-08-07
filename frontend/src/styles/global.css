@@ -228,7 +228,6 @@ footer {
   --bs-table-bg: initial !important;
 }
 
-
 /** POSTS **/
 .card-text pre {
   white-space: pre-wrap;
@@ -287,6 +286,17 @@ footer {
   align-items: center;
   height: 100vh;
 }
+
+.custom-tabs .nav-link.active {
+  --bs-nav-tabs-link-active-color: initial !important;
+  color: hotpink !important;
+}
+
+.custom-tabs .nav-item:not(.active) .nav-link {
+  --bs-nav-link-color: initial !important;
+  color: black;
+}
+
 
 
 

@@ -1,5 +1,5 @@
 export interface SleeperRoster {
-    starters: string[]; // player ids?
+    starters: string[];
     settings: {
         wins: number;
         waiver_position: number;
@@ -13,7 +13,7 @@ export interface SleeperRoster {
         fpts: number;
     };
     roster_id: number;
-    reserve: any[]; // player ids?
-    players: string[]; // player ids?
-    owner_id: string; // sleeperuserentity -> user_id
+    reserve: string[];
+    players: string[];
+    owner_id: string;
 }

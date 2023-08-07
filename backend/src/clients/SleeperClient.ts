@@ -25,7 +25,8 @@ export async function getRostersByLeagueId(id: string): Promise<SleeperRoster[]>
 
 export async function fetchAllPlayers(): Promise<PlayerEntity[]> {
     const url: string = BASEURL_SLEEPER + "players/nfl";
-    const response = await axios.get<PlayerEntity[]>(url);
-    return response.data;
+    const response = await axios.get(url);
+    return Object.values(response.data); // Convert the object into an array
 }
+
 

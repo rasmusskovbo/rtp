@@ -2,8 +2,11 @@ import { getRepository } from "typeorm";
 import { TeamEntity } from '../database/entities/TeamEntity';
 import { AllTimeStandingsEntity } from '../database/entities/AllTimeStandingsEntity';
 import { AllTimeWinnersEntity } from '../database/entities/AllTimeWinnersEntity';
-import {SleeperRosterEntity} from "../database/entities/SleeperRosterEntity";
 import {SleeperService} from "./SleeperService";
+import {RedisCache} from "../cache/RedisClient";
+import {getSleeperUserByUsername} from "../clients/SleeperClient";
+
+const TEAMS_EXPIRATION_TIME = 60 * 60 * 12; // 12 hours
 
 export interface TeamData {
     teamLogo: string;
@@ -27,34 +30,49 @@ export interface TeamData {
         fpts_against: number;
     };
     activeRoster: {
-        name: string; // full name
+        name: string;
         position: string;
     }[];
 }
 
 export class TeamsService {
+    private static redisCache = new RedisCache();
+
     static async getAllTeams() : Promise<TeamData[]> {
+        const cacheKey = 'allTeams';
+        const cacheField = 'teamData';
+
+        // Try to get the data from cache first
+        const cachedData = await TeamsService.redisCache.getObject<TeamData[]>(cacheKey, cacheField);
+
+        if (cachedData) {
+            console.log("Retrieved teams from cache");
+            return cachedData;
+        }
+
         const sleeperService = new SleeperService();
         const teamRepository = getRepository(TeamEntity);
         const allTimeStandingsRepository = getRepository(AllTimeStandingsEntity);
         const allTimeWinnersRepository = getRepository(AllTimeWinnersEntity);
-        const rosterRepository = getRepository(SleeperRosterEntity);
 
         console.log("Fetching all teams from database")
-        const teams = await teamRepository.find({ relations: ["activeRoster"] });
-        // what happens if a team upon startup has no activeRoster (it will not, as it needs to be updated with sleeper info first
-        // i.e. initial load, teams will only be half finished. this should be handled below
-        return Promise.all(teams.map(async (team) => {
-            console.log("Beginning data mapping for team with Sleeper Owner ID: " + team.ownerId + "owner name: " + team.ownerName);
+        const teams = await teamRepository.find();
+
+        const result = Promise.all(teams.map(async (team) => {
+            console.log("Fetching owner ID for username: " + team.sleeperUsername);
+            const sleeperUser = await getSleeperUserByUsername(team.sleeperUsername)
+            const ownerId = sleeperUser.user_id;
+
+            console.log("Beginning data mapping for team with Sleeper Owner ID: " + ownerId + "owner name: " + team.ownerName);
+
             // Update underlying roster with latest information
-            console.log("Fetch and upsert roster...");
-            const roster = await sleeperService.fetchAndUpsertRosters(team.ownerId);
+            console.log("Get roster from cache or database...");
+            const roster = await sleeperService.getSleeperRosterForOwnerId(ownerId);
 
             console.log("Fetch relevant stats...");
             const standings = await allTimeStandingsRepository.findOne({ where: { sleeper_username: team.sleeperUsername } });
             const winners = await allTimeWinnersRepository.findOne({ where: { sleeper_username: team.sleeperUsername } });
 
-            // TODO should cache team as well.
             console.log("Finished mapping!")
             return {
                 teamLogo: team.teamLogo,
@@ -75,7 +93,7 @@ export class TeamsService {
                     losses: roster.settings.losses,
                     ties: roster.settings.ties,
                     fpts: roster.settings.fpts,
-                    fpts_against: roster.settings.fpts_against,
+                    fpts_against: roster.settings.fpts_against ?? 0,
                 } : undefined,
                 activeRoster: roster ? roster.starters.map(player => ({
                     name: `${player.first_name} ${player.last_name}`,
@@ -83,6 +101,12 @@ export class TeamsService {
                 })) : [],
             } as TeamData;
         }));
+
+        // Save the result to cache with a 12-hour expiration time (43200 seconds)
+        const finalResult = await result;
+        await TeamsService.redisCache.putObject(cacheKey, finalResult, TEAMS_EXPIRATION_TIME, cacheField);
+
+        return result;
     }
 }
 

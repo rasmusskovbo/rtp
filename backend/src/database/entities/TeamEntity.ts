@@ -12,9 +12,6 @@ export class TeamEntity {
     id!: number;
 
     @Column()
-    ownerId!: string;
-
-    @Column()
     sleeperUsername!: string;
 
     @Column()
@@ -37,10 +34,4 @@ export class TeamEntity {
 
     @Column()
     ownerImage!: string;
-
-    // Todo maybe not needed anymrore?
-    @OneToMany(() => PlayerEntity, (player) => player.team, {
-        cascade: true,
-    })
-    activeRoster!: PlayerEntity[];
 }

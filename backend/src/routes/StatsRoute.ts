@@ -7,14 +7,23 @@ import {PlayerHighScoreEntity} from "../database/entities/PlayerHighScoreEntity"
 import {YearlyFinishesEntity} from "../database/entities/YearlyFinishesEntity";
 import {SleeperService} from "../services/SleeperService";
 import {StatsMapper} from "../mappers/StatsMapper";
+import {RedisCache} from "../cache/RedisClient";
 
 const statsRouter = Router();
-let statsMapper: StatsMapper
+let statsMapper: StatsMapper;
+const redisCache = new RedisCache();
+const statsKey = "stats"; // A key to store stats in Redis
 
 statsRouter.get('/stats', async (req, res) => {
     console.log("API Call received GET /stats")
-    statsMapper = new StatsMapper(new SleeperService())
+    statsMapper = new StatsMapper(new SleeperService());
+    const statsCache = await redisCache.getObject(statsKey, 'data');
 
+    // If cache is available, return it immediately
+    if (statsCache) {
+        console.log("Cache HIT")
+        return res.json(statsCache);
+    }
     try {
         const allTimeWinnersRepository = getRepository(AllTimeWinnersEntity);
         const allTimeStandingsRepository = getRepository(AllTimeStandingsEntity);
@@ -32,7 +41,7 @@ statsRouter.get('/stats', async (req, res) => {
         const playerHighScoresStats = await playerHighScoresRepository.find()
             .then(stats => statsMapper.mapAvatarOnly(stats))
 
-        res.json({
+        const statsResponse = {
             statProps: {
                 allTimeWinners: {stats: allTimeWinnersStats},
                 allTimeStandings: {stats: allTimeStandingsStats},
@@ -40,7 +49,12 @@ statsRouter.get('/stats', async (req, res) => {
                 playerHighScores: {stats: playerHighScoresStats},
                 yearlyFinishes: {stats: yearlyFinishesStats},
             }
-        });
+        };
+
+        const result = await statsResponse;
+        await redisCache.putObject(statsKey, result, 86400, 'data');
+
+        res.json(result);
     } catch (error) {
         res.status(500).json({error: 'Failed to fetch data'});
     }
