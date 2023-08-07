@@ -146,8 +146,9 @@ export class SleeperService {
         }
     }
 
-    // todo do something for initial load (if both roster and player repo is empty call a loader)
     public async fetchAndUpsertRostersJob(): Promise<void> {
+        await this.initialLoadIfEmpty();
+
         const rosters: SleeperRoster[] = await getRostersByLeagueId(SLEEPER_LEAGUE_ID);
         const repo = getRepository(SleeperRosterEntity);
         const playerRepo = getRepository(PlayerEntity);
@@ -211,4 +212,28 @@ export class SleeperService {
 
         console.log('Players updated successfully.');
     }
+
+    private async initialLoadIfEmpty(): Promise<void> {
+        const rosterRepo = getRepository(SleeperRosterEntity);
+        const playerRepo = getRepository(PlayerEntity);
+
+        // Check if rosters repository is empty
+        const rosterCount = await rosterRepo.count();
+
+        // Check if players repository is empty
+        const playerCount = await playerRepo.count();
+
+        if (rosterCount === 0 && playerCount === 0) {
+            console.log('Both rosters and players repositories are empty. Initiating update jobs...');
+
+            // Call the update jobs
+            await this.updatePlayersJob();
+            await this.fetchAndUpsertRostersJob();
+
+            console.log('Update jobs completed successfully.');
+        } else {
+            console.log('Rosters and/or players repositories are not empty. Skipping update jobs.');
+        }
+    }
+
 }
