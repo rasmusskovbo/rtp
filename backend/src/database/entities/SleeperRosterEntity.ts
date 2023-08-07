@@ -3,10 +3,12 @@ import {
     PrimaryGeneratedColumn,
     Column,
     OneToMany,
+    Unique
 } from "typeorm";
 import { PlayerEntity } from "./PlayerEntity";
 
 @Entity("roster")
+@Unique(["owner_id"])
 export class SleeperRosterEntity {
     @PrimaryGeneratedColumn()
     id!: number;

@@ -61,7 +61,14 @@ export class TeamsService {
         const result = Promise.all(teams.map(async (team) => {
             console.log("Fetching owner ID for username: " + team.sleeperUsername);
             const sleeperUser = await getSleeperUserByUsername(team.sleeperUsername)
-            const ownerId = sleeperUser.user_id;
+            let ownerId = "";
+
+            if (!sleeperUser) {
+                console.log("ERROR, USER UNDEFINED FOR TEAM: " + team.sleeperUsername)
+                throw new Error("ERROR "+team.sleeperUsername)
+            } else {
+                ownerId = sleeperUser.user_id;
+            }
 
             console.log("Beginning data mapping for team with Sleeper Owner ID: " + ownerId + "owner name: " + team.ownerName);
 
