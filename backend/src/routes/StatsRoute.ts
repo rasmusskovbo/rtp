@@ -7,17 +7,16 @@ import {PlayerHighScoreEntity} from "../database/entities/PlayerHighScoreEntity"
 import {YearlyFinishesEntity} from "../database/entities/YearlyFinishesEntity";
 import {SleeperService} from "../services/SleeperService";
 import {StatsMapper} from "../mappers/StatsMapper";
-import {RedisCache} from "../cache/RedisClient";
+import {getObjectFromCache, putObjectInCache} from "../cache/RedisClient";
 
 const statsRouter = Router();
 let statsMapper: StatsMapper;
-const redisCache = new RedisCache();
 const statsKey = "stats"; // A key to store stats in Redis
 
 statsRouter.get('/stats', async (req, res) => {
     console.log("API Call received GET /stats")
     statsMapper = new StatsMapper(new SleeperService());
-    const statsCache = await redisCache.getObject(statsKey, 'data');
+    const statsCache = await getObjectFromCache(statsKey, 'data');
 
     // If cache is available, return it immediately
     if (statsCache) {
@@ -52,7 +51,7 @@ statsRouter.get('/stats', async (req, res) => {
         };
 
         const result = await statsResponse;
-        await redisCache.putObject(statsKey, result, 86400, 'data');
+        await putObjectInCache(statsKey, result, 86400, 'data');
 
         res.json(result);
     } catch (error) {

@@ -1,94 +1,73 @@
 import { createClient, RedisClientOptions } from 'redis';
 import dotenv from "dotenv";
 
-dotenv.config()
+dotenv.config();
 
-export class RedisCache {
-    private client: any;
+const connectionString = process.env.HEROKU_DEPLOYMENT ? process.env.REDIS_URL! :
+    process.env.REDIS_USER == null || process.env.REDIS_PASSWORD == null ?
+        `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}` :
+        `redis://${process.env.REDIS_USER}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
 
-    constructor() {
-        console.log("Heroku Deployment: " + process.env.HEROKU_DEPLOYMENT);
-        let connectionString = "";
-        if (process.env.HEROKU_DEPLOYMENT) {
-            connectionString = process.env.REDIS_URL!;
-        } else {
-            const username = process.env.REDIS_USER;
-            const password = process.env.REDIS_PASSWORD;
-            const host = process.env.REDIS_HOST;
-            const port = process.env.REDIS_PORT;
+const config: RedisClientOptions = { url: connectionString };
 
-            connectionString = (username == null || password == null)
-                ? `redis://${host}:${port}` : `redis://${username}:${password}@${host}:${port}`;
-        }
+let retries = 0;
+const maxRetries = 10;
+const baseDelay = 1000;
 
-        const config: RedisClientOptions = {
-            url: connectionString
-        }
+const client = createClient(config);
 
-        let retries = 0;
-        const maxRetries = 10;
-        const baseDelay = 1000;
-
-        const connectToRedis = () => {
-            if (retries > maxRetries) {
-                console.error("Max retries reached. Could not connect to Redis.");
-                return; // Or handle this situation differently
-            }
-
-            this.client = createClient(config);
-
-            this.client.on('error', (error: any) => {
-                console.error("Error in Redis client:", error);
-                retries++;
-                // Retry connection with exponential backoff
-                setTimeout(connectToRedis, baseDelay * Math.pow(2, retries));
-            });
-
-            this.client.connect().catch((error: any) => {
-                console.error("Failed to connect to Redis:", error);
-                retries++;
-                // Retry connection with exponential backoff
-                setTimeout(connectToRedis, baseDelay * Math.pow(2, retries));
-            });
-        };
-
-        connectToRedis()
-
+const connectToRedis = () => {
+    if (retries > maxRetries) {
+        console.error("Max retries reached. Could not connect to Redis.");
+        return;
     }
 
-    async put(key: string, value: string, expiration: number, fieldName: string) {
-        try {
-            await this.client.hSet(key, fieldName, value);
-            await this.client.expire(key, expiration);
-        } catch (e) {
-            console.error('A cache error occurred:', e);
-        }
-    }
+    client.on('error', (error: any) => {
+        console.error("Error in Redis client:", error);
+        retries++;
+        setTimeout(connectToRedis, baseDelay * Math.pow(2, retries));
+    });
 
-    async get(key: string, fieldName: string): Promise<string | undefined> {
-        try {
-            const result = await this.client.hGet(key, fieldName);
-            return result
-        } catch (e) {
-            console.error('A cache error occurred:', e);
-        }
-    }
+    client.connect().catch((error: any) => {
+        console.error("Failed to connect to Redis:", error);
+        retries++;
+        setTimeout(connectToRedis, baseDelay * Math.pow(2, retries));
+    });
+};
 
-    async putObject(key: string, value: object, expiration: number, fieldName: string) {
-        try {
-            const stringifiedValue = JSON.stringify(value);
-            await this.put(key, stringifiedValue, expiration, fieldName);
-        } catch (e) {
-            console.error('A cache error occurred:', e);
-        }
-    }
+connectToRedis();
 
-    async getObject<T>(key: string, fieldName: string): Promise<T | undefined> {
-        try {
-            const result = await this.get(key, fieldName);
-            return result ? JSON.parse(result) as T : undefined;
-        } catch (e) {
-            console.error('A cache error occurred:', e);
-        }
+export const putInCache = async (key: string, value: string, expiration: number, fieldName: string) => {
+    try {
+        await client.hSet(key, fieldName, value);
+        await client.expire(key, expiration);
+    } catch (e) {
+        console.error('A cache error occurred:', e);
     }
-}
+};
+
+export const getFromCache = async (key: string, fieldName: string): Promise<string | undefined> => {
+    try {
+        return await client.hGet(key, fieldName);
+    } catch (e) {
+        console.error('A cache error occurred:', e);
+    }
+};
+
+export const putObjectInCache = async (key: string, value: object, expiration: number, fieldName: string) => {
+    try {
+        const stringifiedValue = JSON.stringify(value);
+        await putInCache(key, stringifiedValue, expiration, fieldName);
+    } catch (e) {
+        console.error('A cache error occurred:', e);
+    }
+};
+
+export const getObjectFromCache = async <T>(key: string, fieldName: string): Promise<T | undefined> => {
+    try {
+        const result = await getFromCache(key, fieldName);
+        return result ? JSON.parse(result) as T : undefined;
+    } catch (e) {
+        console.error('A cache error occurred:', e);
+    }
+};

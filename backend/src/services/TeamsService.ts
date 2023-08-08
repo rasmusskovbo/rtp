@@ -3,7 +3,7 @@ import { TeamEntity } from '../database/entities/TeamEntity';
 import { AllTimeStandingsEntity } from '../database/entities/AllTimeStandingsEntity';
 import { AllTimeWinnersEntity } from '../database/entities/AllTimeWinnersEntity';
 import {SleeperService} from "./SleeperService";
-import {RedisCache} from "../cache/RedisClient";
+import {getObjectFromCache, putObjectInCache} from "../cache/RedisClient";
 import {getSleeperUserByUsername} from "../clients/SleeperClient";
 
 const TEAMS_EXPIRATION_TIME = 60 * 60 * 12; // 12 hours
@@ -36,14 +36,12 @@ export interface TeamData {
 }
 
 export class TeamsService {
-    private static redisCache = new RedisCache();
-
     static async getAllTeams() : Promise<TeamData[]> {
         const cacheKey = 'allTeams';
         const cacheField = 'teamData';
 
         // Try to get the data from cache first
-        const cachedData = await TeamsService.redisCache.getObject<TeamData[]>(cacheKey, cacheField);
+        const cachedData = await getObjectFromCache<TeamData[]>(cacheKey, cacheField);
 
         if (cachedData) {
             console.log("Retrieved teams from cache");
@@ -111,7 +109,7 @@ export class TeamsService {
 
         // Save the result to cache with a 12-hour expiration time (43200 seconds)
         const finalResult = await result;
-        await TeamsService.redisCache.putObject(cacheKey, finalResult, TEAMS_EXPIRATION_TIME, cacheField);
+        await putObjectInCache(cacheKey, finalResult, TEAMS_EXPIRATION_TIME, cacheField);
 
         return result;
     }
