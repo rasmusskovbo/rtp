@@ -10,30 +10,32 @@ const connectionString = process.env.HEROKU_DEPLOYMENT ? process.env.REDIS_URL! 
 
 const config: RedisClientOptions = { url: connectionString };
 
+let client = createClient(config);
+
 let retries = 0;
 const maxRetries = 10;
 const baseDelay = 1000;
 
-const client = createClient(config);
-
-const connectToRedis = () => {
+const connectToRedis = async () => {
     if (retries > maxRetries) {
         console.error("Max retries reached. Could not connect to Redis.");
         return;
     }
 
-    client.on('error', (error: any) => {
-        console.error("Error in Redis client:", error);
-        retries++;
-        setTimeout(connectToRedis, baseDelay * Math.pow(2, retries));
-    });
-
-    client.connect().catch((error: any) => {
+    try {
+        await client.connect();
+    } catch (error) {
         console.error("Failed to connect to Redis:", error);
         retries++;
+        client.disconnect();
+        client = createClient(config); // Creating a new client instance
         setTimeout(connectToRedis, baseDelay * Math.pow(2, retries));
-    });
+    }
 };
+
+client.on('error', (error: any) => {
+    console.error("Error in Redis client:", error);
+});
 
 connectToRedis();
 
