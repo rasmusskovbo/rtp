@@ -47,10 +47,10 @@
 }
 
 .stat-label {
-    width: 250px; /* or any other width that fits your content */
+    width: 200px;
     display: inline-block;
     text-align: left;
-    margin-right: 10px; /* or any desired padding */
+    margin-right: 10px;
     font-weight: bold;
 }
 
