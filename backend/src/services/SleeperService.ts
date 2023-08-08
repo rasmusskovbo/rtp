@@ -44,7 +44,7 @@ export class SleeperService {
         let dbSleeperUser = await sleeperRepo.findOne({ where: { username } });
         if (dbSleeperUser) {
             console.log("DATABASE HIT. Caching and returning result.");
-            this.cache.putObject(username, dbSleeperUser, ROSTER_EXPIRATION, CACHE_FIELD);
+            await this.cache.putObject(username, dbSleeperUser, ROSTER_EXPIRATION, CACHE_FIELD);
             return dbSleeperUser;
         }
 
@@ -58,7 +58,7 @@ export class SleeperService {
             await sleeperRepo.save(dbSleeperUser);
 
             // Save in cache
-            this.cache.putObject(username, dbSleeperUser, ROSTER_EXPIRATION, CACHE_FIELD);
+            await this.cache.putObject(username, dbSleeperUser, ROSTER_EXPIRATION, CACHE_FIELD);
             console.log("User was successfully fetched and cached. Returning user.");
             return dbSleeperUser;
         } else {
@@ -73,7 +73,7 @@ export class SleeperService {
 
             if (sleeperUser) {
                 const avatarUrl = BASEURL_SLEEPER_AVATAR + sleeperUser.avatar;
-                this.cache.put(username, avatarUrl, AVATAR_EXPIRATION, CACHE_FIELD);
+                await this.cache.put(username, avatarUrl, AVATAR_EXPIRATION, CACHE_FIELD);
 
                 // Get repository for the SleeperUserEntity
                 const repo = getRepository(SleeperUserEntity);
@@ -125,7 +125,7 @@ export class SleeperService {
             console.log("DATABASE HIT..")
 
             console.log("Caching roster...")
-            this.cache.putObject(ownerId, roster!, ROSTER_EXPIRATION, CACHE_FIELD);
+            await this.cache.putObject(ownerId, roster!, ROSTER_EXPIRATION, CACHE_FIELD);
 
             console.log("Returning updated roster.")
             return roster;
@@ -139,7 +139,7 @@ export class SleeperService {
 
         if (roster) {
             console.log("Roster was sucessfully refreshed. Returning roster.")
-            this.cache.putObject(ownerId, roster!, ROSTER_EXPIRATION, CACHE_FIELD);
+            await this.cache.putObject(ownerId, roster!, ROSTER_EXPIRATION, CACHE_FIELD);
             return roster
         } else {
             throw new Error(`Unable to find roster for ownerId ${ownerId}`);
@@ -149,7 +149,7 @@ export class SleeperService {
     public async fetchAndUpsertRostersJob(): Promise<void> {
         await this.initialLoadIfEmpty();
 
-        const rosters: SleeperRoster[] = await getRostersByLeagueId(SLEEPER_LEAGUE_ID);
+        const rosters: SleeperRoster[] = await getRostersByLeagueId(DYNASTY_TEST_ID);
         const repo = getRepository(SleeperRosterEntity);
         const playerRepo = getRepository(PlayerEntity);
 
@@ -183,7 +183,7 @@ export class SleeperService {
                 // If the roster doesn't exist, create a new one
                 rosterEntity = new SleeperRosterEntity();
                 rosterEntity.owner_id = roster.owner_id;
-                rosterEntity.league_id = SLEEPER_LEAGUE_ID; // replace with the actual league_id
+                rosterEntity.league_id = DYNASTY_TEST_ID; // replace with the actual league_id
                 rosterEntity.roster_id = roster.roster_id;
                 rosterEntity.settings = roster.settings;
                 rosterEntity.starters = starters;

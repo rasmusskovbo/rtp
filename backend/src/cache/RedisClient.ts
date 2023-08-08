@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config()
 
 export class RedisCache {
-    private client;
+    private client: any;
 
     constructor() {
         console.log("Heroku Deployment: " + process.env.HEROKU_DEPLOYMENT);
@@ -25,16 +25,44 @@ export class RedisCache {
             url: connectionString
         }
 
-        this.client = createClient(config);
-        this.client.connect().catch((error: any) => {
-            console.error("Failed to connect to Redis:", error)
-        })
+        let retries = 0;
+        const maxRetries = 10;
+        const baseDelay = 1000;
+
+        const connectToRedis = () => {
+            if (retries > maxRetries) {
+                console.error("Max retries reached. Could not connect to Redis.");
+                return; // Or handle this situation differently
+            }
+
+            this.client = createClient(config);
+
+            this.client.on('error', (error: any) => {
+                console.error("Error in Redis client:", error);
+                retries++;
+                // Retry connection with exponential backoff
+                setTimeout(connectToRedis, baseDelay * Math.pow(2, retries));
+            });
+
+            this.client.connect().catch((error: any) => {
+                console.error("Failed to connect to Redis:", error);
+                retries++;
+                // Retry connection with exponential backoff
+                setTimeout(connectToRedis, baseDelay * Math.pow(2, retries));
+            });
+        };
+
+        connectToRedis()
 
     }
 
     async put(key: string, value: string, expiration: number, fieldName: string) {
-        await this.client.hSet(key, fieldName, value);
-        await this.client.expire(key, expiration);
+        try {
+            await this.client.hSet(key, fieldName, value);
+            await this.client.expire(key, expiration);
+        } catch (e) {
+            console.error('A cache error occurred:', e);
+        }
     }
 
     async get(key: string, fieldName: string): Promise<string | undefined> {
@@ -42,18 +70,25 @@ export class RedisCache {
             const result = await this.client.hGet(key, fieldName);
             return result
         } catch (e) {
-            console.error('An error occurred:', e);
-            throw e;
+            console.error('A cache error occurred:', e);
         }
     }
 
     async putObject(key: string, value: object, expiration: number, fieldName: string) {
-        const stringifiedValue = JSON.stringify(value);
-        await this.put(key, stringifiedValue, expiration, fieldName);
+        try {
+            const stringifiedValue = JSON.stringify(value);
+            await this.put(key, stringifiedValue, expiration, fieldName);
+        } catch (e) {
+            console.error('A cache error occurred:', e);
+        }
     }
 
     async getObject<T>(key: string, fieldName: string): Promise<T | undefined> {
-        const result = await this.get(key, fieldName);
-        return result ? JSON.parse(result) as T : undefined;
+        try {
+            const result = await this.get(key, fieldName);
+            return result ? JSON.parse(result) as T : undefined;
+        } catch (e) {
+            console.error('A cache error occurred:', e);
+        }
     }
 }
