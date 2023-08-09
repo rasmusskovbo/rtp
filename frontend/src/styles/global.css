@@ -297,6 +297,11 @@ footer {
   color: black;
 }
 
+.custom-tabs .nav-item .nav-link {
+  font-size: 12px; /* Adjust the size as needed */
+}
+
+
 
 
 

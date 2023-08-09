@@ -15,6 +15,13 @@ export interface TeamData {
     nationality: string;
     yearsInLeague: number;
     bio: string;
+    rival: {
+        rivalName: string;
+        wins: string;
+        losses: string;
+        fpts: string;
+        fpts_against: string;
+    },
     allTimeStats: {
         wins: number;
         playoffAppearances: number;

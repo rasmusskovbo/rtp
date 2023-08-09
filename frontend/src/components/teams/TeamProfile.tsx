@@ -88,11 +88,15 @@ const TeamProfile = ({ data }: { data: TeamData }) => {
                         <ListGroup variant="flush">
                             <ListGroup.Item className={styles["stat-item"]}>
                                 <span className={styles["stat-label"]}>Rival Team:</span>
-                                Coming soon!
+                                {data.rival.rivalName}
                             </ListGroup.Item>
                             <ListGroup.Item className={styles["stat-item"]}>
                                 <span className={styles["stat-label"]}>Head To Head Record</span>
-                                0-0
+                                {data.rival.wins}  -  {data.rival.losses}
+                            </ListGroup.Item>
+                            <ListGroup.Item className={styles["stat-item"]}>
+                                <span className={styles["stat-label"]}>Points scored</span>
+                                {data.rival.fpts}  -  {data.rival.fpts_against}
                             </ListGroup.Item>
                         </ListGroup>
                     </Card>

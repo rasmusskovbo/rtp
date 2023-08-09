@@ -5,6 +5,7 @@ import { AllTimeWinnersEntity } from '../database/entities/AllTimeWinnersEntity'
 import {SleeperService} from "./SleeperService";
 import {getObjectFromCache, putObjectInCache} from "../cache/RedisClient";
 import {getSleeperUserByUsername} from "../clients/SleeperClient";
+import {RivalsService} from "./RivalsService";
 
 const TEAMS_EXPIRATION_TIME = 60 * 60 * 12; // 12 hours
 
@@ -40,6 +41,7 @@ export class TeamsService {
     static async getAllTeams() : Promise<TeamData[]> {
         const cacheKey = 'allTeams';
         const cacheField = 'teamData';
+        const rivalService = new RivalsService()
 
         // Try to get the data from cache first
         const cachedData = await getObjectFromCache<TeamData[]>(cacheKey, cacheField);
@@ -69,17 +71,24 @@ export class TeamsService {
                 ownerId = sleeperUser.user_id;
             }
 
+            console.log("Fetching rivals info for username: " + team.sleeperUsername)
+            const rivalsInfo = await rivalService.findRivalByTeamId(team.id)
             console.log("Beginning data mapping for team with Sleeper Owner ID: " + ownerId + "owner name: " + team.ownerName);
 
             // Update underlying roster with latest information
-            console.log("Get roster from cache or database...");
+            console.log("Get roster from cache or database for username: " + team.sleeperUsername);
             const roster = await sleeperService.getSleeperRosterForOwnerId(ownerId);
+            if (roster) {
+                console.log("Current team mapping: " + team.teamName)
+                console.log("rivals info owner team name: " + rivalsInfo?.owner?.teamName)
+                console.log("rivals info rival team name: " + rivalsInfo?.rivalTeam?.teamName)
+            }
 
-            console.log("Fetch relevant stats...");
+            console.log("Fetch relevant stats for username: " + team.sleeperUsername);
             const standings = await allTimeStandingsRepository.findOne({ where: { sleeper_username: team.sleeperUsername } });
             const winners = await allTimeWinnersRepository.findOne({ where: { sleeper_username: team.sleeperUsername } });
 
-            console.log("Finished mapping!")
+            console.log("Finished mapping for username: " + team.sleeperUsername)
             return {
                 teamLogo: team.teamLogo,
                 ownerImage: team.ownerImage,
@@ -89,6 +98,13 @@ export class TeamsService {
                 teamMascot: team.teamMascot,
                 yearsInLeague: team.yearsInLeague,
                 bio: team.bio,
+                rival: {
+                    rivalName: rivalsInfo?.rivalTeam?.teamName,
+                    wins: rivalsInfo?.wins,
+                    losses: rivalsInfo?.losses,
+                    fpts: rivalsInfo?.fpts,
+                    fpts_against: rivalsInfo?.fptsAgainst,
+                },
                 allTimeStats: {
                     wins: winners?.wins ?? 0,
                     playoffAppearances: winners?.playoff_appearances ?? 0,
