@@ -143,7 +143,7 @@ export class SleeperService {
     public async fetchAndUpsertRostersJob(): Promise<void> {
         await this.initialLoadIfEmpty();
 
-        const rosters: SleeperRoster[] = await getRostersByLeagueId(DYNASTY_TEST_ID);
+        const rosters: SleeperRoster[] = await getRostersByLeagueId(SLEEPER_LEAGUE_ID);
         const repo = getRepository(SleeperRosterEntity);
         const playerRepo = getRepository(PlayerEntity);
 
@@ -177,7 +177,7 @@ export class SleeperService {
                 // If the roster doesn't exist, create a new one
                 rosterEntity = new SleeperRosterEntity();
                 rosterEntity.owner_id = roster.owner_id;
-                rosterEntity.league_id = DYNASTY_TEST_ID; // replace with the actual league_id
+                rosterEntity.league_id = SLEEPER_LEAGUE_ID; // replace with the actual league_id
                 rosterEntity.roster_id = roster.roster_id;
                 rosterEntity.settings = roster.settings;
                 rosterEntity.starters = starters;
