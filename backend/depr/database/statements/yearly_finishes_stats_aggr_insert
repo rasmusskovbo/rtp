@@ -1,5 +1,0 @@
-INSERT INTO yearly_finishes_stats (`year`, `winner`, `second`, `third`, `last_regular`, `last_playoffs`, `league_size`) VALUES ('2020', 'sebastianorup', 'MadsNL', 'Chrizzo', 'kaspercmlsmn', 'veiloh', '12');
-INSERT INTO yearly_finishes_stats (`year`, `winner`, `second`, `third`, `last_regular`, `last_playoffs`, `league_size`) VALUES ('2019', 'normann', 'Chrizzo', 'MikkelNorqvist', 'MadsNL', 'MadsNL', '10');
-INSERT INTO yearly_finishes_stats (`year`, `winner`, `second`, `third`, `last_regular`, `last_playoffs`, `league_size`) VALUES ('2018', 'Hendawgs', 'MikkelNorqvist', 'normann', 'Gronking', 'Tomlen', '10');
-INSERT INTO yearly_finishes_stats (`year`, `winner`, `second`, `third`, `last_regular`, `last_playoffs`, `league_size`) VALUES ('2017', 'Tomlen', 'Chrizzo', 'normann', 'Wildf1re', 'Wildf1re', '6');
-INSERT INTO yearly_finishes_stats (`year`, `winner`, `second`, `third`, `last_regular`, `last_playoffs`, `league_size`) VALUES ('2016', 'Wildf1re', 'MikkelNorqvist', 'Tomlen', 'sebastianorup', 'sebastianorup', '4');
