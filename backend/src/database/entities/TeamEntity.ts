@@ -1,8 +1,9 @@
 import {
     Entity,
     PrimaryGeneratedColumn,
-    Column,
+    Column, OneToOne,
 } from "typeorm";
+import {SleeperRosterEntity} from "./SleeperRosterEntity";
 
 @Entity()
 export class TeamEntity {
@@ -35,4 +36,7 @@ export class TeamEntity {
 
     @Column()
     ownerImage!: string;
+
+    @OneToOne(() => SleeperRosterEntity, (roster) => roster.team)
+    roster!: SleeperRosterEntity;
 }

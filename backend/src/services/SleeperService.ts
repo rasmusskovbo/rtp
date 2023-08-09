@@ -6,6 +6,7 @@ import {SleeperRoster} from "../models/SleeperRoster";
 import {PlayerEntity} from "../database/entities/PlayerEntity";
 import dotenv from "dotenv";
 import {getFromCache, getObjectFromCache, putInCache, putObjectInCache} from "../cache/RedisClient";
+import {mapRosterToEntity} from "../mappers/RosterMapper";
 
 dotenv.config()
 
@@ -13,7 +14,7 @@ const BASEURL_SLEEPER_AVATAR = "https://sleepercdn.com/avatars/thumbs/";
 const CACHE_FIELD = "sleeperService";
 const AVATAR_EXPIRATION = 60 * 60 * 24; // 24 hours
 const ROSTER_EXPIRATION = 60 * 60 * 24; // 24 hours
-const SLEEPER_LEAGUE_ID = "976587245010333696";
+export const SLEEPER_LEAGUE_ID = "976587245010333696";
 const DYNASTY_TEST_ID = "917218485867139072";
 
 export class SleeperService {
@@ -143,49 +144,12 @@ export class SleeperService {
     public async fetchAndUpsertRostersJob(): Promise<void> {
         await this.initialLoadIfEmpty();
 
-        const rosters: SleeperRoster[] = await getRostersByLeagueId(SLEEPER_LEAGUE_ID);
+        const rosters: SleeperRoster[] = await getRostersByLeagueId();
         const repo = getRepository(SleeperRosterEntity);
         const playerRepo = getRepository(PlayerEntity);
 
         for (const roster of rosters) {
-            // Check if the roster is already in the database
-            let rosterEntity = await repo.findOne({ where: { owner_id: roster.owner_id } });
-
-            // Concatenate all the IDs
-            const allIds = [
-                ...(roster.players || []),
-                ...(roster.starters || []),
-                ...(roster.reserve || []),
-            ];
-
-            // Find all the corresponding entities
-            const allEntities = await playerRepo.findByIds(allIds);
-
-            // Separate them back into their original categories
-            const players = allEntities.filter((player) => roster.players?.includes(player.player_id));
-            const starters = allEntities.filter((player) => roster.starters?.includes(player.player_id));
-            const reserves = allEntities.filter((player) => roster.reserve?.includes(player.player_id));
-
-            if (rosterEntity) {
-                // If the roster exists, update the fields
-                rosterEntity.settings = roster.settings;
-                rosterEntity.roster_id = roster.roster_id;
-                rosterEntity.starters = starters;
-                rosterEntity.players = players;
-                rosterEntity.reserve = reserves;
-            } else {
-                // If the roster doesn't exist, create a new one
-                rosterEntity = new SleeperRosterEntity();
-                rosterEntity.owner_id = roster.owner_id;
-                rosterEntity.league_id = SLEEPER_LEAGUE_ID; // replace with the actual league_id
-                rosterEntity.roster_id = roster.roster_id;
-                rosterEntity.settings = roster.settings;
-                rosterEntity.starters = starters;
-                rosterEntity.players = players;
-                rosterEntity.reserve = reserves;
-            }
-
-            // Save the updated or new roster
+            const rosterEntity = await mapRosterToEntity(roster);
             await repo.save(rosterEntity);
         }
     }
