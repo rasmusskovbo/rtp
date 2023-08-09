@@ -12,6 +12,7 @@ export interface TeamData {
     teamName: string;
     ownerName: string;
     teamMascot: string;
+    nationality: string;
     yearsInLeague: number;
     bio: string;
     allTimeStats: {

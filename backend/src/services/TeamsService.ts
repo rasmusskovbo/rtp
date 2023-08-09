@@ -13,6 +13,7 @@ export interface TeamData {
     ownerImage: string;
     teamName: string;
     ownerName: string;
+    nationality: string;
     teamMascot: string;
     yearsInLeague: number;
     bio: string;
@@ -84,6 +85,7 @@ export class TeamsService {
                 ownerImage: team.ownerImage,
                 teamName: team.teamName,
                 ownerName: team.ownerName,
+                nationality: team.nationality,
                 teamMascot: team.teamMascot,
                 yearsInLeague: team.yearsInLeague,
                 bio: team.bio,

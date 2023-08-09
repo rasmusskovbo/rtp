@@ -2,9 +2,7 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    OneToMany,
 } from "typeorm";
-import { PlayerEntity } from "./PlayerEntity";
 
 @Entity()
 export class TeamEntity {
@@ -19,6 +17,9 @@ export class TeamEntity {
 
     @Column()
     ownerName!: string;
+
+    @Column({nullable: true})
+    nationality!: string;
 
     @Column()
     teamMascot!: string;

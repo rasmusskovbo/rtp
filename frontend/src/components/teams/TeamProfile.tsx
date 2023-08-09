@@ -25,7 +25,7 @@ const TeamProfile = ({ data }: { data: TeamData }) => {
                         </div>
                         <div className={styles["team-detail"]}>
                             <span className={styles["label"]}>Nationality:</span>
-                            <span className={styles["value"]}>Coming soon!</span>
+                            <span className={styles["value"]}>{data.nationality}</span>
                         </div>
                         <div className={styles["team-detail"]}>
                             <span className={styles["label"]}>Years in the league:</span>
