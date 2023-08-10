@@ -4,10 +4,12 @@ import {
     Column,
     ManyToOne,
     JoinColumn,
+    Unique,
 } from 'typeorm';
 import { SleeperRosterEntity } from './SleeperRosterEntity';
 
 @Entity()
+@Unique(["week", "matchup_id"])
 export class MatchupEntity {
     @PrimaryGeneratedColumn()
     id!: number;
@@ -25,5 +27,4 @@ export class MatchupEntity {
     @ManyToOne(() => SleeperRosterEntity, (roster) => roster.id)
     @JoinColumn({ name: 'away_team_id' })
     away_team!: SleeperRosterEntity | null;
-
 }

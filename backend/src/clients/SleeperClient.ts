@@ -13,7 +13,7 @@ export interface SleeperUser {
     avatar: string
 }
 
-export async function getSleeperUserByUsername(sleeperUserName: string): Promise<SleeperUser> {
+export async function doGetSleeperUserByUsername(sleeperUserName: string): Promise<SleeperUser> {
     const url: string = BASEURL_SLEEPER + "user/" + sleeperUserName;
     const response = await axios.get<SleeperUser>(url);
     return response.data;

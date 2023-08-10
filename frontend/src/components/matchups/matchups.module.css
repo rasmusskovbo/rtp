@@ -1,0 +1,106 @@
+.cardImage {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0;
+    margin-right: 10px; /* Add some right padding/margin */
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.cardTitle {
+    text-align: left;
+    align-content: center;
+    margin: 0;
+    flex-grow: 1; /* Allow growing to take up available space */
+}
+
+.ownerName {
+    margin-right: 0.25rem;
+    font-size: 100%;
+    text-align: right;
+    color: gray;
+    align-self: flex-end; /* Align to the right */
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.centeredRow {
+    justify-content: center;
+}
+
+
+.cardContent {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between; /* Distribute items evenly */
+    border: 3px solid #fdcae4;
+}
+
+.awayTeam .cardImage {
+    margin-left: 10px; /* Add some left padding/margin */
+    margin-right: 0;
+}
+
+.awayTeam .cardTitle {
+    text-align: right; /* Align the title to the right */
+}
+
+.awayTeam .ownerName {
+    text-align: left; /* Align the owner name to the left */
+    margin-left: 0.25rem;
+}
+
+.awayTeam .cardContent {
+    flex-direction: row-reverse;
+}
+
+.matchupLine .cardContent {
+    background-color: white; /* Normal background color */
+    transition: background-color 0.3s ease; /* Optional: smooth transition */
+}
+
+.matchupLine:hover .cardContent {
+    background-color: #fdcae4; /* Background color on hover for both cards */
+}
+
+.cardModalTitle {
+    padding: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between; /* Distribute items evenly */
+    font-size: 120%;
+}
+
+.cardModalTitle .awayTeam {
+    flex-direction: row-reverse;
+}
+
+
+.cardModalTitle .cardImage {
+    width: 64px;
+    height: 64px;
+}
+
+.player-item {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+}
+
+.player-position {
+    width: 3ch;
+    display: inline-block;
+    text-align: center;
+    margin-right: 18px; /* or any desired padding */
+}
+
+.player-position-QB { color: #ff004b; }
+.player-position-WR { color: #55a1f4; }
+.player-position-RB { color: #08c6b2; }
+.player-position-TE { color: #f3a757; }
+
+.wideModal {
+    min-width: 50% !important;
+}
+
+

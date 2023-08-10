@@ -24,7 +24,8 @@ export class StatsMapper {
     }
 
     private async mapAvatar(stats: ISleeperUser) {
-        return await this.sleeperService.getSleeperAvatarUrlBySleeperUsername(stats.sleeper_username)
+        const sleeperUser = await this.sleeperService.getSleeperUserBySleeperUsername(stats.sleeper_username)
+        return sleeperUser.avatar;
     }
 
     private calculateRtpScore(statLine: AllTimeWinnersEntity): number {

@@ -4,7 +4,7 @@ import { AllTimeStandingsEntity } from '../database/entities/AllTimeStandingsEnt
 import { AllTimeWinnersEntity } from '../database/entities/AllTimeWinnersEntity';
 import {SleeperService} from "./SleeperService";
 import {getObjectFromCache, putObjectInCache} from "../cache/RedisClient";
-import {getSleeperUserByUsername} from "../clients/SleeperClient";
+import {doGetSleeperUserByUsername} from "../clients/SleeperClient";
 import {RivalsService} from "./RivalsService";
 
 const TEAMS_EXPIRATION_TIME = 60 * 60 * 12; // 12 hours
@@ -61,7 +61,7 @@ export class TeamsService {
 
         const result = Promise.all(teams.map(async (team) => {
             console.log("Fetching owner ID for username: " + team.sleeperUsername);
-            const sleeperUser = await getSleeperUserByUsername(team.sleeperUsername)
+            const sleeperUser = await doGetSleeperUserByUsername(team.sleeperUsername)
             let ownerId = "";
 
             if (!sleeperUser) {

@@ -11,6 +11,7 @@ export async function mapMatchups(sleeperMatchups: SleeperMatchup[], week: numbe
     const uniqueMatchupIds = [...new Set(sleeperMatchups.map(matchup => matchup.matchup_id))];
 
     for (const id of uniqueMatchupIds) {
+        console.log(`Attempting to map MatchupEntity for matchup ID ${id} & week: ${week}`)
         const matchupEntity = new MatchupEntity();
 
         matchupEntity.matchup_id = id;

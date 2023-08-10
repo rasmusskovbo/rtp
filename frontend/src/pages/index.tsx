@@ -5,6 +5,8 @@ import RoadToPinkHead from "@/components/global/RoadToPinkHead";
 import Header from "@/components/global/Header";
 import PostDisplay from "@/components/posts/PostDisplay";
 import { Container, Row, Col } from 'react-bootstrap';
+import Matchups from "@/components/matchups/Matchups";
+import axios from "axios/index";
 
 const Home: React.FC = () => {
     const imagePaths = [
@@ -33,10 +35,13 @@ const Home: React.FC = () => {
                 <Header title={"Road To Pink"} subtitle={"A League Of Would-Be Champions"}/>
                 <Container className="px-4 px-lg-5">
                     <Row className="gx-4 gx-lg-5 justify-content-center">
-                        <Col md={10} lg={8} xl={7}>
+                        <Col sm={12} md={6}>
                             {posts.map((post, index) => (
                                 <PostDisplay key={index} post={post} />
                             ))}
+                        </Col>
+                        <Col sm={12} md={6}>
+                            <Matchups/>
                         </Col>
                     </Row>
                 </Container>
