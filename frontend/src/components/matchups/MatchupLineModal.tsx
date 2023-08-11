@@ -10,6 +10,14 @@ interface MatchupLineModalProps {
 }
 
 const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal, handleCloseModal }) => {
+    const handleVote = (team: 'home' | 'away') => {
+        // Handle the voting logic here. You could call an API, update the component's state, etc.
+
+        // vote should send matchup ID, team OR roster ID as well as ID on who sent the vote
+        console.log(`Vote for ${team} team`);
+    };
+
+
     return (
         <Modal show={showModal} onClick={handleCloseModal} dialogClassName={styles.wideModal}>
             <Modal.Header closeButton>
@@ -39,16 +47,20 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                                             </ListGroup.Item>
                                         ))}
                                 </ListGroup>
+                                <div className="text-center mt-3">
+                                    <Button variant="success" onClick={() => handleVote('home')}>Vote</Button>
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>
+
                     {/* Away Team Card */}
                     <Col>
                         <Card>
-                            <Card.Title className={`${styles.cardModalTitle} ${styles.awayTeam}`}>
-                                <div>{matchup.away_team.settings.wins} - {matchup.away_team.settings.losses}</div>
+                            <Card.Title className={styles.cardModalTitle}>
+                                <img className={styles.cardImage} src={matchup.away_team.team.teamLogo}/>
                                 <div className={styles.cardTitle}>{matchup.away_team.team.teamName}</div>
-                                <img className={`${styles.cardImage} `} src={matchup.away_team.team.teamLogo}/>
+                                <div>{matchup.away_team.settings.wins} - {matchup.away_team.settings.losses}</div>
                             </Card.Title>
                             <Card.Body>
                                 <ListGroup>
@@ -64,6 +76,10 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                                             </ListGroup.Item>
                                         ))}
                                 </ListGroup>
+                                <div className="text-center mt-3">
+                                    <Button variant="success" onClick={() => handleVote('away')}>Vote</Button>
+                                </div>
+
                             </Card.Body>
                         </Card>
                     </Col>
