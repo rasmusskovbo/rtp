@@ -2,15 +2,18 @@
     width: 40px;
     height: 40px;
     margin-bottom: 0;
-    margin-right: 10px; /* Add some right padding/margin */
+    margin-right: -10px; /* Add some right padding/margin */
     flex-shrink: 0; /* Prevent shrinking */
 }
 
 .cardTitle {
+    font-size: 80%;
     text-align: left;
     align-content: center;
+    max-width: 100px;
     margin: 0;
     flex-grow: 1; /* Allow growing to take up available space */
+    word-wrap: normal;
 }
 
 .ownerName {
@@ -36,7 +39,7 @@
 }
 
 .awayTeam .cardImage {
-    margin-left: 10px; /* Add some left padding/margin */
+    margin-left: -10px; /* Add some left padding/margin */
     margin-right: 0;
 }
 
@@ -101,6 +104,10 @@
 
 .wideModal {
     min-width: 50% !important;
+}
+
+.versusLabel {
+    margin-left: 3rem;
 }
 
 

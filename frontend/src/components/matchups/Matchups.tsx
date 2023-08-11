@@ -1,8 +1,6 @@
-// Matchups.tsx
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import {Container, Spinner} from 'react-bootstrap';
+import {Container, Row, Spinner} from 'react-bootstrap';
 import { Matchup } from './IMatchup';
 import MatchupLine from '@/components/matchups/MatchupLine';
 import styles from './matchups.module.css';
@@ -44,6 +42,12 @@ const Matchups: React.FC = () => {
 
     return (
         <Container>
+            {matchups[0] && (
+                <Row className="align-content-center">
+                    <h3>Matchups for week {matchups[0].week}</h3>
+                </Row>
+            )}
+            <Row>
             {matchups.map((matchup) => (
                 (matchup.home_team !== null && matchup.away_team !== null) && (
                     <MatchupLine key={matchup.id} matchup={matchup} onShowModal={() => handleShowModal(matchup)} />
@@ -52,6 +56,7 @@ const Matchups: React.FC = () => {
             {selectedMatchup && (
                 <MatchupLineModal matchup={selectedMatchup} showModal={true} handleCloseModal={handleCloseModal} />
             )}
+            </Row>
         </Container>
     );
 };

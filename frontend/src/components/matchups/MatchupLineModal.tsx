@@ -110,7 +110,14 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
             />
             <Modal show={showModal} dialogClassName={styles.wideModal}>
                 <Modal.Header closeButton onClick={handleCloseModal}>
-                    <Modal.Title>Extended Information</Modal.Title>
+                    <Modal.Title>
+                        <Modal.Title>
+                            <Col>
+                                <span>Week {matchup.week}</span>
+                                <span className={styles.versusLabel}>{matchup.home_team.team.teamName} VS. {matchup.away_team.team.teamName}</span>
+                            </Col>
+                        </Modal.Title>
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Row>
@@ -144,7 +151,6 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                                 </Card.Body>
                             </Card>
                         </Col>
-
                         {/* Away Team Card */}
                         <Col>
                             <Card>
@@ -172,7 +178,6 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                                         <Button variant="success" onClick={() => handleVoteWrapper('away')}
                                                 disabled={hasVoted}>Vote</Button>
                                     </div>
-
                                 </Card.Body>
                             </Card>
                         </Col>

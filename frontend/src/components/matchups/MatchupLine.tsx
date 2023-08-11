@@ -5,7 +5,7 @@ import styles from './matchups.module.css';
 
 interface MatchupLineProps {
     matchup: Matchup;
-    onShowModal: () => void; // This will be called when the line is clicked
+    onShowModal: () => void;
 }
 
 const MatchupLine: React.FC<MatchupLineProps> = ({ matchup, onShowModal }) => {
@@ -28,11 +28,16 @@ const MatchupLine: React.FC<MatchupLineProps> = ({ matchup, onShowModal }) => {
                                     <Row className={styles.centeredRow}>
                                         {matchup.home_team.settings.wins} - {matchup.home_team.settings.losses}
                                     </Row>
+                                    <Row className={styles.centeredRow}>
+                                        {(matchup.voteTotals.homeTeam !== undefined && matchup.voteTotals.awayTeam !== undefined && (matchup.voteTotals.homeTeam + matchup.voteTotals.awayTeam) !== 0)
+                                            ? Math.round((matchup.voteTotals.homeTeam / (matchup.voteTotals.homeTeam + matchup.voteTotals.awayTeam)) * 100) : 0}%
+                                    </Row>
                                 </Col>
                             </Card.Title>
                         </Card.Body>
                     </Card>
                 </Col>
+                <Col className="d-flex align-items-center justify-content-center" sm={1}>VS</Col>
                 <Col>
                     <Card className={styles.awayTeam}>
                         <Card.Body className={styles.cardContent}>
@@ -48,6 +53,10 @@ const MatchupLine: React.FC<MatchupLineProps> = ({ matchup, onShowModal }) => {
                                 <Col>
                                     <Row className={styles.centeredRow}>
                                         {matchup.away_team.settings.wins} - {matchup.away_team.settings.losses}
+                                    </Row>
+                                    <Row className={styles.centeredRow}>
+                                        {(matchup.voteTotals.homeTeam !== undefined && matchup.voteTotals.awayTeam !== undefined && (matchup.voteTotals.homeTeam + matchup.voteTotals.awayTeam) !== 0)
+                                            ? Math.round((matchup.voteTotals.awayTeam / (matchup.voteTotals.awayTeam + matchup.voteTotals.homeTeam)) * 100) : 0}%
                                     </Row>
                                 </Col>
                             </Card.Title>

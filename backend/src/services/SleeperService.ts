@@ -15,7 +15,7 @@ const BASEURL_SLEEPER_AVATAR = "https://sleepercdn.com/avatars/thumbs/";
 const CACHE_FIELD = "sleeperService";
 const AVATAR_EXPIRATION = 60 * 60 * 24; // 24 hours
 const ROSTER_EXPIRATION = 60 * 60 * 24; // 24 hours
-export const SLEEPER_LEAGUE_ID = "917218485867139072";
+export const SLEEPER_LEAGUE_ID = "976587245010333696";
 //Dynasty -> "917218485867139072" RTP -> 976587245010333696
 
 export class SleeperService {
@@ -133,9 +133,10 @@ export class SleeperService {
         console.log('Players updated successfully.');
     }
 
-    private async initialLoadIfEmpty(): Promise<void> {
+    public async initialLoadIfEmpty(): Promise<void> {
         const rosterRepo = getRepository(SleeperRosterEntity);
         const playerRepo = getRepository(PlayerEntity);
+        await this.fetchAndUpdateAllSleeperUsers()
 
         // Check if rosters repository is empty
         const rosterCount = await rosterRepo.count();

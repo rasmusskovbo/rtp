@@ -4,6 +4,7 @@ export interface Matchup {
     week: number;
     home_team: Team;
     away_team: Team;
+    voteTotals: VoteTotals;
 }
 
 interface Team {
@@ -14,6 +15,11 @@ interface Team {
     settings: TeamSettings;
     starters: Player[];
     team: TeamDetails;
+}
+
+interface VoteTotals {
+    homeTeam: number,
+    awayTeam: number
 }
 
 interface TeamSettings {
