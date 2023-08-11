@@ -1,12 +1,23 @@
-import { getRepository } from "typeorm";
+import {getRepository, QueryFailedError} from "typeorm";
 import { SleeperMatchup } from "../models/SleeperMatchup";
 import { MatchupEntity } from "../database/entities/MatchupEntity";
 import {getMatchupsByWeek} from "../clients/SleeperClient";
 import {mapMatchups} from "../mappers/MatchupsMapper";
 import {CurrentWeekEntity} from "../database/entities/CurrentWeekEntity";
-import {getObjectFromCache, putObjectInCache} from "../cache/RedisClient";
+import {getFromCache, getObjectFromCache, putInCache, putObjectInCache} from "../cache/RedisClient";
+import {VoteEntity} from "../database/entities/VoteEntity";
+import {UserEntity} from "../database/entities/UserEntity";
+import {SleeperRosterEntity} from "../database/entities/SleeperRosterEntity";
 
 const MATCHUP_CACHE_EXPIRATION = 60 * 10; // 10 minutes
+const VOTE_CACHE_EXPIRATION = 60 * 60 * 3; // 3 hours
+
+export interface UserVoteRequest {
+    userAsString: string,
+    matchupId: number,
+    rosterId?: number
+}
+
 
 export async function fetchAndMapMatchupsForWeek(week: number): Promise<void> {
     try {
@@ -60,3 +71,96 @@ export async function getMatchupsForCurrentWeek(): Promise<MatchupEntity[]> {
         return [];
     }
 }
+
+export async function checkIfUserHasVoted(request: UserVoteRequest): Promise<boolean> {
+    try {
+        const cacheKey = `userVote:${request.userAsString}:${request.matchupId}`;
+        const cachedVote = await getFromCache(cacheKey, "hasVoted");
+        if (cachedVote) {
+            return true;
+        }
+
+        console.log(`Checking if user: ${request.userAsString} has voted in matchup with id: ${request.matchupId}`);
+
+        // Get repositories to interact with the database
+        const userRepository = getRepository(UserEntity);
+        const matchupRepository = getRepository(MatchupEntity);
+        const voteRepository = getRepository(VoteEntity);
+
+        // Find the user and matchup using the provided request data
+        const user = await userRepository.findOne({ where: { username: parseUsername(request.userAsString) }});
+        const matchup = await matchupRepository.findOne({ where: { id: request.matchupId }});
+
+        // Ensure the user and matchup exist
+        if (!user || !matchup) {
+            console.error("User or matchup not found");
+            return false;
+        }
+
+        // Check if a vote exists for the given user and matchup
+        const vote = await voteRepository.findOne({
+            where: {
+                user: { id: user.id },
+                matchup: { id: matchup.id }
+            }
+        });
+
+        const hasVoted = !!vote;
+        // Cache the result
+        await putInCache(cacheKey, hasVoted.toString(), VOTE_CACHE_EXPIRATION, "hasVoted");
+
+        return hasVoted;
+    } catch (error) {
+        console.error("An error occurred while checking if the user has voted:", error);
+        return false;
+    }
+}
+
+
+
+export async function castVoteForMatchup(request: UserVoteRequest): Promise<boolean> {
+    try {
+        console.log(`Casting vote for user: ${request.userAsString} in matchup with id: ${request.matchupId} -> vote is for roster id: ${request.rosterId}`)
+        // Get repositories to interact with the database
+        const userRepository = getRepository(UserEntity);
+        const matchupRepository = getRepository(MatchupEntity);
+        const rosterRepository = getRepository(SleeperRosterEntity);
+        const voteRepository = getRepository(VoteEntity);
+
+        // Find the user, matchup, and roster using the provided request data
+        const user = await userRepository.findOne({ where: { username: parseUsername(request.userAsString) }});
+        const matchup = await matchupRepository.findOne({ where: { id: request.matchupId }});
+        const roster = await rosterRepository.findOne({ where: { id: request.rosterId }});
+
+        // Ensure the user, matchup, and roster exist
+        if (!user || !matchup || !roster) {
+            console.error("User, matchup, or roster not found");
+            return false;
+        }
+
+        // Create a new vote entity
+        const vote = new VoteEntity();
+        vote.user = user;
+        vote.matchup = matchup;
+        vote.roster = roster;
+
+        // Save the vote to the database
+        try {
+            await voteRepository.save(vote);
+            console.log(`Vote successfully cast for user: ${request.userAsString}, matchupId: ${request.matchupId}, rosterId: ${request.rosterId}`);
+            return true;
+        } catch (QueryFailedError: any) {
+            console.error(`Vote already cast for matchup: user: ${request.userAsString}, matchupId: ${request.matchupId}, rosterId: ${request.rosterId}`);
+            return false
+        }
+    } catch (error) {
+        console.error("An error occurred while casting the vote:", error);
+        return false;
+    }
+}
+
+export function parseUsername(userAsString: string): string {
+    const parsedObject = JSON.parse(userAsString);
+    return parsedObject.name;
+}
+

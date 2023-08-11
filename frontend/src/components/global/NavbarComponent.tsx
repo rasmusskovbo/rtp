@@ -24,10 +24,15 @@ const NavbarComponent: React.FC = () => {
     const handleClose = () => setShow(false);
 
     const uploadOnClick = loggedInUser ? () => { window.location.href='/upload' } : handleShow;
+    const handleLoginSucces = () => {
+        setTimeout(() => {
+            window.location.href = '/upload';
+        }, 1000);
+    }
 
     return (
         <>
-            <LoginPopup show={show} handleShow={handleShow} handleClose={handleClose} />
+            <LoginPopup show={show} handleShow={handleShow} handleClose={handleClose} handleLoginSuccess={handleLoginSucces}/>
             <Navbar expand="sm" bg="light" fixed="top">
                 <Navbar.Brand href="/">
                     <Image
