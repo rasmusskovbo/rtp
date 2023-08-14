@@ -1,7 +1,7 @@
 import express, {Request, Response} from "express";
 import {
     castVoteForMatchup,
-    checkIfUserHasVoted, fetchAndMapMatchupsForWeek,
+    checkIfUserHasVoted, upsertAndMapMatchupsForWeek,
     getMatchupsForCurrentWeek,
     UserVoteRequest
 } from "../services/MatchupsService";

@@ -27,6 +27,7 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
     const [hasVoted, setHasVoted] = useState(false);
     let loggedInUser = localStorage.getItem('loggedInUser');
 
+    // only sends once?
     const hasUserVoted = async () => {
         try {
             const request: UserVoteRequest = {
@@ -66,7 +67,7 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
         try {
             setHasVoted(true);
 
-            const rosterVoteId = team === "home" ? matchup.home_team.roster_id : matchup.away_team.roster_id;
+            const rosterVoteId = team === "home" ? matchup.home_team.id : matchup.away_team.id;
             const userVoteRequest: UserVoteRequest = {
                 userAsString: loggedInUser as string,
                 matchupId: matchup.id,

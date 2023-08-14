@@ -2,12 +2,12 @@ export interface Matchup {
     id: number;
     matchup_id: number;
     week: number;
-    home_team: Team;
-    away_team: Team;
+    home_team: Roster;
+    away_team: Roster;
     voteTotals: VoteTotals;
 }
 
-interface Team {
+interface Roster {
     id: number;
     owner_id: string;
     league_id: string;

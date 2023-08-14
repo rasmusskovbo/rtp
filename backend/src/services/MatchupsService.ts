@@ -4,14 +4,15 @@ import { MatchupEntity } from "../database/entities/MatchupEntity";
 import {getMatchupsByWeek} from "../clients/SleeperClient";
 import {mapMatchups} from "../mappers/MatchupsMapper";
 import {CurrentWeekEntity} from "../database/entities/CurrentWeekEntity";
-import {getFromCache, getObjectFromCache, putInCache, putObjectInCache} from "../cache/RedisClient";
+import {getFromCache, getObjectFromCache, invalidateCacheKey, putInCache, putObjectInCache} from "../cache/RedisClient";
 import {VoteEntity} from "../database/entities/VoteEntity";
 import {UserEntity} from "../database/entities/UserEntity";
 import {SleeperRosterEntity} from "../database/entities/SleeperRosterEntity";
 import {SleeperService} from "./SleeperService";
 
-const MATCHUP_CACHE_EXPIRATION = 60 * 10; // 10 minutes
-const VOTE_CACHE_EXPIRATION = 60 * 60 * 3; // 3 hours
+const MATCHUPS_CACHE_KEY = "matchups"
+const MATCHUP_CACHE_EXPIRATION = 60 * 5; // 5 minutes
+const VOTE_CACHE_EXPIRATION = 60 * 5; // 5 minutes
 const ss = new SleeperService()
 
 export interface UserVoteRequest {
@@ -25,8 +26,9 @@ export interface MatchupVoteTotals {
     awayTeam: number
 }
 
-
-export async function fetchAndMapMatchupsForWeek(week: number): Promise<void> {
+// Will run in a job every wednesday morning. Can be called to manually map matchups.
+// todo test refactor to always run on matchup call now that we have upsert logic and then cache result for 24h? or better with schedulers maybe
+export async function upsertAndMapMatchupsForWeek(week: number): Promise<void> {
     try {
         console.log(`Fetching Sleeper Matchups for week: ${week}...`)
         const sleeperMatchups: SleeperMatchup[] = await getMatchupsByWeek(week);
@@ -37,8 +39,19 @@ export async function fetchAndMapMatchupsForWeek(week: number): Promise<void> {
         // Get the repository to interact with the database
         const matchupRepository = getRepository(MatchupEntity);
 
-        // Save the mapped matchups to the database
-        await matchupRepository.save(mappedMatchups);
+        // Iterate through the mapped matchups and update or insert them
+        for (const mappedMatchup of mappedMatchups) {
+            const existingMatchup = await matchupRepository.findOne({
+                where: { matchup_id: mappedMatchup.matchup_id, week: mappedMatchup.week }
+            });
+
+            if (existingMatchup) {
+                // If the matchup already exists, set the id to make sure it gets updated
+                mappedMatchup.id = existingMatchup.id;
+            }
+
+            await matchupRepository.save(mappedMatchup);
+        }
 
         console.log("Matchups have been saved to the database");
     } catch (error) {
@@ -46,6 +59,8 @@ export async function fetchAndMapMatchupsForWeek(week: number): Promise<void> {
     }
 }
 
+
+// Automatically fetches matchups for current week based on DB input.
 export async function getMatchupsForCurrentWeek(): Promise<MatchupEntity[]> {
     try {
         // Get the current week from cache first
@@ -78,7 +93,7 @@ export async function getMatchupsForCurrentWeek(): Promise<MatchupEntity[]> {
 
         // Cache the current week and matchups
         await putObjectInCache("currentWeek", currentWeek, MATCHUP_CACHE_EXPIRATION, "week");
-        await putObjectInCache("matchups", matchupsWithVotes, MATCHUP_CACHE_EXPIRATION, "currentWeek");
+        await putObjectInCache(MATCHUPS_CACHE_KEY, matchupsWithVotes, MATCHUP_CACHE_EXPIRATION, "currentWeek");
 
         return matchupsWithVotes;
     } catch (error) {
@@ -89,7 +104,7 @@ export async function getMatchupsForCurrentWeek(): Promise<MatchupEntity[]> {
 
 export async function checkIfUserHasVoted(request: UserVoteRequest): Promise<boolean> {
     try {
-        const cacheKey = `userVote:${request.userAsString}:${request.matchupId}`;
+        const cacheKey = getCacheKeyForVote(request.userAsString, request.matchupId);
         const cachedVote = await getFromCache(cacheKey, "hasVoted");
         if (cachedVote) {
             return cachedVote === 'true'
@@ -146,8 +161,10 @@ export async function castVoteForMatchup(request: UserVoteRequest): Promise<bool
         const matchup = await matchupRepository.findOne({ where: { id: request.matchupId }});
         const roster = await rosterRepository.findOne({ where: { id: request.rosterId }});
 
+
         // Ensure the user, matchup, and roster exist
         if (!user || !matchup || !roster) {
+            console.log(user + " " + matchup + " " + roster)
             console.error("User, matchup, or roster not found");
             return false;
         }
@@ -160,6 +177,9 @@ export async function castVoteForMatchup(request: UserVoteRequest): Promise<bool
 
         // Save the vote to the database
         try {
+            // Invalidate caches to refresh stats
+            invalidateCacheKey(getCacheKeyForVote(request.userAsString, request.matchupId))
+            invalidateCacheKey(MATCHUPS_CACHE_KEY)
             await voteRepository.save(vote);
             console.log(`Vote successfully cast for user: ${request.userAsString}, matchupId: ${request.matchupId}, rosterId: ${request.rosterId}`);
             return true;
@@ -206,9 +226,9 @@ async function getVoteTotalsForMatchup(matchupId: number): Promise<MatchupVoteTo
             console.log("Vote ID: " + vote.id)
             console.log("Vote ROSTER ID: " + vote.roster.id)
             console.log("Home team id: ")
-            if (matchup.home_team && vote.roster.id === matchup.home_team.roster_id) {
+            if (matchup.home_team && vote.roster.id === matchup.home_team.id) {
                 voteTotals.homeTeam++;
-            } else if (matchup.away_team && vote.roster.id === matchup.away_team.roster_id) {
+            } else if (matchup.away_team && vote.roster.id === matchup.away_team.id) {
                 voteTotals.awayTeam++;
             }
         }
@@ -220,5 +240,9 @@ async function getVoteTotalsForMatchup(matchupId: number): Promise<MatchupVoteTo
 export function parseUsername(userAsString: string): string {
     const parsedObject = JSON.parse(userAsString);
     return parsedObject.name;
+}
+
+function getCacheKeyForVote(userAsString: string, matchupId: number): string {
+    return `userVote:${userAsString}:${matchupId}`;
 }
 

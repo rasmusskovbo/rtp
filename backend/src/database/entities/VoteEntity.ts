@@ -2,7 +2,7 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     ManyToOne,
-    Unique,
+    Unique, Column,
 } from 'typeorm';
 import { UserEntity } from './UserEntity';
 import { SleeperRosterEntity } from './SleeperRosterEntity';
@@ -25,5 +25,8 @@ export class VoteEntity {
     // The roster in the matchup the user voted for
     @ManyToOne(() => SleeperRosterEntity)
     roster!: SleeperRosterEntity;
+
+    @Column({ type: 'boolean', nullable: true }) // Adding new column
+    voteCorrect!: boolean;
 
 }

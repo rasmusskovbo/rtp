@@ -55,7 +55,7 @@ const NavbarComponent: React.FC = () => {
                             <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'} href="/teams">Teams</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
-                            <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'} href="/predictions">Predictions</Nav.Link>
+                            <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'} href="/picks">Picks</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
                             <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'} href="/stats">Stats</Nav.Link>
