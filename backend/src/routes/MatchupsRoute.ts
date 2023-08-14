@@ -41,7 +41,7 @@ router.post('/matchups/vote', async (req: Request, res: Response) => {
         if (success) {
             res.status(200).json({ message: "Vote submitted!" });
         } else {
-            res.status(400).json({ message: "User already voted!" });
+            res.status(400).json({ message: "User already voted or vote is locked out!" });
         }
     } catch (error) {
         console.error(error);

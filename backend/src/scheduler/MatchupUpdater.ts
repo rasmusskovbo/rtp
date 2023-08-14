@@ -8,19 +8,24 @@ const cronExpression = '0 9 * * 3';
 
 // Schedule the cron job
 cron.schedule(cronExpression, async () => {
-
+    console.log("Starting matchup updating job...")
     // Get the repository for the NFLWeek entity
     const nflWeekRepository = getRepository(CurrentWeekEntity);
 
     // Find the current NFL week
-    const currentWeek = await nflWeekRepository.find()
+    const currentWeekEntity = await nflWeekRepository.find();
+    const currentWeek = currentWeekEntity[0];
 
-    await upsertAndMapMatchupsForWeek(currentWeek[0].weekNumber);
+    await upsertAndMapMatchupsForWeek(currentWeek.weekNumber);
 
     // Increase the NFL week number for the next call
-    if (currentWeek[0].weekNumber < 18) {
-        currentWeek[0].weekNumber++;
+    if (currentWeek.weekNumber < 18) {
+        currentWeek.weekNumber++;
+        currentWeek.voteLockedOut = false;
         await nflWeekRepository.save(currentWeek);
+        console.log("Successfully finished matchup updating job.")
+    } else {
+        console.log("Did not update week number - week 18 has been reached.")
     }
 });
 

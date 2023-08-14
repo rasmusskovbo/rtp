@@ -27,7 +27,6 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
     const [hasVoted, setHasVoted] = useState(false);
     let loggedInUser = localStorage.getItem('loggedInUser');
 
-    // only sends once?
     const hasUserVoted = async () => {
         try {
             const request: UserVoteRequest = {
@@ -86,7 +85,7 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
             }
         } catch (e: any) {
             if (e.response && e.response.status === 400) {
-                toast.info("You already voted for this matchup.")
+                toast.info("You already voted for this matchup or votes are currently locked.")
             } else {
                 console.log("User was unable to vote.");
                 setHasVoted(false);

@@ -25,4 +25,4 @@ cron.schedule(cronExpression, async () => {
 
 });
 
-console.log('Cron job for weekly initial matchups update scheduled.');
+console.log('Cron job for vote count scheduled.');

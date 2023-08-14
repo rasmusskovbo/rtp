@@ -111,6 +111,12 @@ export async function checkIfUserHasVoted(request: UserVoteRequest): Promise<boo
         }
 
         console.log(`Checking if user: ${request.userAsString} has voted in matchup with id: ${request.matchupId}`);
+        // Is vote locked out currently
+        const weekRepository = getRepository(CurrentWeekEntity)
+        const currentWeekEntity = await weekRepository.find()
+        if (currentWeekEntity[0].voteLockedOut) {
+            return false
+        }
 
         // Get repositories to interact with the database
         const userRepository = getRepository(UserEntity);
@@ -149,7 +155,16 @@ export async function checkIfUserHasVoted(request: UserVoteRequest): Promise<boo
 
 export async function castVoteForMatchup(request: UserVoteRequest): Promise<boolean> {
     try {
-        console.log(`Casting vote for user: ${request.userAsString} in matchup with id: ${request.matchupId} -> vote is for roster id: ${request.rosterId}`)
+
+        console.log(`Attempting to cast vote for user: ${request.userAsString} in matchup with id: ${request.matchupId} -> vote is for roster id: ${request.rosterId}`)
+
+        // Is vote locked out currently
+        const weekRepository = getRepository(CurrentWeekEntity)
+        const currentWeekEntity = await weekRepository.find()
+        if (currentWeekEntity[0].voteLockedOut) {
+            return false
+        }
+
         // Get repositories to interact with the database
         const userRepository = getRepository(UserEntity);
         const matchupRepository = getRepository(MatchupEntity);

@@ -12,4 +12,7 @@ export class CurrentWeekEntity {
     @Column({ type: 'int' })
     weekNumber!: number;
 
+    @Column({ type: "boolean", default: "false"})
+    voteLockedOut!: boolean
+
 }
