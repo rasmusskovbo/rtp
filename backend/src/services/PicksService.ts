@@ -8,8 +8,15 @@ interface PicksLeaderboardEntry {
     totalVotes: number;
 }
 
+<<<<<<< Updated upstream
 // Todo think about caching matchups.
 
+=======
+export interface VoteLockoutDetails {
+    date: DateTime;
+    isVoteLockedOut: boolean;
+}
+>>>>>>> Stashed changes
 // Should only be run once weekly matchups are over, and points will not be changed.
 export async function updateWinnersForMatchups(week: number) {
     const matchupRepository = getRepository(MatchupEntity);

@@ -2,7 +2,7 @@ import {AllTimeWinnersEntity} from "../database/entities/AllTimeWinnersEntity";
 import {AllTimeStandingsEntity} from "../database/entities/AllTimeStandingsEntity";
 import {WeeklyHighScoreEntity} from "../database/entities/WeeklyHighScoreEntity";
 import {PlayerHighScoreEntity} from "../database/entities/PlayerHighScoreEntity";
-import {SleeperService} from "../services/SleeperService";
+import {BASEURL_SLEEPER_AVATAR, SleeperService} from "../services/SleeperService";
 import {ISleeperUser} from "../database/entities/ISleeperUser";
 
 export class StatsMapper {
@@ -25,7 +25,7 @@ export class StatsMapper {
 
     private async mapAvatar(stats: ISleeperUser) {
         const sleeperUser = await this.sleeperService.getSleeperUserBySleeperUsername(stats.sleeper_username)
-        return sleeperUser.avatar;
+        return BASEURL_SLEEPER_AVATAR + sleeperUser.avatar;
     }
 
     private calculateRtpScore(statLine: AllTimeWinnersEntity): number {

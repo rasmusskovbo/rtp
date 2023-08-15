@@ -11,7 +11,7 @@ import {TeamEntity} from "../database/entities/TeamEntity";
 
 dotenv.config()
 
-const BASEURL_SLEEPER_AVATAR = "https://sleepercdn.com/avatars/thumbs/";
+export const BASEURL_SLEEPER_AVATAR = "https://sleepercdn.com/avatars/thumbs/";
 const CACHE_FIELD = "sleeperService";
 const AVATAR_EXPIRATION = 60 * 60 * 24; // 24 hours
 const ROSTER_EXPIRATION = 60 * 60 * 24; // 24 hours
