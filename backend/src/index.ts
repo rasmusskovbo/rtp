@@ -9,7 +9,9 @@ import postsRoute from "./routes/PostsRoute";
 import teamsRoute from "./routes/TeamsRoute";
 import  "./scheduler/RosterUpdater";
 import  "./scheduler/PlayerUpdater";
+import  "./scheduler/LeaderboardUpdater";
 import  "./scheduler/MatchupUpdater";
+import  "./scheduler/VoteLockoutUpdater";
 import matchupsRoute from "./routes/MatchupsRoute";
 import picksRoute from "./routes/PicksRoute";
 

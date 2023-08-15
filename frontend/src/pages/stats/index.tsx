@@ -85,12 +85,27 @@ const Index = () => {
                         </Button>
                     </Col>
                 </Row>
-
                 {tab === 'allTimeWinners' && <AllTimeWinnersTable stats={statProps.statProps.allTimeWinners.stats} />}
                 {tab === 'allTimeStandings' && <AllTimeStandingsTable stats={statProps.statProps.allTimeStandings.stats} />}
                 {tab === 'weeklyHighScores' && <WeeklyHighScoresTable stats={statProps.statProps.weeklyHighScores.stats} />}
                 {tab === 'playerHighScores' && <PlayerHighScoresTable stats={statProps.statProps.playerHighScores.stats} />}
                 {tab === 'yearlyFinishes' && <YearlyFinishesTable stats={statProps.statProps.yearlyFinishes.stats} />}
+
+                <hr className="centered-hr" />
+                <Row>
+                    <Col>The RTP™ score as seen here and on the teams pages is based on the regular- and postseason stats from Sleeper,
+                        going back to, and starting from, the 2020 season, when the league expanded to a 12-team league.
+                        <br/><br/>
+                        The current system awards points as follows:
+                        <br/><br/>
+                        Post-season win: 40 pts<br/>
+                        Post-season second place: 20 pts<br/>
+                        Post-season third place: 10 pts<br/>
+                        Playoff appearance: 5 pts<br/>
+                        Last place, regular season (Pink): -40 pts<br/>
+                        Last place, playoffs: -20 pts<br/>
+                    </Col>
+                </Row>
             </Container>
         </Layout>
     );
