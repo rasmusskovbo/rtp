@@ -5,6 +5,7 @@ import {
     getMatchupsForCurrentWeek,
     UserVoteRequest
 } from "../services/MatchupsService";
+import {getVoteLockoutDetails} from "../services/PicksService";
 
 const router = express.Router();
 
@@ -49,6 +50,9 @@ router.post('/matchups/vote', async (req: Request, res: Response) => {
     }
 });
 
-
+router.get('/matchups/lockout', async (req: Request, res: Response) => {
+    const voteLockoutDetails = await getVoteLockoutDetails();
+    res.json(voteLockoutDetails);
+})
 
 export default router;

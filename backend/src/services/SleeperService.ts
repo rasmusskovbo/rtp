@@ -163,9 +163,8 @@ export class SleeperService {
 
         const allTeams = await teamRepo.find()
         await allTeams.forEach(team => {
-             this.getSleeperUserBySleeperUsername(team.sleeperUsername)
+             this.getSleeperUserBySleeperUsername(team.sleeperUsername);
         });
     }
-
 
 }

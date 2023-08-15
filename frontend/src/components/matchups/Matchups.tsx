@@ -5,6 +5,7 @@ import { Matchup } from './IMatchup';
 import MatchupLine from '@/components/matchups/MatchupLine';
 import styles from './matchups.module.css';
 import MatchupLineModal from "@/components/matchups/MatchupLineModal";
+import VoteLockout from "@/components/picks/VoteLockout";
 
 const Matchups: React.FC = () => {
     const [matchups, setMatchups] = useState<Matchup[]>([]);
@@ -50,16 +51,21 @@ const Matchups: React.FC = () => {
                 }
             </Row>
             {matchups.length > 0 ? (
-                <Row>
-                    {matchups.map((matchup) => (
-                        (matchup.home_team !== null && matchup.away_team !== null) && (
-                            <MatchupLine key={matchup.id} matchup={matchup} onShowModal={() => handleShowModal(matchup)} />
-                        )
-                    ))}
-                    {selectedMatchup && (
-                        <MatchupLineModal matchup={selectedMatchup} showModal={true} handleCloseModal={handleCloseModal} />
-                    )}
-                </Row>
+                <>
+                    <Row>
+                        <VoteLockout/>
+                    </Row>
+                    <Row>
+                        {matchups.map((matchup) => (
+                            (matchup.home_team !== null && matchup.away_team !== null) && (
+                                <MatchupLine key={matchup.id} matchup={matchup} onShowModal={() => handleShowModal(matchup)} />
+                            )
+                        ))}
+                        {selectedMatchup && (
+                            <MatchupLineModal matchup={selectedMatchup} showModal={true} handleCloseModal={handleCloseModal} />
+                        )}
+                    </Row>
+                </>
             ) : (
                 <h5 className="text-center">Awaiting weekly matchups from Sleeper...</h5>
             )}

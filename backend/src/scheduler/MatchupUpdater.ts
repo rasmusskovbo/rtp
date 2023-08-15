@@ -3,7 +3,7 @@ import { upsertAndMapMatchupsForWeek } from '../services/MatchupsService'
 import {getRepository} from "typeorm";
 import {CurrentWeekEntity} from "../database/entities/CurrentWeekEntity";
 
-// Cron expression to run the job every Wednesday at a specific time (e.g., 00:00)
+// Cron expression to run the job every Wednesday at 09:00 CET
 const cronExpression = '0 9 * * 3';
 
 // Schedule the cron job

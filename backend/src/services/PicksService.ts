@@ -1,11 +1,18 @@
 import {getRepository} from "typeorm";
 import {MatchupEntity} from "../database/entities/MatchupEntity";
 import {VoteEntity} from "../database/entities/VoteEntity";
+import {CurrentWeekEntity} from "../database/entities/CurrentWeekEntity";
+import {DateTime} from 'luxon';
 
 interface PicksLeaderboardEntry {
     username: string;
     correctPicks: number;
     totalVotes: number;
+}
+
+export interface VoteLockoutDetails {
+    date: DateTime;
+    isVoteLockedOut: boolean;
 }
 
 // Todo think about caching matchups.
@@ -91,6 +98,27 @@ export async function getPicksLeaderboard(): Promise<PicksLeaderboardEntry[]> {
         correctPicks: Number(pick.correctpickscount),
         totalVotes: Number(pick.totalvotes),
     }));
+}
+
+export async function getVoteLockoutDetails(): Promise<VoteLockoutDetails> {
+    // Fetch the current week entity from the database
+    const currentWeekEntity = await getRepository(CurrentWeekEntity).find();
+
+    if (!currentWeekEntity) {
+        throw new Error("No current week found in database");
+    }
+
+    const currentWeek = currentWeekEntity[0]
+
+    if (currentWeek.voteLockedOut) {
+        // If the vote is locked out, find the next Wednesday at 09:00 CET
+        const nextWed = DateTime.now().setZone('Europe/Brussels').plus({ days: (3 - DateTime.now().weekday + 7) % 7 }).set({ hour: 9, minute: 0, second: 0, millisecond: 0 });
+        return { date: nextWed, isVoteLockedOut: true };
+    } else {
+        // If the vote is not locked out, find the next Sunday at 17:00 CET
+        const nextSun = DateTime.now().setZone('Europe/Brussels').plus({ days: (7 - DateTime.now().weekday + 7) % 7 }).set({ hour: 17, minute: 0, second: 0, millisecond: 0 });
+        return { date: nextSun, isVoteLockedOut: false };
+    }
 }
 
 
