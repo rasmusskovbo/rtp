@@ -12,9 +12,10 @@ interface LoginPopupProps {
     show: boolean;
     handleShow: () => void;
     handleClose: () => void;
+    handleLoginSuccess: () => void;
 }
 
-const LoginPopup: React.FC<LoginPopupProps> = ({ show, handleShow, handleClose }) => {
+const LoginPopup: React.FC<LoginPopupProps> = ({ show, handleShow, handleClose, handleLoginSuccess }) => {
     const [credentials, setCredentials] = useState<UserCredentials>({ username: '', password: '' });
     const authContext = useContext(AuthContext);
 
@@ -50,10 +51,7 @@ const LoginPopup: React.FC<LoginPopupProps> = ({ show, handleShow, handleClose }
             localStorage.setItem('loggedInUser', JSON.stringify(user));
             setIsLoggedIn(user);
 
-            setTimeout(() => {
-                window.location.href = '/upload';
-            }, 1000);
-
+            handleLoginSuccess()
             handleClose();
         } else {
             toast.error('Login unsuccessful. Please try again.', {

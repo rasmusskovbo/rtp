@@ -24,10 +24,15 @@ const NavbarComponent: React.FC = () => {
     const handleClose = () => setShow(false);
 
     const uploadOnClick = loggedInUser ? () => { window.location.href='/upload' } : handleShow;
+    const handleLoginSucces = () => {
+        setTimeout(() => {
+            window.location.href = '/upload';
+        }, 1000);
+    }
 
     return (
         <>
-            <LoginPopup show={show} handleShow={handleShow} handleClose={handleClose} />
+            <LoginPopup show={show} handleShow={handleShow} handleClose={handleClose} handleLoginSuccess={handleLoginSucces}/>
             <Navbar expand="sm" bg="light" fixed="top">
                 <Navbar.Brand href="/">
                     <Image
@@ -48,6 +53,9 @@ const NavbarComponent: React.FC = () => {
                         </Nav.Item>
                         <Nav.Item>
                             <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'} href="/teams">Teams</Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                            <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'} href="/picks">Picks</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
                             <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'} href="/stats">Stats</Nav.Link>

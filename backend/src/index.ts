@@ -9,6 +9,9 @@ import postsRoute from "./routes/PostsRoute";
 import teamsRoute from "./routes/TeamsRoute";
 import  "./scheduler/RosterUpdater";
 import  "./scheduler/PlayerUpdater";
+import  "./scheduler/MatchupUpdater";
+import matchupsRoute from "./routes/MatchupsRoute";
+import picksRoute from "./routes/PicksRoute";
 
 const app = express();
 
@@ -23,6 +26,8 @@ connectToDb().then(() => {
     app.use('/api', uploadRouter);
     app.use('/api', postsRoute);
     app.use('/api', teamsRoute);
+    app.use('/api', matchupsRoute);
+    app.use('/api', picksRoute);
     app.use('/auth', loginRouter);
 
 }).catch(error => console.log(error));

@@ -13,6 +13,9 @@ import {PlayerEntity} from "../database/entities/PlayerEntity";
 import {SleeperRosterEntity} from "../database/entities/SleeperRosterEntity";
 import {parse} from 'pg-connection-string'
 import {RivalEntity} from "../database/entities/RivalEntity";
+import {CurrentWeekEntity} from "../database/entities/CurrentWeekEntity";
+import {MatchupEntity} from "../database/entities/MatchupEntity";
+import {VoteEntity} from "../database/entities/VoteEntity";
 
 dotenv.config()
 
@@ -39,7 +42,10 @@ export const connectToDb = async (): Promise<Connection> => {
             UserEntity,
             TeamEntity,
             PlayerEntity,
-            RivalEntity
+            RivalEntity,
+            CurrentWeekEntity,
+            MatchupEntity,
+            VoteEntity
         ],
         synchronize: true
     };

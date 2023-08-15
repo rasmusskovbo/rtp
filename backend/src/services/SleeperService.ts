@@ -1,11 +1,13 @@
-import {fetchAllPlayers, getRostersByLeagueId, getSleeperUserByUsername} from "../clients/SleeperClient";
+import {fetchAllPlayers, getRostersByLeagueId, doGetSleeperUserByUsername} from "../clients/SleeperClient";
 import {SleeperUserEntity} from "../database/entities/SleeperUserEntity";
 import { getRepository } from 'typeorm';
 import {SleeperRosterEntity} from "../database/entities/SleeperRosterEntity";
 import {SleeperRoster} from "../models/SleeperRoster";
 import {PlayerEntity} from "../database/entities/PlayerEntity";
 import dotenv from "dotenv";
-import {getFromCache, getObjectFromCache, putInCache, putObjectInCache} from "../cache/RedisClient";
+import {getObjectFromCache, putObjectInCache} from "../cache/RedisClient";
+import {mapRosterToEntity} from "../mappers/RosterMapper";
+import {TeamEntity} from "../database/entities/TeamEntity";
 
 dotenv.config()
 
@@ -13,17 +15,11 @@ const BASEURL_SLEEPER_AVATAR = "https://sleepercdn.com/avatars/thumbs/";
 const CACHE_FIELD = "sleeperService";
 const AVATAR_EXPIRATION = 60 * 60 * 24; // 24 hours
 const ROSTER_EXPIRATION = 60 * 60 * 24; // 24 hours
-const SLEEPER_LEAGUE_ID = "976587245010333696";
-const DYNASTY_TEST_ID = "917218485867139072";
+export const SLEEPER_LEAGUE_ID = "976587245010333696";
+//Dynasty -> "917218485867139072" RTP -> 976587245010333696
 
 export class SleeperService {
-    public async getSleeperAvatarUrlBySleeperUsername(username: string): Promise<string> {
-        const cachedAvatarUrl = await getFromCache(username, CACHE_FIELD)
-
-        return cachedAvatarUrl ? cachedAvatarUrl : await this.fetchAvatarURLAndInsertSleeperUser(username)
-    }
-
-    public async getSleeperUserByUsername(username: string): Promise<SleeperUserEntity | null> {
+    public async getSleeperUserBySleeperUsername(username: string): Promise<SleeperUserEntity> {
         // Check cache for user
         console.log(`Checking cache for user with username: ${username}`);
         const cachedUser = await getObjectFromCache<SleeperUserEntity>(username, CACHE_FIELD);
@@ -44,11 +40,15 @@ export class SleeperService {
 
         // Fetch new data using sleeperClient
         console.log("No user found in Database or Cache. Fetching new data...");
-        const sleeperUser = await getSleeperUserByUsername(username);
+        const sleeperUser = await doGetSleeperUserByUsername(username);
         if (sleeperUser) {
-            // Insert or update the database
-            dbSleeperUser = dbSleeperUser ? dbSleeperUser : new SleeperUserEntity();
-            Object.assign(dbSleeperUser, sleeperUser);
+            dbSleeperUser = new SleeperUserEntity();
+
+            dbSleeperUser.user_id = sleeperUser.user_id;
+            dbSleeperUser.username = username;
+            dbSleeperUser.display_name = sleeperUser.display_name;
+            dbSleeperUser.avatar = BASEURL_SLEEPER_AVATAR + sleeperUser.avatar;
+
             await sleeperRepo.save(dbSleeperUser);
 
             // Save in cache
@@ -57,42 +57,6 @@ export class SleeperService {
             return dbSleeperUser;
         } else {
             throw new Error(`Unable to find user for username ${username}`);
-        }
-    }
-
-
-    private async fetchAvatarURLAndInsertSleeperUser(username: string): Promise<string> {
-        try {
-            const sleeperUser = await getSleeperUserByUsername(username);
-
-            if (sleeperUser) {
-                const avatarUrl = BASEURL_SLEEPER_AVATAR + sleeperUser.avatar;
-                await putInCache(username, avatarUrl, AVATAR_EXPIRATION, CACHE_FIELD);
-
-                // Get repository for the SleeperUserEntity
-                const repo = getRepository(SleeperUserEntity);
-
-                // Check if a SleeperUserEntity with the username exists
-                let dbSleeperUser = await repo.findOne({ where: { username } });
-
-                // Create or update the SleeperUserEntity
-                dbSleeperUser = dbSleeperUser ? dbSleeperUser : new SleeperUserEntity();
-
-                dbSleeperUser.user_id = sleeperUser.user_id;
-                dbSleeperUser.username = username;
-                dbSleeperUser.display_name = sleeperUser.display_name;
-                dbSleeperUser.avatar = sleeperUser.avatar;
-
-                await repo.save(dbSleeperUser);
-
-                return avatarUrl;
-            } else {
-                console.log("Unable to save fetch data for Sleeper user: " + username);
-                return "N/A";
-            }
-        } catch (err) {
-            console.error(`An error occurred while fetching and inserting Sleeper user: ${err}`);
-            return "N/A";
         }
     }
 
@@ -143,49 +107,11 @@ export class SleeperService {
     public async fetchAndUpsertRostersJob(): Promise<void> {
         await this.initialLoadIfEmpty();
 
-        const rosters: SleeperRoster[] = await getRostersByLeagueId(SLEEPER_LEAGUE_ID);
+        const rosters: SleeperRoster[] = await getRostersByLeagueId();
         const repo = getRepository(SleeperRosterEntity);
-        const playerRepo = getRepository(PlayerEntity);
 
         for (const roster of rosters) {
-            // Check if the roster is already in the database
-            let rosterEntity = await repo.findOne({ where: { owner_id: roster.owner_id } });
-
-            // Concatenate all the IDs
-            const allIds = [
-                ...(roster.players || []),
-                ...(roster.starters || []),
-                ...(roster.reserve || []),
-            ];
-
-            // Find all the corresponding entities
-            const allEntities = await playerRepo.findByIds(allIds);
-
-            // Separate them back into their original categories
-            const players = allEntities.filter((player) => roster.players?.includes(player.player_id));
-            const starters = allEntities.filter((player) => roster.starters?.includes(player.player_id));
-            const reserves = allEntities.filter((player) => roster.reserve?.includes(player.player_id));
-
-            if (rosterEntity) {
-                // If the roster exists, update the fields
-                rosterEntity.settings = roster.settings;
-                rosterEntity.roster_id = roster.roster_id;
-                rosterEntity.starters = starters;
-                rosterEntity.players = players;
-                rosterEntity.reserve = reserves;
-            } else {
-                // If the roster doesn't exist, create a new one
-                rosterEntity = new SleeperRosterEntity();
-                rosterEntity.owner_id = roster.owner_id;
-                rosterEntity.league_id = SLEEPER_LEAGUE_ID; // replace with the actual league_id
-                rosterEntity.roster_id = roster.roster_id;
-                rosterEntity.settings = roster.settings;
-                rosterEntity.starters = starters;
-                rosterEntity.players = players;
-                rosterEntity.reserve = reserves;
-            }
-
-            // Save the updated or new roster
+            const rosterEntity = await mapRosterToEntity(roster);
             await repo.save(rosterEntity);
         }
     }
@@ -207,13 +133,13 @@ export class SleeperService {
         console.log('Players updated successfully.');
     }
 
-    private async initialLoadIfEmpty(): Promise<void> {
+    public async initialLoadIfEmpty(): Promise<void> {
         const rosterRepo = getRepository(SleeperRosterEntity);
         const playerRepo = getRepository(PlayerEntity);
+        await this.fetchAndUpdateAllSleeperUsers()
 
         // Check if rosters repository is empty
         const rosterCount = await rosterRepo.count();
-
         // Check if players repository is empty
         const playerCount = await playerRepo.count();
 
@@ -229,5 +155,17 @@ export class SleeperService {
             console.log('Rosters and/or players repositories are not empty. Skipping update jobs.');
         }
     }
+
+    // Uses the usernames in the team repo to fetch all sleeperuser info, incl ids
+    public async fetchAndUpdateAllSleeperUsers() {
+        console.log("Updating all users based on team repo")
+        const teamRepo = getRepository(TeamEntity)
+
+        const allTeams = await teamRepo.find()
+        await allTeams.forEach(team => {
+             this.getSleeperUserBySleeperUsername(team.sleeperUsername)
+        });
+    }
+
 
 }

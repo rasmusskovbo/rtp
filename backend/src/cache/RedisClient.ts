@@ -73,3 +73,12 @@ export const getObjectFromCache = async <T>(key: string, fieldName: string): Pro
         console.error('A cache error occurred:', e);
     }
 };
+
+export const invalidateCacheKey = async (key: string) => {
+    try {
+        await client.del(key);
+    } catch (e) {
+        console.error('An error occurred while invalidating the cache key:', e);
+    }
+};
+

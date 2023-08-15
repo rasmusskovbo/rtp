@@ -3,9 +3,10 @@ import {
     PrimaryGeneratedColumn,
     Column,
     OneToMany,
-    Unique
+    Unique, JoinColumn, OneToOne
 } from "typeorm";
 import { PlayerEntity } from "./PlayerEntity";
+import {TeamEntity} from "./TeamEntity";
 
 @Entity("roster")
 @Unique(["owner_id"])
@@ -36,6 +37,9 @@ export class SleeperRosterEntity {
         fpts: number;
     };
 
+    @OneToOne(() => TeamEntity, (team) => team.roster)
+    @JoinColumn()
+    team!: TeamEntity;
 
     @OneToMany(() => PlayerEntity, (player) => player.starters, {
         cascade: true,
