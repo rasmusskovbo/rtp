@@ -1,5 +1,5 @@
 import {getRepository, QueryFailedError} from "typeorm";
-import { SleeperMatchup } from "../models/SleeperMatchup";
+import { SleeperMatchupModel } from "../models/SleeperMatchupModel";
 import { MatchupEntity } from "../database/entities/MatchupEntity";
 import {getMatchupsByWeek} from "../clients/SleeperClient";
 import {mapMatchups} from "../mappers/MatchupsMapper";
@@ -31,7 +31,7 @@ export interface MatchupVoteTotals {
 export async function upsertAndMapMatchupsForWeek(week: number): Promise<void> {
     try {
         console.log(`Fetching Sleeper Matchups for week: ${week}...`)
-        const sleeperMatchups: SleeperMatchup[] = await getMatchupsByWeek(week);
+        const sleeperMatchups: SleeperMatchupModel[] = await getMatchupsByWeek(week);
 
         console.log(`Mapping Matchups for week: ${week}...`)
         const mappedMatchups: MatchupEntity[] = await mapMatchups(sleeperMatchups, week);

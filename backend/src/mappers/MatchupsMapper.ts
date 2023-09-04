@@ -1,9 +1,9 @@
-import {SleeperMatchup} from "../models/SleeperMatchup";
+import {SleeperMatchupModel} from "../models/SleeperMatchupModel";
 import {SleeperRosterEntity} from "../database/entities/SleeperRosterEntity";
 import {MatchupEntity} from "../database/entities/MatchupEntity";
 import {getRepository} from "typeorm";
 
-export async function mapMatchups(sleeperMatchups: SleeperMatchup[], week: number): Promise<MatchupEntity[]> {
+export async function mapMatchups(sleeperMatchups: SleeperMatchupModel[], week: number): Promise<MatchupEntity[]> {
     const rosterRepository = getRepository(SleeperRosterEntity);
 
     let matchupEntities: MatchupEntity[] = [];
@@ -17,7 +17,7 @@ export async function mapMatchups(sleeperMatchups: SleeperMatchup[], week: numbe
         matchupEntity.matchup_id = id;
         matchupEntity.week = week;
 
-        const matchupTeams: SleeperMatchup[] = sleeperMatchups.filter(matchup => matchup.matchup_id == id);
+        const matchupTeams: SleeperMatchupModel[] = sleeperMatchups.filter(matchup => matchup.matchup_id == id);
 
         if (matchupTeams.length >= 2) {
             // Note we're assuming that API response will always be in same order when updating (it seems to be)

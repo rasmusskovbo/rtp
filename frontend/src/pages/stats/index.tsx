@@ -102,8 +102,9 @@ const Index = () => {
                         Post-season second place: 20 pts<br/>
                         Post-season third place: 10 pts<br/>
                         Playoff appearance: 5 pts<br/>
-                        Last place, regular season (Pink): -40 pts<br/>
+                        Last place, regular season (Pink finishes): -40 pts<br/>
                         Last place, playoffs: -20 pts<br/>
+                        <br/>
                     </Col>
                 </Row>
             </Container>

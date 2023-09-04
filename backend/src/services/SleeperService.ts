@@ -2,7 +2,7 @@ import {fetchAllPlayers, getRostersByLeagueId, doGetSleeperUserByUsername} from 
 import {SleeperUserEntity} from "../database/entities/SleeperUserEntity";
 import { getRepository } from 'typeorm';
 import {SleeperRosterEntity} from "../database/entities/SleeperRosterEntity";
-import {SleeperRoster} from "../models/SleeperRoster";
+import {SleeperRosterModel} from "../models/SleeperRosterModel";
 import {PlayerEntity} from "../database/entities/PlayerEntity";
 import dotenv from "dotenv";
 import {getObjectFromCache, putObjectInCache} from "../cache/RedisClient";
@@ -107,7 +107,7 @@ export class SleeperService {
     public async fetchAndUpsertRostersJob(): Promise<void> {
         await this.initialLoadIfEmpty();
 
-        const rosters: SleeperRoster[] = await getRostersByLeagueId();
+        const rosters: SleeperRosterModel[] = await getRostersByLeagueId();
         const repo = getRepository(SleeperRosterEntity);
 
         for (const roster of rosters) {

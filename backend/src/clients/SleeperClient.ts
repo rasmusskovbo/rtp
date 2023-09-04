@@ -1,6 +1,6 @@
 import axios from 'axios';
-import {SleeperRoster} from "../models/SleeperRoster";
-import {SleeperMatchup} from "../models/SleeperMatchup";
+import {SleeperRosterModel} from "../models/SleeperRosterModel";
+import {SleeperMatchupModel} from "../models/SleeperMatchupModel";
 import {PlayerEntity} from "../database/entities/PlayerEntity";
 import {SLEEPER_LEAGUE_ID} from "../services/SleeperService";
 
@@ -19,9 +19,9 @@ export async function doGetSleeperUserByUsername(sleeperUserName: string): Promi
     return response.data;
 }
 
-export async function getRostersByLeagueId(): Promise<SleeperRoster[]> {
+export async function getRostersByLeagueId(): Promise<SleeperRosterModel[]> {
     const url: string = BASEURL_SLEEPER + `league/${SLEEPER_LEAGUE_ID}/rosters`
-    const response = await axios.get<SleeperRoster[]>(url);
+    const response = await axios.get<SleeperRosterModel[]>(url);
     return response.data;
 }
 
@@ -31,8 +31,8 @@ export async function fetchAllPlayers(): Promise<PlayerEntity[]> {
     return Object.values(response.data); // Convert the object into an array
 }
 
-export async function getMatchupsByWeek(week: number): Promise<SleeperMatchup[]> {
+export async function getMatchupsByWeek(week: number): Promise<SleeperMatchupModel[]> {
     const url: string = `${BASEURL_SLEEPER}league/${SLEEPER_LEAGUE_ID}/matchups/${week}`;
-    const response = await axios.get<SleeperMatchup[]>(url);
+    const response = await axios.get<SleeperMatchupModel[]>(url);
     return response.data;
 }

@@ -1,4 +1,4 @@
-export interface SleeperRoster {
+export interface SleeperRosterModel {
     starters: string[];
     settings: {
         wins: number;

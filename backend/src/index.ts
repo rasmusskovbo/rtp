@@ -14,6 +14,7 @@ import  "./scheduler/MatchupUpdater";
 import  "./scheduler/VoteLockoutUpdater";
 import matchupsRoute from "./routes/MatchupsRoute";
 import picksRoute from "./routes/PicksRoute";
+import devRoute from "./routes/DevRoute";
 
 const app = express();
 
@@ -21,7 +22,10 @@ dotenv.config();
 
 connectToDb().then(() => {
 
-    app.use(cors({})); // Set origin later
+    app.use(cors({
+        origin: process.env.CORS_ORIGIN
+    }));
+
     app.use(express.json());
 
     app.use('/api', statsRouter);
@@ -31,6 +35,7 @@ connectToDb().then(() => {
     app.use('/api', matchupsRoute);
     app.use('/api', picksRoute);
     app.use('/auth', loginRouter);
+    app.use('/dev', devRoute)
 
 }).catch(error => console.log(error));
 

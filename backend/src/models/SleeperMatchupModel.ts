@@ -1,4 +1,4 @@
-export interface SleeperMatchup {
+export interface SleeperMatchupModel {
     starters: string[];
     roster_id: number;
     matchup_id: number;

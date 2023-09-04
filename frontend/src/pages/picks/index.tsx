@@ -6,6 +6,7 @@ import React from "react";
 import Matchups from "@/components/matchups/Matchups";
 import Leaderboard, {LeaderboardEntry, LeaderboardProps} from "@/components/picks/Leaderboard";
 import axios from "axios";
+import PicksLeaders from "@/components/picks/PicksLeaders";
 
 const PicksPage = ({ leaderboardEntries }: LeaderboardProps) => {
     return (
@@ -23,6 +24,11 @@ const PicksPage = ({ leaderboardEntries }: LeaderboardProps) => {
                         <Matchups/>
                     </Col>
                 </Row>
+                <Row>
+                    <Col m={8}>
+                        <PicksLeaders/>
+                    </Col>
+                </Row>
             </Container>
 
         </Layout>
@@ -35,7 +41,7 @@ export const getServerSideProps = async () => {
     let leaderboardEntries: LeaderboardEntry[] = [];
 
     try {
-        const response = await axios.get(`${process.env.API_URL}/api/picks`);
+        const response = await axios.get(`${process.env.API_URL}/api/picks/leaderboard`);
         console.log("Response: " + response.data)
         leaderboardEntries = response.data;
     } catch (error) {

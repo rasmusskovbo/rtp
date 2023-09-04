@@ -1,4 +1,4 @@
-import { SleeperRoster } from "../models/SleeperRoster";
+import { SleeperRosterModel } from "../models/SleeperRosterModel";
 import { getRepository } from "typeorm";
 import { SleeperRosterEntity } from "../database/entities/SleeperRosterEntity";
 import { TeamEntity } from "../database/entities/TeamEntity";
@@ -6,7 +6,7 @@ import { SleeperUserEntity } from "../database/entities/SleeperUserEntity";
 import {PlayerEntity} from "../database/entities/PlayerEntity";
 import {SLEEPER_LEAGUE_ID} from "../services/SleeperService";
 
-export async function mapRosterToEntity(roster: SleeperRoster): Promise<SleeperRosterEntity> {
+export async function mapRosterToEntity(roster: SleeperRosterModel): Promise<SleeperRosterEntity> {
     const rosterRepository = getRepository(SleeperRosterEntity);
     const teamRepository = getRepository(TeamEntity);
     const sleeperUserRep = getRepository(SleeperUserEntity);
