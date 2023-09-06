@@ -1,7 +1,7 @@
 import express, {Request, Response} from "express";
 import {
     castVoteForMatchup,
-    checkIfUserHasVoted, upsertAndMapMatchupsForWeek,
+    getUserVote, upsertAndMapMatchupsForWeek,
     getMatchupsForCurrentWeek,
     UserVoteRequest
 } from "../services/MatchupsService";
@@ -22,8 +22,8 @@ router.post('/matchups/vote/poll', async (req: Request, res: Response) => {
     };
 
     try {
-        const userHasVoted = await checkIfUserHasVoted(request);
-        res.json({ userHasVoted });
+        const userHasVoted = await getUserVote(request);
+        res.json( userHasVoted );
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Unable to fetch voting data from API." });

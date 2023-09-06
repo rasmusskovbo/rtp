@@ -14,7 +14,8 @@ interface UserVoteRequest {
 }
 
 interface UserVoteResponse {
-    userHasVoted: boolean;
+    hasVoted: boolean;
+    votedRosterId?: string;
 }
 
 interface MatchupLineModalProps {
@@ -25,11 +26,15 @@ interface MatchupLineModalProps {
 
 const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal, handleCloseModal }) => {
     const [isLoginPopupShown, setLoginPopupShown] = useState(false);
-    const [hasVoted, setHasVoted] = useState(false);
+    const [userVoteDetails, setUserVoteDetails] = useState<UserVoteResponse | null>(null);
     const [lockoutDetails, setLockoutDetails] = useState<VoteLockoutDetails | null>(null);
+    const [votedForHomeTeam, setVotedForHomeTeam] = useState(false);
+    const [votedForAwayTeam, setVotedForAwayTeam] = useState(false);
+
     let loggedInUser = localStorage.getItem('loggedInUser');
 
-    const hasUserVoted = async () => {
+
+    const getUserVotingDetails = async () => {
         try {
             const request: UserVoteRequest = {
                 userAsString: loggedInUser as string,
@@ -38,14 +43,25 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
             const response = await axios.post<UserVoteResponse>(`${process.env.API_URL}/api/matchups/vote/poll`, request);
 
             if (response.status >= 200 && response.status < 300) {
-                setHasVoted(response.data.userHasVoted);
+                const votingDetails: UserVoteResponse = response.data
+
+                console.log("User vote bool: " + votingDetails.hasVoted)
+                console.log("Roster id: " + votingDetails.votedRosterId)
+                setUserVoteDetails(response.data);
+                await setVotedForTeam(response.data);
             } else {
-                setHasVoted(false);
+                setUserVoteDetails(null);
             }
         } catch (e) {
             console.error("Unable to fetch voting data from API.");
+            setUserVoteDetails(null);
         }
     };
+
+    const setVotedForTeam = async (votingDetails: UserVoteResponse) => {
+        setVotedForHomeTeam(votingDetails?.votedRosterId == matchup.home_team.id.toString());
+        setVotedForAwayTeam(votingDetails?.votedRosterId == matchup.away_team.id.toString());
+    }
 
     const fetchLockoutDetails = async () => {
         try {
@@ -56,10 +72,9 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
         }
     };
 
-
     useEffect(() => {
         loggedInUser = localStorage.getItem('loggedInUser');
-        hasUserVoted();
+        getUserVotingDetails();
         fetchLockoutDetails();
     }, []);
 
@@ -74,13 +89,21 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
         }
     };
 
-    const buttonStyle = hasVoted ? { backgroundColor: 'hotpink' } : {};
+    // Conditional styles
+    const highlightStyle = { backgroundColor: '#ebf7ed' };
 
     const handleVote = async (team: 'home' | 'away') => {
         try {
-            setHasVoted(true);
-
             const rosterVoteId = team === "home" ? matchup.home_team.id : matchup.away_team.id;
+
+            const userVoteDetails: UserVoteResponse = {
+                hasVoted: true,
+                votedRosterId: rosterVoteId.toString()
+            }
+
+            setUserVoteDetails(userVoteDetails);
+            setVotedForTeam(userVoteDetails);
+
             const userVoteRequest: UserVoteRequest = {
                 userAsString: loggedInUser as string,
                 matchupId: matchup.id,
@@ -94,7 +117,7 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                     position: toast.POSITION.TOP_RIGHT,
                 });
             } else {
-                setHasVoted(false);
+                setUserVoteDetails(null);
                 toast.error("Something went wrong. Try again later.");
             }
         } catch (e: any) {
@@ -102,17 +125,15 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                 toast.info("Votes are currently locked.")
             } else {
                 console.log("User was unable to vote.");
-                setHasVoted(false);
+                setUserVoteDetails(null);
                 toast.error("Something went wrong. Try again later.");
             }
         }
     };
 
-
     const handleLoginSuccess = () => {
         setLoginPopupShown(false);
     };
-
 
     return (
         <>
@@ -137,7 +158,7 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                     <Row>
                         {/* Home Team Card */}
                         <Col>
-                            <Card>
+                            <Card style={votedForHomeTeam ? highlightStyle : {}}>
                                 <Card.Title className={styles.cardModalTitle}>
                                     <img className={styles.cardImage} src={matchup.home_team.team.teamLogo}/>
                                     <div className={styles.cardTitle}>{matchup.home_team.team.teamName}</div>
@@ -163,7 +184,6 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                                             variant="success"
                                             onClick={() => handleVoteWrapper("home")}
                                             disabled={lockoutDetails?.isVoteLockedOut}
-                                            style={buttonStyle}
                                         >Vote</Button>
                                     </div>
                                 </Card.Body>
@@ -171,7 +191,7 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                         </Col>
                         {/* Away Team Card */}
                         <Col>
-                            <Card>
+                            <Card style={votedForAwayTeam ? highlightStyle : {}}>
                                 <Card.Title className={styles.cardModalTitle}>
                                     <img className={styles.cardImage} src={matchup.away_team.team.teamLogo}/>
                                     <div className={styles.cardTitle}>{matchup.away_team.team.teamName}</div>
@@ -197,7 +217,6 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                                             variant="success"
                                             onClick={() => handleVoteWrapper('away')}
                                             disabled={lockoutDetails?.isVoteLockedOut}
-                                            style={buttonStyle}
                                         >Vote</Button>
                                     </div>
                                 </Card.Body>
@@ -206,7 +225,7 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                     </Row>
                 </Modal.Body>
                 <Modal.Footer>
-                    {hasVoted ? <span>You already voted for this matchup</span> : null}
+                    {userVoteDetails ? <span>You already voted for this matchup</span> : null}
                     <Button variant="secondary" onClick={handleCloseModal}>
                         Close
                     </Button>

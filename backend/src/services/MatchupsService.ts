@@ -26,6 +26,12 @@ export interface MatchupVoteTotals {
     awayTeam: number
 }
 
+export type UserVoteResult = {
+    hasVoted: boolean;
+    votedRosterId?: string;
+};
+
+
 // Will run in a job every wednesday morning. Can be called to manually map matchups.
 // todo test refactor to always run on matchup call now that we have upsert logic and then cache result for 24h? or better with schedulers maybe
 export async function upsertAndMapMatchupsForWeek(week: number): Promise<void> {
@@ -102,54 +108,64 @@ export async function getMatchupsForCurrentWeek(): Promise<MatchupEntity[]> {
     }
 }
 
-export async function checkIfUserHasVoted(request: UserVoteRequest): Promise<boolean> {
+export async function getUserVote(request: UserVoteRequest): Promise<UserVoteResult> {
     try {
         const cacheKey = getCacheKeyForVote(request.userAsString, request.matchupId);
         const cachedVote = await getFromCache(cacheKey, "hasVoted");
+        const cachedRosterId = await getFromCache(cacheKey, "votedRosterId");
+
         if (cachedVote) {
-            return cachedVote === 'true'
+            return {
+                hasVoted: cachedVote === 'true',
+                votedRosterId: cachedRosterId ? cachedRosterId : undefined
+            };
         }
 
         console.log(`Checking if user: ${request.userAsString} has voted in matchup with id: ${request.matchupId}`);
-        // Is vote locked out currently
-        const weekRepository = getRepository(CurrentWeekEntity)
-        const currentWeekEntity = await weekRepository.find()
+
+        const weekRepository = getRepository(CurrentWeekEntity);
+        const currentWeekEntity = await weekRepository.find();
+
         if (currentWeekEntity[0].voteLockedOut) {
-            return false
+            return { hasVoted: false };
         }
 
-        // Get repositories to interact with the database
         const userRepository = getRepository(UserEntity);
         const matchupRepository = getRepository(MatchupEntity);
         const voteRepository = getRepository(VoteEntity);
 
-        // Find the user and matchup using the provided request data
         const user = await userRepository.findOne({ where: { username: parseUsername(request.userAsString) }});
-        const matchup = await matchupRepository.findOne({ where: { id: request.matchupId }});
+        const matchup = await matchupRepository.findOne({ where: { id: request.matchupId } });
 
-        // Ensure the user and matchup exist
         if (!user || !matchup) {
             console.error("User or matchup not found");
-            return false;
+            return { hasVoted: false };
         }
 
-        // Check if a vote exists for the given user and matchup
         const vote = await voteRepository.findOne({
             where: {
                 user: { id: user.id },
                 matchup: { id: matchup.id }
-            }
+            },
+            relations: ['roster']
         });
 
         const hasVoted = !!vote;
-        console.log("Has voted: " + hasVoted)
-        // Cache the result
+        const votedRosterId = vote ? vote.roster.id.toString() : undefined;
+
+        console.log("Has voted:", hasVoted, "Voted for roster:", votedRosterId);
+
         await putInCache(cacheKey, hasVoted.toString(), VOTE_CACHE_EXPIRATION, "hasVoted");
 
-        return hasVoted;
+        if (votedRosterId) {
+            await putInCache(cacheKey, votedRosterId.toString(), VOTE_CACHE_EXPIRATION, "votedRosterId");
+        }
+
+        return { hasVoted, votedRosterId };
+
     } catch (error) {
         console.error("An error occurred while checking if the user has voted:", error);
-        return false;
+        return { hasVoted: false };
     }
 }
 
