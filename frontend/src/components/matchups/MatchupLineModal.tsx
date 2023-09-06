@@ -225,7 +225,7 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                     </Row>
                 </Modal.Body>
                 <Modal.Footer>
-                    {userVoteDetails ? <span>You already voted for this matchup</span> : null}
+                    {userVoteDetails?.hasVoted ? <span>You already voted for this matchup</span> : null}
                     <Button variant="secondary" onClick={handleCloseModal}>
                         Close
                     </Button>
