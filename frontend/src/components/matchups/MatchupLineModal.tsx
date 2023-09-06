@@ -168,7 +168,7 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                                     <ListGroup>
                                         {matchup.home_team.starters
                                             .sort((a, b) => {
-                                                const order = ['QB', 'RB', 'WR', 'TE'];
+                                                const order = ['QB', 'RB', 'WR', 'TE', 'DEF'];
                                                 return order.indexOf(a.position) - order.indexOf(b.position);
                                             })
                                             .map((player, index) => (
@@ -201,7 +201,7 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                                     <ListGroup>
                                         {matchup.away_team.starters
                                             .sort((a, b) => {
-                                                const order = ['QB', 'RB', 'WR', 'TE'];
+                                                const order = ['QB', 'RB', 'WR', 'TE', 'DEF'];
                                                 return order.indexOf(a.position) - order.indexOf(b.position);
                                             })
                                             .map((player, index) => (

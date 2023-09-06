@@ -106,7 +106,7 @@ const TeamProfile = ({ data }: { data: TeamData }) => {
                     <ListGroup>
                         {data.activeRoster
                             .sort((a, b) => {
-                                const order = ['QB', 'RB', 'WR', 'TE'];
+                                const order = ['QB', 'RB', 'WR', 'TE', 'DEF'];
                                 return order.indexOf(a.position) - order.indexOf(b.position);
                             })
                             .map((player, index) => (
