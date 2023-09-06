@@ -11,9 +11,9 @@ interface MatchupLineProps {
 const MatchupLine: React.FC<MatchupLineProps> = ({ matchup, onShowModal }) => {
     return (
         <div onClick={onShowModal} className={styles.matchupLine}>
-            <Row className="mb-3">
+            <Row className="mb-3 flex-nowrap">
                 <Col>
-                    <Card>
+                    <Card className={styles.cardWrapper}>
                         <Card.Body className={styles.cardContent}>
                             <Card.Img
                                 className={styles.cardImage}
@@ -37,9 +37,9 @@ const MatchupLine: React.FC<MatchupLineProps> = ({ matchup, onShowModal }) => {
                         </Card.Body>
                     </Card>
                 </Col>
-                <Col className="d-flex align-items-center justify-content-center" sm={1}>VS</Col>
+                <Col className={styles.matchupVersusLabel}>VS</Col>
                 <Col>
-                    <Card className={styles.awayTeam}>
+                    <Card className={`${styles.cardWrapper} ${styles.awayTeam}`}>
                         <Card.Body className={styles.cardContent}>
                             <Card.Img
                                 className={`${styles.cardImage} ${styles.awayTeam}`}

@@ -1,3 +1,13 @@
+.cardWrapper {
+    width: 250px;
+    height: 80px;
+}
+
+.matchupVersusLabel {
+    width: 10px;
+    margin-top: 30px;
+}
+
 .cardImage {
     width: 40px;
     height: 40px;
@@ -7,7 +17,7 @@
 }
 
 .cardTitle {
-    font-size: 80%;
+    font-size: 75%;
     text-align: left;
     align-content: center;
     max-width: 100px;
@@ -18,7 +28,7 @@
 
 .ownerName {
     margin-right: 0.25rem;
-    font-size: 100%;
+    font-size: 80%;
     text-align: right;
     color: gray;
     align-self: flex-end; /* Align to the right */
@@ -110,4 +120,78 @@
     margin-left: 3rem;
 }
 
+.matchupVersusLabel {
+    width: 50px;
+}
+
+@media (max-width: 1000px) {
+    .cardWrapper {
+        width: 150px;
+        height: 60px;
+    }
+
+    .matchupVersusLabel {
+        width: 10px;
+        margin-left: -15px;
+    }
+
+    .cardImage {
+        width: 30px;
+        height: 30px;
+        margin-left: -10px; /* Add some right padding/margin */
+    }
+
+    .cardTitle {
+        font-size: 45%;
+        text-align: left;
+        align-content: center;
+        max-width: 50px;
+        margin: 0;
+        word-wrap: normal;
+    }
+
+    .ownerName {
+        margin-right: -5px;
+        font-size: 45%;
+        text-align: right;
+        color: gray;
+        align-self: flex-end; /* Align to the right */
+    }
+
+    .centeredRow {
+        justify-content: center;
+    }
+
+    .cardContent {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        border: 3px solid #fdcae4;
+    }
+
+    .awayTeam .cardImage {
+        margin-right: -10px;
+    }
+
+    .awayTeam .cardTitle {
+        text-align: right; /* Align the title to the right */
+    }
+
+    .awayTeam .ownerName {
+        text-align: left; /* Align the owner name to the left */
+    }
+
+    .awayTeam .cardContent {
+        flex-direction: row-reverse;
+    }
+
+    .matchupLine .cardContent {
+        background-color: white; /* Normal background color */
+        transition: background-color 0.3s ease; /* Optional: smooth transition */
+    }
+
+    .matchupLine:hover .cardContent {
+        background-color: #fdcae4; /* Background color on hover for both cards */
+    }
+}
 
