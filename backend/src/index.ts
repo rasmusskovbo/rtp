@@ -9,8 +9,8 @@ import postsRoute from "./routes/PostsRoute";
 import teamsRoute from "./routes/TeamsRoute";
 import  "./scheduler/RosterUpdater";
 import  "./scheduler/PlayerUpdater";
-//import  "./scheduler/LeaderboardUpdater";
-//import  "./scheduler/MatchupUpdater";
+import  "./scheduler/LeaderboardUpdater";
+import  "./scheduler/MatchupUpdater";
 import  "./scheduler/VoteLockoutUpdater";
 import matchupsRoute from "./routes/MatchupsRoute";
 import picksRoute from "./routes/PicksRoute";
@@ -22,8 +22,20 @@ dotenv.config();
 
 connectToDb().then(() => {
 
+    const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [];
+
     app.use(cors({
-        origin: process.env.CORS_ORIGIN
+        origin: function(origin, callback) {
+            if(!origin) return callback(null, true);
+
+            if (allowedOrigins.indexOf(origin) === -1) {
+                console.log(allowedOrigins)
+                console.log(origin)
+                let msg = `The CORS policy for this site does not allow access from the specified Origin.`;
+                return callback(new Error(msg), false);
+            }
+            return callback(null, true);
+        }
     }));
 
     app.use(express.json());

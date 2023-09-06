@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {Badge, Spinner} from 'react-bootstrap';
 import axios from "axios";
 
-interface VoteLockoutDetails {
+export interface VoteLockoutDetails {
     date: string;
     isVoteLockedOut: boolean;
 }

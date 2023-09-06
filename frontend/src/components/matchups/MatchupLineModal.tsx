@@ -5,6 +5,7 @@ import styles from './matchups.module.css';
 import LoginPopup from "@/components/upload/LoginPopup";
 import {toast} from "react-toastify";
 import axios from "axios";
+import {VoteLockoutDetails} from "@/components/picks/VoteLockout";
 
 interface UserVoteRequest {
     userAsString: string,
@@ -25,6 +26,7 @@ interface MatchupLineModalProps {
 const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal, handleCloseModal }) => {
     const [isLoginPopupShown, setLoginPopupShown] = useState(false);
     const [hasVoted, setHasVoted] = useState(false);
+    const [lockoutDetails, setLockoutDetails] = useState<VoteLockoutDetails | null>(null);
     let loggedInUser = localStorage.getItem('loggedInUser');
 
     const hasUserVoted = async () => {
@@ -45,10 +47,20 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
         }
     };
 
+    const fetchLockoutDetails = async () => {
+        try {
+            const response = await axios.get(`${process.env.API_URL}/api/matchups/lockout`);
+            setLockoutDetails(response.data);
+        } catch (error) {
+            console.error("Error fetching lockout details:", error);
+        }
+    };
+
 
     useEffect(() => {
         loggedInUser = localStorage.getItem('loggedInUser');
-        hasUserVoted()
+        hasUserVoted();
+        fetchLockoutDetails();
     }, []);
 
     const handleVoteWrapper = (team: 'home' | 'away') => {
@@ -61,6 +73,8 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
             setLoginPopupShown(true);
         }
     };
+
+    const buttonStyle = hasVoted ? { backgroundColor: 'hotpink' } : {};
 
     const handleVote = async (team: 'home' | 'away') => {
         try {
@@ -85,7 +99,7 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
             }
         } catch (e: any) {
             if (e.response && e.response.status === 400) {
-                toast.info("You already voted for this matchup or votes are currently locked.")
+                toast.info("Votes are currently locked.")
             } else {
                 console.log("User was unable to vote.");
                 setHasVoted(false);
@@ -145,8 +159,12 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                                             ))}
                                     </ListGroup>
                                     <div className="text-center mt-3">
-                                        <Button variant="success" onClick={() => handleVoteWrapper("home")}
-                                                disabled={hasVoted}>Vote</Button>
+                                        <Button
+                                            variant="success"
+                                            onClick={() => handleVoteWrapper("home")}
+                                            disabled={lockoutDetails?.isVoteLockedOut}
+                                            style={buttonStyle}
+                                        >Vote</Button>
                                     </div>
                                 </Card.Body>
                             </Card>
@@ -175,8 +193,12 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
                                             ))}
                                     </ListGroup>
                                     <div className="text-center mt-3">
-                                        <Button variant="success" onClick={() => handleVoteWrapper('away')}
-                                                disabled={hasVoted}>Vote</Button>
+                                        <Button
+                                            variant="success"
+                                            onClick={() => handleVoteWrapper('away')}
+                                            disabled={lockoutDetails?.isVoteLockedOut}
+                                            style={buttonStyle}
+                                        >Vote</Button>
                                     </div>
                                 </Card.Body>
                             </Card>

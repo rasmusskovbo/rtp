@@ -184,23 +184,39 @@ export async function castVoteForMatchup(request: UserVoteRequest): Promise<bool
             return false;
         }
 
-        // Create a new vote entity
-        const vote = new VoteEntity();
-        vote.user = user;
-        vote.matchup = matchup;
-        vote.roster = roster;
+        // Check if a vote from this user for this matchup already exists
+        let existingVote = await voteRepository.findOne({
+            where: {
+                user: { id: user.id },
+                matchup: { id: matchup.id }
+            }
+        });
 
-        // Save the vote to the database
-        try {
-            // Invalidate caches to refresh stats
-            invalidateCacheKey(getCacheKeyForVote(request.userAsString, request.matchupId))
-            invalidateCacheKey(MATCHUPS_CACHE_KEY)
-            await voteRepository.save(vote);
-            console.log(`Vote successfully cast for user: ${request.userAsString}, matchupId: ${request.matchupId}, rosterId: ${request.rosterId}`);
+        if (existingVote) {
+            // If a vote exists, update the roster for the vote
+            existingVote.roster = roster;
+            await voteRepository.save(existingVote);
+            console.log(`Vote updated for user: ${request.userAsString}, matchupId: ${request.matchupId}, rosterId: ${request.rosterId}`);
             return true;
-        } catch (QueryFailedError: any) {
-            console.error(`Vote already cast for matchup: user: ${request.userAsString}, matchupId: ${request.matchupId}, rosterId: ${request.rosterId}`);
-            return false
+        } else {
+            // If no vote exists, create a new vote
+            const vote = new VoteEntity();
+            vote.user = user;
+            vote.matchup = matchup;
+            vote.roster = roster;
+
+            // Save the vote to the database
+            try {
+                // Invalidate caches to refresh stats
+                invalidateCacheKey(getCacheKeyForVote(request.userAsString, request.matchupId));
+                invalidateCacheKey(MATCHUPS_CACHE_KEY);
+                await voteRepository.save(vote);
+                console.log(`Vote successfully cast for user: ${request.userAsString}, matchupId: ${request.matchupId}, rosterId: ${request.rosterId}`);
+                return true;
+            } catch (error) {
+                console.error(`Failed to save the new vote: ${error}`);
+                return false;
+            }
         }
     } catch (error) {
         console.error("An error occurred while casting the vote:", error);
