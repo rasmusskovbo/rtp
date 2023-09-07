@@ -1,5 +1,4 @@
 import cron from 'node-cron';
-import { upsertAndMapMatchupsForWeek } from '../services/MatchupsService'
 import {getRepository} from "typeorm";
 import {CurrentWeekEntity} from "../database/entities/CurrentWeekEntity";
 import {processVotesForMatchupsForWeek, updateWinnersForMatchups} from "../services/PicksService";
@@ -15,7 +14,7 @@ cron.schedule(cronExpression, async () => {
 
     // Find the current NFL week
     const currentWeekEntity = await nflWeekRepository.find()
-    const currentWeek = currentWeekEntity[0].weekNumber - 1
+    const currentWeek = currentWeekEntity[0].weekNumber;
 
     // Update winners for all matchup entities for given week
     await updateWinnersForMatchups(currentWeek);
