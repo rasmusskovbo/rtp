@@ -47,7 +47,8 @@ export const connectToDb = async (): Promise<Connection> => {
             MatchupEntity,
             VoteEntity
         ],
-        synchronize: true
+        synchronize: true,
+        logging: ["error"]
     };
 
     if (process.env.HEROKU_DEPLOYMENT === "true") {

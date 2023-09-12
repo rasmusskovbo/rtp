@@ -31,9 +31,7 @@ export type UserVoteResult = {
     votedRosterId?: string;
 };
 
-
 // Will run in a job every wednesday morning. Can be called to manually map matchups.
-// todo test refactor to always run on matchup call now that we have upsert logic and then cache result for 24h? or better with schedulers maybe
 export async function upsertAndMapMatchupsForWeek(week: number): Promise<void> {
     try {
         console.log(`Fetching Sleeper Matchups for week: ${week}...`)
@@ -52,13 +50,16 @@ export async function upsertAndMapMatchupsForWeek(week: number): Promise<void> {
             });
 
             if (existingMatchup) {
-                // If the matchup already exists, set the id to make sure it gets updated
-                mappedMatchup.id = existingMatchup.id;
+                // If it already exists, only update points
+                console.log(existingMatchup.id+ " Updating existing matchup with pts: " + mappedMatchup.home_team_points + ", " + mappedMatchup.away_team_points)
+                existingMatchup.home_team_points = mappedMatchup.home_team_points;
+                existingMatchup.away_team_points = mappedMatchup.away_team_points;
+
+                await matchupRepository.save(existingMatchup);
+            } else {
+                await matchupRepository.save(mappedMatchup)
             }
-
-            await matchupRepository.save(mappedMatchup);
         }
-
         console.log("Matchups have been saved to the database");
     } catch (error) {
         console.error("An error occurred while fetching and saving matchups", error);
@@ -270,9 +271,6 @@ async function getVoteTotalsForMatchup(matchupId: number): Promise<MatchupVoteTo
     console.log("Votes Length: " + votes.length)
     if (votes.length > 0) {
         for (const vote of votes) {
-            console.log("Vote ID: " + vote.id)
-            console.log("Vote ROSTER ID: " + vote.roster.id)
-            console.log("Home team id: ")
             if (matchup.home_team && vote.roster.id === matchup.home_team.id) {
                 voteTotals.homeTeam++;
             } else if (matchup.away_team && vote.roster.id === matchup.away_team.id) {

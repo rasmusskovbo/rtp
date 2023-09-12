@@ -20,6 +20,7 @@ export async function mapMatchups(sleeperMatchups: SleeperMatchupModel[], week: 
         const matchupTeams: SleeperMatchupModel[] = sleeperMatchups.filter(matchup => matchup.matchup_id == id);
 
         if (matchupTeams.length >= 2) {
+            console.log("DEBUG HOME TEAM: " + matchupTeams[0].points)
             // Note we're assuming that API response will always be in same order when updating (it seems to be)
             // If not, we may need to do some extra checks on IDs to x-reference
             matchupEntity.home_team = await rosterRepository.findOne({ where: { roster_id: matchupTeams[0].roster_id } });

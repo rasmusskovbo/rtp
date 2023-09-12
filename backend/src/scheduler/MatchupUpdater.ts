@@ -16,17 +16,18 @@ cron.schedule(cronExpression, async () => {
     const currentWeekEntity = await nflWeekRepository.find();
     const currentWeek = currentWeekEntity[0];
 
-    await upsertAndMapMatchupsForWeek(currentWeek.weekNumber);
-
-    // Increase the NFL week number for the next call
+    // Increase the NFL week number
     if (currentWeek.weekNumber < 18) {
         currentWeek.weekNumber++;
         currentWeek.voteLockedOut = false;
         await nflWeekRepository.save(currentWeek);
+
+        await upsertAndMapMatchupsForWeek(currentWeek.weekNumber);
         console.log("Successfully finished matchup updating job.")
     } else {
         console.log("Did not update week number - week 18 has been reached.")
     }
+
 });
 
 console.log('Cron job for weekly initial matchups update scheduled.');

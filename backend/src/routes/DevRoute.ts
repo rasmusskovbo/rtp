@@ -55,13 +55,13 @@ router.get('/lockoutvote', async (req: Request, res: Response) => {
 });
 
 // Update leaderboards
-router.get('/dev/updateleaderboard', async (req: Request, res: Response) => {
+router.get('/updateleaderboard', async (req: Request, res: Response) => {
     // Get the repository for the NFLWeek entity
     const nflWeekRepository = getRepository(CurrentWeekEntity);
 
     // Find the current NFL week
     const currentWeekEntity = await nflWeekRepository.find()
-    const currentWeek = currentWeekEntity[0].weekNumber - 1
+    const currentWeek = currentWeekEntity[0].weekNumber;
 
     // Update winners for all matchup entities for given week
     await updateWinnersForMatchups(currentWeek);

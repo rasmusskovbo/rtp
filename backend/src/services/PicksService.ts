@@ -7,6 +7,7 @@ import {TeamEntity} from "../database/entities/TeamEntity";
 import {UserEntity} from "../database/entities/UserEntity";
 import {PicksStatisticsModel} from "../models/PicksStatisticsModel";
 import {SleeperRosterEntity} from "../database/entities/SleeperRosterEntity";
+import {upsertAndMapMatchupsForWeek} from "./MatchupsService";
 
 interface PicksLeaderboardEntry {
     username: string;
@@ -23,6 +24,9 @@ export interface VoteLockoutDetails {
 export async function updateWinnersForMatchups(week: number) {
     const matchupRepository = getRepository(MatchupEntity);
 
+    // Update points for all matchups first
+    await upsertAndMapMatchupsForWeek(week);
+
     // Fetch all matchups or filter based on your criteria
     const matchups = await matchupRepository.find({
         where: { week: week},
@@ -31,6 +35,7 @@ export async function updateWinnersForMatchups(week: number) {
 
     // Iterate through matchups and determine the winner
     for (const matchup of matchups) {
+        console.log("Determining winner for matchup with ID: " + matchup.id)
         if (matchup.home_team_points !== null && matchup.away_team_points !== null) {
             if (matchup.home_team_points > matchup.away_team_points) {
                 matchup.winner = matchup.home_team;
@@ -58,6 +63,7 @@ export async function processVotesForMatchupsForWeek(week: number) {
 
     // Iterate through each matchup
     for (const matchup of matchups) {
+        console.log("Processing votes for matchup with ID: " + matchup.id)
         // Fetch votes for the current matchup
         const votes = await voteRepository.find({
             where: { matchup: {id: matchup.id}},
@@ -68,7 +74,7 @@ export async function processVotesForMatchupsForWeek(week: number) {
         for (const vote of votes) {
             if (matchup.winner) {
                 // vote was correct if IDs match
-                vote.voteCorrect = vote.roster === matchup.winner;
+                vote.voteCorrect = vote.roster.id === matchup.winner.id;
             } else {
                 vote.voteCorrect = false; // False if winner is null (i.e. it was a tie)
             }
