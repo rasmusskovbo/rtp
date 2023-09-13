@@ -3,8 +3,8 @@ import cron from "node-cron";
 import {getRepository} from "typeorm";
 import {CurrentWeekEntity} from "../database/entities/CurrentWeekEntity";
 
-// Every Thursday at 23:00 CET
-const cronExpression = '0 23 * * 4';
+// Every Thursday at 21:00 UTC
+const cronExpression = '0 21 * * 4';
 
 // Schedule the cron job
 cron.schedule(cronExpression, async () => {

@@ -119,14 +119,15 @@ export async function getVoteLockoutDetails(): Promise<VoteLockoutDetails> {
     const currentWeek = currentWeekEntity[0]
 
     if (currentWeek.voteLockedOut) {
-        // If the vote is locked out, find the next Wednesday at 09:00 CET
-        const nextWed = DateTime.now().setZone('Europe/Brussels').plus({ days: (3 - DateTime.now().weekday + 7) % 7 }).set({ hour: 9, minute: 0, second: 0, millisecond: 0 });
+        // If the vote is locked out, find the next Wednesday at 05:00 UTC
+        const nextWed = DateTime.now().setZone('UTC').plus({ days: (3 - DateTime.now().weekday + 7) % 7 }).set({ hour: 5, minute: 0, second: 0, millisecond: 0 });
         return { date: nextWed, isVoteLockedOut: true };
     } else {
-        // If the vote is not locked out, find the next Sunday at 17:00 CET
-        const nextSun = DateTime.now().setZone('Europe/Brussels').plus({ days: (4 - DateTime.now().weekday + 7) % 7 }).set({ hour: 23, minute: 0, second: 0, millisecond: 0 });
-        return { date: nextSun, isVoteLockedOut: false };
+        // If the vote is not locked out, find the next Thursday at 21:00 UTC
+        const nextThu = DateTime.now().setZone('UTC').plus({ days: (4 - DateTime.now().weekday + 7) % 7 }).set({ hour: 21, minute: 0, second: 0, millisecond: 0 });
+        return { date: nextThu, isVoteLockedOut: false };
     }
+
 }
 
 /** AWARD CARDS **/

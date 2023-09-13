@@ -3,8 +3,8 @@ import {getRepository} from "typeorm";
 import {CurrentWeekEntity} from "../database/entities/CurrentWeekEntity";
 import {processVotesForMatchupsForWeek, updateWinnersForMatchups} from "../services/PicksService";
 
-// Runs 1 hour before MatchupUpdater (Wednesday at 08:00 CET)
-const cronExpression = '0 8 * * 3';
+// Runs 1 hour before MatchupUpdater (Wednesday at 4:00 UTC)
+const cronExpression = '0 4 * * 3';
 
 // Schedule the cron job
 cron.schedule(cronExpression, async () => {

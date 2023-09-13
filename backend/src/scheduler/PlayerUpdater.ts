@@ -3,7 +3,7 @@ import { SleeperService } from "../services/SleeperService";
 
 const sleeperService = new SleeperService();
 
-// Define the cron job for updating players (every day at 06:00 CET)
+// Define the cron job for updating players (every day at 06:00 UTC)
 cron.schedule('0 6 * * *', async () => {
     console.log('Running daily player update...');
 

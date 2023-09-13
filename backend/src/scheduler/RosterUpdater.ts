@@ -3,7 +3,7 @@ import { SleeperService } from "../services/SleeperService";
 
 const sleeperService = new SleeperService();
 
-// Update rosters every day at 07:00 CET
+// Update rosters every day at 07:00 UTC
 cron.schedule('0 7 * * *', async () => {
     console.log('Running daily roster update...');
 
