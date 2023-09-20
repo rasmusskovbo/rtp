@@ -67,10 +67,6 @@
     flex-direction: row-reverse;
 }
 
-.matchupLine .cardContent {
-
-}
-
 .matchupLine:hover .cardContent {
     background-color: #fdcae4; /* Background color on hover for both cards */
 }
@@ -110,9 +106,6 @@
 .userVote {
     background-color: #fdcae4;
 }
-.incorrectVote {
-    background-color: #fdcae4;
-}
 
 .player-position-QB { color: #ff004b; }
 .player-position-WR { color: #55a1f4; }
@@ -132,7 +125,7 @@
 }
 
 .greenBorder {
-    border: 4px solid green;
+    border: 4px solid rgba(114, 197, 114, 0.66);;
 }
 
 @media (max-width: 1000px) {
@@ -197,12 +190,19 @@
     }
 
     .matchupLine .cardContent {
-        background-color: white; /* Normal background color */
         transition: background-color 0.3s ease; /* Optional: smooth transition */
     }
 
     .matchupLine:hover .cardContent {
         background-color: #fdcae4; /* Background color on hover for both cards */
+    }
+
+    .userVote {
+        background-color: #fdcae4;
+    }
+
+    .greenBorder {
+        border: 4px solid rgba(114, 197, 114, 0.66);
     }
 }
 
