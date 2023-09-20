@@ -130,6 +130,33 @@ export async function getVoteLockoutDetails(): Promise<VoteLockoutDetails> {
 
 }
 
+export async function getVoteLockoutDetailsForWeek(week: number): Promise<VoteLockoutDetails> {
+    // Fetch the current week entity from the database
+    const currentWeekEntity = await getRepository(CurrentWeekEntity).find();
+
+    if (!currentWeekEntity) {
+        throw new Error("No current week found in database");
+    }
+
+    const currentWeek = currentWeekEntity[0]
+
+    if (currentWeek.weekNumber > week) {
+        // If querying for a non current week, vote is locked out.
+        return { date: DateTime.now(), isVoteLockedOut: true };
+    }
+
+    if (currentWeek.voteLockedOut) {
+        // If the vote is locked out, find the next Wednesday at 05:00 UTC
+        const nextWed = DateTime.now().setZone('UTC').plus({ days: (3 - DateTime.now().weekday + 7) % 7 }).set({ hour: 5, minute: 0, second: 0, millisecond: 0 });
+        return { date: nextWed, isVoteLockedOut: true };
+    } else {
+        // If the vote is not locked out, find the next Thursday at 21:00 UTC
+        const nextThu = DateTime.now().setZone('UTC').plus({ days: (4 - DateTime.now().weekday + 7) % 7 }).set({ hour: 21, minute: 0, second: 0, millisecond: 0 });
+        return { date: nextThu, isVoteLockedOut: false };
+    }
+
+}
+
 /** AWARD CARDS **/
 export async function getPicksStatistics(): Promise<PicksStatisticsModel> {
     console.log("Fetching picks statistics...")

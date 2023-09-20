@@ -1,4 +1,4 @@
-import {getRepository, QueryFailedError} from "typeorm";
+import {getRepository, In, QueryFailedError} from "typeorm";
 import { SleeperMatchupModel } from "../models/SleeperMatchupModel";
 import { MatchupEntity } from "../database/entities/MatchupEntity";
 import {getMatchupsByWeek} from "../clients/SleeperClient";
@@ -66,7 +66,6 @@ export async function upsertAndMapMatchupsForWeek(week: number): Promise<void> {
     }
 }
 
-
 // Automatically fetches matchups for current week based on DB input.
 export async function getMatchupsForCurrentWeek(): Promise<MatchupEntity[]> {
     try {
@@ -108,6 +107,41 @@ export async function getMatchupsForCurrentWeek(): Promise<MatchupEntity[]> {
         return [];
     }
 }
+
+/**
+ * Fetches matchups for a specific week.
+ * @param {number} weekNumber - The desired week number.
+ * @returns {Promise<MatchupEntity[]>} - Promise that resolves with the matchups.
+ */
+export async function getMatchupsForWeek(weekNumber: number): Promise<MatchupEntity[]> {
+    try {
+
+        const cachedMatchups = await getObjectFromCache<MatchupEntity[]>(`matchupsWeek${weekNumber}`, "week");
+        if (cachedMatchups) return cachedMatchups;
+
+        const matchupRepository = getRepository(MatchupEntity);
+        const matchups = await matchupRepository.find({
+            where: { week: weekNumber },
+            relations: ['home_team', 'home_team.starters', 'home_team.team', 'away_team', 'away_team.starters', 'away_team.team', 'winner'],
+        });
+
+        const matchupsWithVotes = await Promise.all(matchups.map(async (matchup) => {
+            const voteTotals = await getVoteTotalsForMatchup(matchup.id);
+            return {
+                ...matchup,
+                voteTotals
+            };
+        }));
+
+        await putObjectInCache(`matchupsWeek${weekNumber}`, matchupsWithVotes, MATCHUP_CACHE_EXPIRATION, "week");
+
+        return matchupsWithVotes;
+    } catch (error) {
+        console.error(`An error occurred while getting matchups for week ${weekNumber}:`, error);
+        return [];
+    }
+}
+
 
 export async function getUserVote(request: UserVoteRequest): Promise<UserVoteResult> {
     try {
@@ -167,6 +201,54 @@ export async function getUserVote(request: UserVoteRequest): Promise<UserVoteRes
     } catch (error) {
         console.error("An error occurred while checking if the user has voted:", error);
         return { hasVoted: false };
+    }
+}
+
+export async function getUserVotesByUsernameAndWeek(username: string, week: number): Promise<VoteEntity[]> {
+    try {
+        // Assuming the cache functions provided before:
+        const cacheKey = `votes-${username}-${week}`;
+        const cachedVotes = await getFromCache(cacheKey, "votes");
+
+        if (cachedVotes) {
+            return JSON.parse(cachedVotes);
+        }
+
+        console.log(`Fetching votes for user: ${username} during week: ${week}`);
+
+        const userRepository = getRepository(UserEntity);
+        const matchupRepository = getRepository(MatchupEntity);
+        const voteRepository = getRepository(VoteEntity);
+
+        const user = await userRepository.findOne({ where: { username } });
+
+        if (!user) {
+            console.error("User not found");
+            return [];
+        }
+
+        const matchupsForWeek = await matchupRepository.find({ where: { week } });
+
+        if (!matchupsForWeek.length) {
+            console.log("No matchups found for the given week");
+            return [];
+        }
+
+        const votes = await voteRepository.find({
+            where: {
+                user: { id: user.id },
+                matchup: In(matchupsForWeek.map(matchup => matchup.id))
+            },
+            relations: ['roster', 'matchup']
+        });
+
+        await putInCache(cacheKey, JSON.stringify(votes), VOTE_CACHE_EXPIRATION, "votes");
+
+        return votes;
+
+    } catch (error) {
+        console.error("An error occurred while fetching user votes for the week:", error);
+        return [];
     }
 }
 

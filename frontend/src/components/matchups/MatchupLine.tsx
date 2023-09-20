@@ -1,21 +1,31 @@
 import React from 'react';
 import {Card, Col, Row} from 'react-bootstrap';
-import { Matchup } from './IMatchup';
+import {Matchup, UserVoteDetails} from './IMatchup';
 import styles from './matchups.module.css';
 
 interface MatchupLineProps {
     matchup: Matchup;
+    userVotes: UserVoteDetails[];
     onShowModal: () => void;
 }
 
-const MatchupLine: React.FC<MatchupLineProps> = ({ matchup, onShowModal }) => {
+const MatchupLine: React.FC<MatchupLineProps> = ({ matchup,userVotes, onShowModal }) => {
+    const isHomeTeamWinner = matchup.winner && matchup.home_team.id === matchup.winner.id;
+    const isAwayTeamWinner = matchup.winner && matchup.away_team.id === matchup.winner.id;
+
+    const userVoteForMatchup = userVotes.find(vote => vote.matchup.id === matchup.id);
+    const userVotedForHomeTeam = userVoteForMatchup && userVoteForMatchup.roster.id === matchup.home_team.id;
+    const userVotedForAwayTeam = userVoteForMatchup && userVoteForMatchup.roster.id === matchup.away_team.id;
+
     return (
         <div onClick={onShowModal} className={styles.matchupLine}>
             <Row className="mb-3 flex-nowrap">
                 <Col>
                     <Card className={styles.cardWrapper}>
-                        <Card.Body className={styles.cardContent}>
-                            <Card.Img
+                        <Card.Body className={`${styles.cardContent} 
+                       ${isHomeTeamWinner ? styles.greenBorder : ''} 
+                       ${userVotedForHomeTeam ? styles.userVote : ''}`}>
+                        <Card.Img
                                 className={styles.cardImage}
                                 variant="top"
                                 src={matchup.home_team.team.teamLogo}
@@ -40,8 +50,10 @@ const MatchupLine: React.FC<MatchupLineProps> = ({ matchup, onShowModal }) => {
                 <Col className={styles.matchupVersusLabel}>VS</Col>
                 <Col>
                     <Card className={`${styles.cardWrapper} ${styles.awayTeam}`}>
-                        <Card.Body className={styles.cardContent}>
-                            <Card.Img
+                        <Card.Body className={`${styles.cardContent} 
+                       ${isAwayTeamWinner ? styles.greenBorder : ''} 
+                       ${userVotedForAwayTeam ? styles.userVote : ''}`}>
+                        <Card.Img
                                 className={`${styles.cardImage} ${styles.awayTeam}`}
                                 variant="top"
                                 src={matchup.away_team.team.teamLogo}

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { Modal, Button, Row, Col, Card, ListGroup } from 'react-bootstrap';
-import { Matchup } from './IMatchup';
+import {Matchup, UserVoteDetails} from './IMatchup';
 import styles from './matchups.module.css';
 import LoginPopup from "@/components/upload/LoginPopup";
 import {toast} from "react-toastify";
@@ -43,10 +43,6 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
             const response = await axios.post<UserVoteResponse>(`${process.env.API_URL}/api/matchups/vote/poll`, request);
 
             if (response.status >= 200 && response.status < 300) {
-                const votingDetails: UserVoteResponse = response.data
-
-                console.log("User vote bool: " + votingDetails.hasVoted)
-                console.log("Roster id: " + votingDetails.votedRosterId)
                 setUserVoteDetails(response.data);
                 await setVotedForTeam(response.data);
             } else {
@@ -65,7 +61,7 @@ const MatchupLineModal: React.FC<MatchupLineModalProps> = ({ matchup, showModal,
 
     const fetchLockoutDetails = async () => {
         try {
-            const response = await axios.get(`${process.env.API_URL}/api/matchups/lockout`);
+            const response = await axios.get(`${process.env.API_URL}/api/matchups/lockout/${matchup.week}`);
             setLockoutDetails(response.data);
         } catch (error) {
             console.error("Error fetching lockout details:", error);

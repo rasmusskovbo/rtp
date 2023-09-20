@@ -2,6 +2,7 @@ export interface Matchup {
     id: number;
     matchup_id: number;
     week: number;
+    winner: Roster;
     home_team: Roster;
     away_team: Roster;
     voteTotals: VoteTotals;
@@ -58,4 +59,11 @@ interface TeamDetails {
     bio: string;
     teamLogo: string;
     ownerImage: string;
+}
+
+export interface UserVoteDetails {
+    id: number;
+    voteCorrect: boolean;
+    roster: Roster;
+    matchup: Matchup;
 }
