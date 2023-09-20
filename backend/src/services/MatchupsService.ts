@@ -206,14 +206,6 @@ export async function getUserVote(request: UserVoteRequest): Promise<UserVoteRes
 
 export async function getUserVotesByUsernameAndWeek(username: string, week: number): Promise<VoteEntity[]> {
     try {
-        // Assuming the cache functions provided before:
-        const cacheKey = `votes-${username}-${week}`;
-        const cachedVotes = await getFromCache(cacheKey, "votes");
-
-        if (cachedVotes) {
-            return JSON.parse(cachedVotes);
-        }
-
         console.log(`Fetching votes for user: ${username} during week: ${week}`);
 
         const userRepository = getRepository(UserEntity);
@@ -241,8 +233,6 @@ export async function getUserVotesByUsernameAndWeek(username: string, week: numb
             },
             relations: ['roster', 'matchup']
         });
-
-        await putInCache(cacheKey, JSON.stringify(votes), VOTE_CACHE_EXPIRATION, "votes");
 
         return votes;
 
