@@ -239,16 +239,20 @@ async function getUserWithLeastVotes(): Promise<string | undefined> {
 }
 
 // for every matchup this team won but didnt get a vote -> 1 point in determining whether its the team returned
+// Underdog
 async function getLeastVotedTopWinningTeam(): Promise<TeamEntity | null> {
     const rosters = await getRepository(SleeperRosterEntity).find({ relations: ['team'] });
     const scores: Map<number, number> = new Map();
 
     for (const roster of rosters) {
+        console.log("Calculating underdog score for team: " + roster.team.teamName)
         let score = 0;
 
         const matchupsWon = await getRepository(MatchupEntity).find({
             where: { winner: { id: roster.id} },
         });
+
+        console.log("Matchups won: " + matchupsWon.length)
 
         for (const matchup of matchupsWon) {
             const totalVotes = await getRepository(VoteEntity).count({
@@ -262,10 +266,11 @@ async function getLeastVotedTopWinningTeam(): Promise<TeamEntity | null> {
             });
 
             if (votesForRoster < totalVotes / 2) {
-                score += 1;
+                score += totalVotes - votesForRoster;
             }
         }
 
+        console.log("Score for roster id: " + roster.id + ", " + score)
         scores.set(roster.id, score);
     }
 
@@ -277,8 +282,10 @@ async function getLeastVotedTopWinningTeam(): Promise<TeamEntity | null> {
         if (score > maxScore) {
             maxScore = score;
             bestRosterId = rosterId;
+            console.log("New best score: " + score + ", for Roster: " + rosterId)
         }
     });
+
 
     if (bestRosterId !== undefined) {
         const bestRoster = rosters.find(roster => roster.id === bestRosterId);
@@ -291,11 +298,11 @@ async function getLeastVotedTopWinningTeam(): Promise<TeamEntity | null> {
 async function getMostVotedLeastWinningTeam(): Promise<TeamEntity | null> {
     const rosters = await getRepository(SleeperRosterEntity).find({ relations: ['team'] });
     const scores: Map<number, number> = new Map();
-    const wins: Map<number, number> = new Map();
 
     for (const roster of rosters) {
         let score = 0;
 
+        console.log("Calculating score for team: " + roster.team.teamName)
         const matchupsParticipated = await getRepository(MatchupEntity).find({
             where: [
                 { home_team: { id: roster.id } },
@@ -311,15 +318,16 @@ async function getMostVotedLeastWinningTeam(): Promise<TeamEntity | null> {
                     roster: { id: roster.id }
                 }
             });
+
             if (matchup.winner
                 && matchup.winner.id !== roster.id
-                && votesForRoster > totalVotes / 2) {
-                score += 1;
+                && votesForRoster > totalVotes / 2
+            ) {
+                score += votesForRoster;
             }
         }
 
-        const matchupsWon = await getRepository(MatchupEntity).find({ where: { winner: { id: roster.id } } });
-        wins.set(roster.id, matchupsWon.length);
+        console.log("Score for team: " + roster.team.teamName + ", " + score)
         scores.set(roster.id, score);
     }
 
