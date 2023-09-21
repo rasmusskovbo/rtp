@@ -7,6 +7,9 @@ const ballotBoxBaronImagePath = require("../../assets/ballotboxbaron.png")
 const couchPotatoImagePath = require("../../assets/couchpotato.png")
 const fanfavouriteImagePath = require("../../assets/fanfavourite.png")
 const lonelyLockerRoomImagePath = require("../../assets/lonelylockerroom.png")
+const underdogImagePath = require("../../assets/underdog.png")
+const chokerImagePath = require("../../assets/choker.png")
+
 
 interface Team {
     id: number;
@@ -24,6 +27,8 @@ interface Team {
 export interface PicksStatistics {
     teamWithLeastVotes: Team | null;
     teamWithMostVotes: Team | null;
+    teamWithMostWinsLeastVotes: Team | null;
+    teamWithLeastWinsMostVotes: Team | null;
     userWithMostVotes: string | null;
     userWithLeastVotes: string | null;
 }
@@ -81,6 +86,28 @@ const PicksLeaders = () => {
                         <Card.Body>
                             <Card.Title>Fan Un-Favourite</Card.Title>
                             <Card.Subtitle>(Least Votes For)</Card.Subtitle>
+                            <hr/>
+                            <Card.Text>{data.teamWithLeastVotes?.teamName}</Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Col>
+                <Col md={3}>
+                    <Card>
+                        <Image src={underdogImagePath} alt={'The Underdog'} width={400} height={400} layout="responsive"/>
+                        <Card.Body>
+                            <Card.Title>The Underdog</Card.Title>
+                            <Card.Subtitle>(Most Wins With Least Votes)</Card.Subtitle>
+                            <hr/>
+                            <Card.Text>{data.teamWithLeastVotes?.teamName}</Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Col>
+                <Col md={3}>
+                    <Card>
+                        <Image src={chokerImagePath} alt={'The Choker'} width={400} height={400} layout="responsive"/>
+                        <Card.Body>
+                            <Card.Title>The Choker</Card.Title>
+                            <Card.Subtitle>(Least Wins With Most Votes)</Card.Subtitle>
                             <hr/>
                             <Card.Text>{data.teamWithLeastVotes?.teamName}</Card.Text>
                         </Card.Body>
