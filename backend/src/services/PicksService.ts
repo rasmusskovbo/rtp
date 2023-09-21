@@ -311,7 +311,6 @@ async function getMostVotedLeastWinningTeam(): Promise<TeamEntity | null> {
                     roster: { id: roster.id }
                 }
             });
-
             if (matchup.winner
                 && matchup.winner.id !== roster.id
                 && votesForRoster > totalVotes / 2) {
@@ -324,15 +323,12 @@ async function getMostVotedLeastWinningTeam(): Promise<TeamEntity | null> {
         scores.set(roster.id, score);
     }
 
-    // Find the roster with the minimum wins and maximum score
-    let minWins = Infinity;
+    // Find the roster with the maximum score
     let maxScore = 0;
     let bestRosterId: number | undefined;
 
     scores.forEach((score, rosterId) => {
-        const rosterWins = wins.get(rosterId) || Infinity;
-        if (rosterWins < minWins || (rosterWins === minWins && score > maxScore)) {
-            minWins = rosterWins;
+        if (score > maxScore) {
             maxScore = score;
             bestRosterId = rosterId;
         }
