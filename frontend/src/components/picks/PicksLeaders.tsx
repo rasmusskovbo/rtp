@@ -27,8 +27,8 @@ interface Team {
 export interface PicksStatistics {
     teamWithLeastVotes: Team | null;
     teamWithMostVotes: Team | null;
-    teamWithMostWinsLeastVotes: Team | null;
-    teamWithLeastWinsMostVotes: Team | null;
+    teamWithLeastVotesMostWins: Team | null;
+    teamWithMostVotesLeastWins: Team | null;
     userWithMostVotes: string | null;
     userWithLeastVotes: string | null;
 }
@@ -98,7 +98,7 @@ const PicksLeaders = () => {
                             <Card.Title>The Underdog</Card.Title>
                             <Card.Subtitle>(Most Wins With Least Votes)</Card.Subtitle>
                             <hr/>
-                            <Card.Text>{data.teamWithLeastVotes?.teamName}</Card.Text>
+                            <Card.Text>{data.teamWithLeastVotesMostWins?.teamName}</Card.Text>
                         </Card.Body>
                     </Card>
                 </Col>
@@ -109,7 +109,7 @@ const PicksLeaders = () => {
                             <Card.Title>The Choker</Card.Title>
                             <Card.Subtitle>(Least Wins With Most Votes)</Card.Subtitle>
                             <hr/>
-                            <Card.Text>{data.teamWithLeastVotes?.teamName}</Card.Text>
+                            <Card.Text>{data.teamWithMostVotesLeastWins?.teamName}</Card.Text>
                         </Card.Body>
                     </Card>
                 </Col>

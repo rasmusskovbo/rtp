@@ -309,7 +309,8 @@ async function getMostVotedLeastWinningTeam(): Promise<TeamEntity | null> {
             where: [
                 { home_team: { id: roster.id } },
                 { away_team: { id: roster.id } }
-            ]
+            ],
+            relations: ['winner']
         });
 
         console.log("CHOKER participated: " + roster.team.teamName + " -> " +matchupsParticipated.length)
@@ -323,12 +324,12 @@ async function getMostVotedLeastWinningTeam(): Promise<TeamEntity | null> {
                 }
             });
 
-            if (matchup.winner
-                && matchup.winner.id !== roster.id
-                && votesForRoster > totalVotes / 2
-            ) {
-                score += votesForRoster;
+            if (matchup.winner != null) {
+                if (matchup.winner.id !== roster.id && votesForRoster > totalVotes / 2) {
+                    score += votesForRoster;
+                }
             }
+
         }
 
         console.log("CHOKER score: " + roster.team.teamName + " -> " + score)
@@ -345,6 +346,7 @@ async function getMostVotedLeastWinningTeam(): Promise<TeamEntity | null> {
             bestRosterId = rosterId;
         }
     });
+
 
     if (bestRosterId !== undefined) {
         console.log("CHOKER best roster id: " + bestRosterId)
