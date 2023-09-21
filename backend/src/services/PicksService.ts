@@ -245,14 +245,15 @@ async function getLeastVotedTopWinningTeam(): Promise<TeamEntity | null> {
     const scores: Map<number, number> = new Map();
 
     for (const roster of rosters) {
-        console.log("Calculating underdog score for team: " + roster.team.teamName)
+        const teamDebugName = roster.team.teamName;
+        console.log("UNDERDOG for:" + teamDebugName)
         let score = 0;
 
         const matchupsWon = await getRepository(MatchupEntity).find({
             where: { winner: { id: roster.id} },
         });
 
-        console.log("Matchups won: " + matchupsWon.length)
+        console.log("UNDERDOG Matchups won: " + teamDebugName + " -> " + matchupsWon.length)
 
         for (const matchup of matchupsWon) {
             const totalVotes = await getRepository(VoteEntity).count({
@@ -270,7 +271,7 @@ async function getLeastVotedTopWinningTeam(): Promise<TeamEntity | null> {
             }
         }
 
-        console.log("Score for roster id: " + roster.id + ", " + score)
+        console.log("UNDERDOG score for: " + teamDebugName + " -> " + score);
         scores.set(roster.id, score);
     }
 
@@ -282,13 +283,14 @@ async function getLeastVotedTopWinningTeam(): Promise<TeamEntity | null> {
         if (score > maxScore) {
             maxScore = score;
             bestRosterId = rosterId;
-            console.log("New best score: " + score + ", for Roster: " + rosterId)
         }
     });
 
-
     if (bestRosterId !== undefined) {
+        console.log("UNDERDOG Best Roster ID: " + bestRosterId)
+        console.log("UNDERDOG Best Score: " + maxScore)
         const bestRoster = rosters.find(roster => roster.id === bestRosterId);
+        console.log("UNDERDOG Teamname returned: " + bestRoster!.team.teamName)
         return bestRoster!.team;
     }
 
@@ -302,13 +304,15 @@ async function getMostVotedLeastWinningTeam(): Promise<TeamEntity | null> {
     for (const roster of rosters) {
         let score = 0;
 
-        console.log("Calculating score for team: " + roster.team.teamName)
+        console.log("CHOKER for: " + roster.team.teamName)
         const matchupsParticipated = await getRepository(MatchupEntity).find({
             where: [
                 { home_team: { id: roster.id } },
                 { away_team: { id: roster.id } }
             ]
         });
+
+        console.log("CHOKER participated: " + roster.team.teamName + " -> " +matchupsParticipated.length)
 
         for (const matchup of matchupsParticipated) {
             const totalVotes = await getRepository(VoteEntity).count({ where: { matchup: { id: matchup.id } } });
@@ -327,7 +331,7 @@ async function getMostVotedLeastWinningTeam(): Promise<TeamEntity | null> {
             }
         }
 
-        console.log("Score for team: " + roster.team.teamName + ", " + score)
+        console.log("CHOKER score: " + roster.team.teamName + " -> " + score)
         scores.set(roster.id, score);
     }
 
@@ -343,7 +347,10 @@ async function getMostVotedLeastWinningTeam(): Promise<TeamEntity | null> {
     });
 
     if (bestRosterId !== undefined) {
+        console.log("CHOKER best roster id: " + bestRosterId)
+        console.log("CHOKER max score: " + maxScore)
         const bestRoster = rosters.find(roster => roster.id === bestRosterId);
+        console.log("CHOKER team returned: " + bestRoster!.team.teamName)
         return bestRoster!.team;
     }
 
