@@ -7,7 +7,8 @@ import axios from 'axios';
 enum ContentType {
     TEXT = 'text',
     VIDEO = 'video',
-    PDF = 'pdf'
+    PDF = 'pdf',
+    AUDIO = 'audio'
 }
 
 const PostForm = () => {
@@ -43,6 +44,10 @@ const PostForm = () => {
             if (type === ContentType.PDF && extension !== 'pdf') {
                 toast.error('Only PDF files are accepted');
                 return;
+            if (type === ContentType.AUDIO && !['mp3', 'wav', 'ogg'].includes(extension || '')) {
+                toast.error('Only MP3, WAV, and OGG files are accepted');
+                return;
+            }
             } else if (type === ContentType.VIDEO && extension !== 'mp4') {
                 toast.error('Only MP4 files are accepted');
                 return;
@@ -121,6 +126,7 @@ const PostForm = () => {
                                 <option value={ContentType.TEXT}>Text</option>
                                 <option value={ContentType.VIDEO}>Video</option>
                                 <option value={ContentType.PDF}>PDF</option>
+                                <option value={ContentType.AUDIO}>Audio</option>
                             </Form.Control>
                         </Form.Group>
                         {(type === ContentType.TEXT || type === ContentType.PDF) && (
@@ -133,7 +139,15 @@ const PostForm = () => {
                             <>
                                 <Form.Group className='mb-3' controlId='file'>
                                     <Form.Label>File input</Form.Label>
-                                    <Form.Control type="file" onChange={onFileChange} accept={type === ContentType.PDF ? '.pdf' : type === ContentType.VIDEO ? '.mp4' : '*'} />
+                                    <Form.Control
+                                        type="file"
+                                        onChange={onFileChange}
+                                        accept={
+                                        type === ContentType.PDF ? '.pdf'
+                                        : type === ContentType.VIDEO ? '.mp4'
+                                        : type === ContentType.AUDIO ? '.mp3, .wav, .ogg'
+                                        : '*'}
+                                    />
                                     <Form.Text className='text-muted'>
                                         {fileName}
                                     </Form.Text>

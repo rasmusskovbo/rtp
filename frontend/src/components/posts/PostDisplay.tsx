@@ -7,7 +7,8 @@ import {GiAmericanFootballHelmet} from "react-icons/gi";
 export enum ContentType {
     TEXT = "text",
     VIDEO = "video",
-    PDF = "pdf"
+    PDF = "pdf",
+    AUDIO = "audio"
 }
 
 export interface PostsEntity {
@@ -47,6 +48,8 @@ const PostDisplay: FC<PostDisplayProps> = ({ post }) => {
                 )}
                 {post.type === ContentType.VIDEO &&
                     <Player url={post.contentLink} controls playing={false} playsinline width="100%" height="auto" />}
+                {post.type === ContentType.AUDIO &&
+                    <Player url={post.contentLink} controls playing={false} playsinline width="100%" height="50px" />}
                 {post.type === ContentType.PDF &&
                     <>
                         <Card.Text>{post.content}</Card.Text>

@@ -9,7 +9,8 @@ import {
 export enum ContentType {
     TEXT = "text",
     VIDEO = "video",
-    PDF = "pdf"
+    PDF = "pdf",
+    AUDIO = "audio"
 }
 
 @Entity()
