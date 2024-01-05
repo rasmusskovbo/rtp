@@ -16,6 +16,7 @@ let retries = 0;
 const maxRetries = 10;
 const baseDelay = 1000;
 
+/*
 const connectToRedis = async () => {
     if (retries > maxRetries) {
         console.error("Max retries reached. Could not connect to Redis.");
@@ -38,6 +39,8 @@ client.on('error', (error: any) => {
 });
 
 connectToRedis();
+
+ */
 
 export const putInCache = async (key: string, value: string, expiration: number, fieldName: string) => {
     try {
