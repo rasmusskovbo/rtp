@@ -15,6 +15,7 @@ import teamsRoute from "./routes/TeamsRoute";
 import matchupsRoute from "./routes/MatchupsRoute";
 import picksRoute from "./routes/PicksRoute";
 import devRoute from "./routes/DevRoute";
+import videoProxyRoute from "./routes/VideoProxyRoute";
 
 const app = express();
 
@@ -48,6 +49,7 @@ connectToDb().then(() => {
     app.use('/api', picksRoute);
     app.use('/auth', loginRouter);
     app.use('/dev', devRoute)
+    app.use('/api', videoProxyRoute)
 
 }).catch(error => console.log(error));
 

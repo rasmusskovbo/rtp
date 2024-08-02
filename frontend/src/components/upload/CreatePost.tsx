@@ -18,6 +18,7 @@ const PostForm = () => {
     const [title, setTitle] = useState<string>('');
     const [type, setType] = useState<ContentType | ''>('');
     const [content, setContent] = useState<string>('');
+    const [url, setUrl] = useState<string>('');
     const [file, setFile] = useState<File | null>(null);
     const [fileName, setFileName] = useState<string>('');
     const [author, setAuthor] = useState<string>('');
@@ -37,19 +38,21 @@ const PostForm = () => {
             </div>)
     }
 
+    const isValidUrl = (string: string) => {
+        try {
+            new URL(string);
+            return string.startsWith('http://') || string.startsWith('https://');
+        } catch (_) {
+            return false;
+        }
+    }
+
     const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files ? event.target.files[0] : null;
         if (selectedFile) {
             const extension = selectedFile.name.split('.').pop()?.toLowerCase();
             if (type === ContentType.PDF && extension !== 'pdf') {
                 toast.error('Only PDF files are accepted');
-                return;
-            if (type === ContentType.AUDIO && !['mp3', 'wav', 'ogg'].includes(extension || '')) {
-                toast.error('Only MP3, WAV, and OGG files are accepted');
-                return;
-            }
-            } else if (type === ContentType.VIDEO && extension !== 'mp4') {
-                toast.error('Only MP4 files are accepted');
                 return;
             }
             setFile(selectedFile);
@@ -68,6 +71,15 @@ const PostForm = () => {
 
         if (content) {
             formData.append('content', content.replace(/\r\n|\r|\n/g, '\n'));
+        }
+
+        if (type === ContentType.VIDEO || type === ContentType.AUDIO) {
+            if (!isValidUrl(url)) {
+                toast.error('Invalid URL. Please provide a valid URL starting with http or https.');
+                setUploading(false);
+                return;
+            }
+            formData.append('url', url);
         }
 
         if (file) {
@@ -129,30 +141,36 @@ const PostForm = () => {
                                 <option value={ContentType.AUDIO}>Audio</option>
                             </Form.Control>
                         </Form.Group>
-                        {(type === ContentType.TEXT || type === ContentType.PDF) && (
+                        {type === ContentType.TEXT && (
                             <Form.Group controlId='content' className='mb-3'>
                                 <Form.Label>Content</Form.Label>
                                 <Form.Control as='textarea' rows={3} value={content} onChange={(e) => setContent(e.target.value)} required />
                             </Form.Group>
                         )}
-                        {type && type !== ContentType.TEXT && (
-                            <>
-                                <Form.Group className='mb-3' controlId='file'>
-                                    <Form.Label>File input</Form.Label>
-                                    <Form.Control
-                                        type="file"
-                                        onChange={onFileChange}
-                                        accept={
-                                        type === ContentType.PDF ? '.pdf'
-                                        : type === ContentType.VIDEO ? '.mp4'
-                                        : type === ContentType.AUDIO ? '.mp3, .wav, .ogg'
-                                        : '*'}
-                                    />
-                                    <Form.Text className='text-muted'>
-                                        {fileName}
-                                    </Form.Text>
-                                </Form.Group>
-                            </>
+                        {type === ContentType.PDF && (
+                            <Form.Group className='mb-3' controlId='file'>
+                                <Form.Label>File input</Form.Label>
+                                <Form.Control
+                                    type="file"
+                                    onChange={onFileChange}
+                                    accept=".pdf"
+                                />
+                                <Form.Text className='text-muted'>
+                                    {fileName}
+                                </Form.Text>
+                            </Form.Group>
+                        )}
+                        {(type === ContentType.VIDEO || type === ContentType.AUDIO) && (
+                            <Form.Group controlId='url' className='mb-3'>
+                                <Form.Label>{type === ContentType.VIDEO ? 'Video URL' : 'Audio URL'}</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    value={url}
+                                    onChange={(e) => setUrl(e.target.value)}
+                                    placeholder={`Enter ${type === ContentType.VIDEO ? 'video' : 'audio'} URL`}
+                                    required
+                                />
+                            </Form.Group>
                         )}
                         <Button variant='primary' type='submit' disabled={uploading}>
                             {uploading ? 'Uploading...' : 'Submit'}
