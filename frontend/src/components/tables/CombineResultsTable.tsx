@@ -1,5 +1,20 @@
 import React, { useMemo } from 'react';
-import {Figure, Table} from 'react-bootstrap';
+import { Figure, Table } from 'react-bootstrap';
+import {
+    GiTrophy,
+    GiCheckMark,
+    GiClockwork,
+    GiSprint,
+    GiSoccerBall,
+    GiMuscleUp,
+    GiAmericanFootballPlayer,
+    GiPodium,
+    GiGoalKeeper
+} from 'react-icons/gi';
+import {LuGrid} from "react-icons/lu";
+import {FaPercentage} from "react-icons/fa";
+import {BsCupStraw} from "react-icons/bs";
+import {FaRegTrashCan} from "react-icons/fa6";
 
 type CombineResultsStats = {
     id: number;
@@ -26,17 +41,35 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
     stats.sort((a, b) => b.year - a.year);
 
     // Define the keys for the categories
-    const categories: (keyof CombineResultsStats)[] = [
-        'total_picks_votes', 'total_correct_picks', 'flip_cup_time',
+    const categories: (keyof CombineResultsStats | 'correct_pick_percentage')[] = [
+        'correct_pick_percentage', 'total_correct_picks', 'flip_cup_time',
         'grid_score', 'sprint_time', 'football_goal_hits',
         'total_push_ups', 'football_bucket_hits', 'total_combine_score'
     ];
 
+    // Icons for each category
+    const categoryIcons: Record<string, JSX.Element> = {
+        'correct_pick_percentage': <FaPercentage color="hotpink"/>,
+        'total_correct_picks': <GiCheckMark color="hotpink"/>,
+        'flip_cup_time': <BsCupStraw color="hotpink"/>,
+        'grid_score': <LuGrid color="hotpink"/>,
+        'sprint_time': <GiSprint color="hotpink"/>,
+        'football_goal_hits': <GiGoalKeeper color="hotpink"/>,
+        'total_push_ups': <GiMuscleUp color="hotpink"/>,
+        'football_bucket_hits': <FaRegTrashCan color="hotpink"/>,
+        'total_combine_score': <GiPodium color="hotpink"/>
+    };
+
     // Compute top scores and corresponding users
     const topScores = useMemo(() => {
+        const statsWithPercentage = stats.map(stat => ({
+            ...stat,
+            correct_pick_percentage: Math.round((stat.total_correct_picks / stat.total_picks_votes) * 1000) / 10 || 0
+        }));
+
         const tops = categories.reduce((acc, category) => {
-            let bestStat = stats[0];
-            stats.forEach(stat => {
+            let bestStat = statsWithPercentage[0];
+            statsWithPercentage.forEach(stat => {
                 if (category === 'flip_cup_time' || category === 'sprint_time' || category === 'grid_score') {
                     if (stat[category] < bestStat[category]) bestStat = stat;
                 } else {
@@ -57,7 +90,9 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
                     <div key={index} className="col-md-4 col-sm-6 col-12 mb-3">
                         <div className="card">
                             <div className="card-body text-center">
-                                <h5 className="card-title">{category.replace(/_/g, ' ').toUpperCase()}</h5>
+                                <h5 className="card-title">
+                                    {categoryIcons[category]} {category.replace(/_/g, ' ').toUpperCase()}
+                                </h5>
                                 <p className="card-text">{topScores[category].user}</p>
                                 <p className="card-text"><strong>{topScores[category].value}</strong></p>
                             </div>
