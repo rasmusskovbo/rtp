@@ -8,6 +8,7 @@ import {YearlyFinishesEntity} from "../database/entities/YearlyFinishesEntity";
 import {SleeperService} from "../services/SleeperService";
 import {StatsMapper} from "../mappers/StatsMapper";
 import {getObjectFromCache, putObjectInCache} from "../cache/RedisClient";
+import {CombineResultsEntity} from "../database/entities/CombineResultsEntity";
 
 const statsRouter = Router();
 let statsMapper: StatsMapper;
@@ -29,8 +30,10 @@ statsRouter.get('/stats', async (req, res) => {
         const weeklyHighScoresRepository = getRepository(WeeklyHighScoreEntity);
         const playerHighScoresRepository = getRepository(PlayerHighScoreEntity);
         const yearlyFinishesRepository = getRepository(YearlyFinishesEntity);
+        const combineResultsRepository = getRepository(CombineResultsEntity);
 
         const yearlyFinishesStats = await yearlyFinishesRepository.find();
+        const combineResultsStats = await combineResultsRepository.find();
         const allTimeWinnersStats = await allTimeWinnersRepository.find()
             .then(stats => statsMapper.mapAvatarAndRtpScore(stats))
         const allTimeStandingsStats = await allTimeStandingsRepository.find()
@@ -47,6 +50,7 @@ statsRouter.get('/stats', async (req, res) => {
                 weeklyHighScores: {stats: weeklyHighScoresStats},
                 playerHighScores: {stats: playerHighScoresStats},
                 yearlyFinishes: {stats: yearlyFinishesStats},
+                combineResults: {stats: combineResultsStats}
             }
         };
 

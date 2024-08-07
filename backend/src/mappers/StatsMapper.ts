@@ -4,6 +4,7 @@ import {WeeklyHighScoreEntity} from "../database/entities/WeeklyHighScoreEntity"
 import {PlayerHighScoreEntity} from "../database/entities/PlayerHighScoreEntity";
 import {BASEURL_SLEEPER_AVATAR, SleeperService} from "../services/SleeperService";
 import {ISleeperUser} from "../database/entities/ISleeperUser";
+import {CombineResultsEntity} from "../database/entities/CombineResultsEntity";
 
 export class StatsMapper {
     constructor(private sleeperService: SleeperService) {}
@@ -16,7 +17,7 @@ export class StatsMapper {
         }));
     }
 
-    async mapAvatarOnly(stats: (AllTimeStandingsEntity[] | WeeklyHighScoreEntity[] | PlayerHighScoreEntity[])) {
+    async mapAvatarOnly(stats: (AllTimeStandingsEntity[] | WeeklyHighScoreEntity[] | PlayerHighScoreEntity[] | CombineResultsEntity[])) {
         return Promise.all(stats.map(async (item) => {
             const avatar = await this.mapAvatar(item)
             return { ...item, avatar };

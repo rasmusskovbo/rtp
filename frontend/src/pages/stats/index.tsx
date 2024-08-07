@@ -10,8 +10,9 @@ import YearlyFinishesTable from "@/components/tables/YearlyFinishesTable";
 import RoadToPinkHead from "@/components/global/RoadToPinkHead";
 import styles from './index.module.css';
 import Header from "@/components/global/Header";
+import CombineResultsTable from "@/components/tables/CombineResultsTable";
 
-type Tab = 'allTimeWinners' | 'allTimeStandings' | 'weeklyHighScores' | 'playerHighScores' | 'yearlyFinishes';
+type Tab = 'allTimeWinners' | 'allTimeStandings' | 'weeklyHighScores' | 'playerHighScores' | 'yearlyFinishes' | 'combineResults';
 
 const Index = () => {
     const [tab, setTab] = useState<Tab>('allTimeWinners');
@@ -84,12 +85,21 @@ const Index = () => {
                             Yearly Finishes & Legacy Index
                         </Button>
                     </Col>
+                    <Col lg={2} xs={12}>
+                        <Button
+                            className={`${styles.button} ${tab === 'combineResults' ? styles.active : ''}`}
+                            onClick={() => setTab('combineResults')}
+                        >
+                            Combine Results
+                        </Button>
+                    </Col>
                 </Row>
                 {tab === 'allTimeWinners' && <AllTimeWinnersTable stats={statProps.statProps.allTimeWinners.stats} />}
                 {tab === 'allTimeStandings' && <AllTimeStandingsTable stats={statProps.statProps.allTimeStandings.stats} />}
                 {tab === 'weeklyHighScores' && <WeeklyHighScoresTable stats={statProps.statProps.weeklyHighScores.stats} />}
                 {tab === 'playerHighScores' && <PlayerHighScoresTable stats={statProps.statProps.playerHighScores.stats} />}
                 {tab === 'yearlyFinishes' && <YearlyFinishesTable stats={statProps.statProps.yearlyFinishes.stats} />}
+                {tab === 'combineResults' && <CombineResultsTable stats={statProps.statProps.combineResults.stats} />}
 
                 <hr className="centered-hr" />
                 <Row>

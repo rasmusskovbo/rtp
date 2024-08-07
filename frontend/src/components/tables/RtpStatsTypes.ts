@@ -18,7 +18,7 @@ export interface AllTimeWinnersProps {
 }
 
 // TODO change names to match DB data structure
-// applay avatar css
+// apply avatar css
 interface AllTimeStandingsStats {
     id: number,
     avatar: string,
@@ -78,14 +78,34 @@ export interface YearlyFinishesProps {
     stats: YearlyFinishesStats[];
 }
 
+interface CombineResultsStats {
+    id: number,
+    sleeper_username: string,
+    total_picks_votes: number,
+    total_correct_picks: number,
+    flip_cup_time: number,
+    grid_score: number,
+    sprint_time: number,
+    football_goal_hits: number,
+    total_push_ups: number,
+    football_bucket_hits: number,
+    total_combine_score: number,
+    year: number
+}
+
+export interface CombineResultsProps {
+    stats: CombineResultsStats[];
+}
+
 interface RtpStatsTypes {
     allTimeWinners: AllTimeWinnersProps;
     allTimeStandings: AllTimeStandingsProps;
     weeklyHighScores: WeeklyHighScoresProps;
     playerHighScores: PlayerHighScoresProps;
     yearlyFinishes: YearlyFinishesProps;
+    combineResults: CombineResultsProps;
 }
 
 export interface RtpStatsProps {
-    statProps: RtpStatsTypes
+    statProps: RtpStatsTypes;
 }
