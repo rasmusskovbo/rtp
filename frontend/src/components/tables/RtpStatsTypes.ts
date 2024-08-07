@@ -80,6 +80,7 @@ export interface YearlyFinishesProps {
 
 interface CombineResultsStats {
     id: number,
+    avatar: string,
     sleeper_username: string,
     total_picks_votes: number,
     total_correct_picks: number,
