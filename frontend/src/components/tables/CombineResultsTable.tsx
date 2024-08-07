@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
-import { Table } from 'react-bootstrap';
+import {Figure, Table} from 'react-bootstrap';
 
 type CombineResultsStats = {
     id: number;
     year: number;
+    avatar: string;
     sleeper_username: string;
     total_picks_votes: number;
     total_correct_picks: number;
@@ -34,15 +35,15 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
     // Compute top scores and corresponding users
     const topScores = useMemo(() => {
         const tops = categories.reduce((acc, category) => {
-            let maxStat = stats[0];
+            let bestStat = stats[0];
             stats.forEach(stat => {
-                if (category === 'flip_cup_time' || category === 'sprint_time') {
-                    if (stat[category] < maxStat[category]) maxStat = stat;
+                if (category === 'flip_cup_time' || category === 'sprint_time' || category === 'grid_score') {
+                    if (stat[category] < bestStat[category]) bestStat = stat;
                 } else {
-                    if (stat[category] > maxStat[category]) maxStat = stat;
+                    if (stat[category] > bestStat[category]) bestStat = stat;
                 }
             });
-            acc[category] = { user: maxStat.sleeper_username, value: maxStat[category] };
+            acc[category] = { user: bestStat.sleeper_username, value: bestStat[category] };
             return acc;
         }, {} as Record<string, { user: string; value: string | number }>);
 
@@ -68,15 +69,16 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
                 <thead>
                 <tr>
                     <th scope="col">Year</th>
+                    <th scope="col">Avatar</th>
                     <th scope="col">Sleeper Username</th>
                     <th scope="col">Total Picks (amount)</th>
                     <th scope="col">Correct Picks (amount)</th>
                     <th scope="col">Flip Cup (seconds)</th>
                     <th scope="col">Grid (score)</th>
                     <th scope="col">Sprint Time (seconds)</th>
-                    <th scope="col">Football Goal Hits (amount)</th>
+                    <th scope="col">Football Goal Hits (of 30)</th>
                     <th scope="col">Push Ups (amount)</th>
-                    <th scope="col">Football Bucket Hits (amount)</th>
+                    <th scope="col">Football Bucket Hits (of 15)</th>
                     <th scope="col">Total Combine Score</th>
                 </tr>
                 </thead>
@@ -84,6 +86,16 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
                 {stats.map((stat) => (
                     <tr key={stat.id}>
                         <td className="v-center">{stat.year}</td>
+                        <td>
+                            <Figure id="avatar">
+                                <Figure.Image
+                                    width={32}
+                                    height={40}
+                                    alt="Avatar"
+                                    src={stat.avatar}
+                                />
+                            </Figure>
+                        </td>
                         <td className="v-center">{stat.sleeper_username}</td>
                         <td className="v-center">{stat.total_picks_votes}</td>
                         <td className="v-center">{stat.total_correct_picks}</td>

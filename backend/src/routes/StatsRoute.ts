@@ -33,7 +33,8 @@ statsRouter.get('/stats', async (req, res) => {
         const combineResultsRepository = getRepository(CombineResultsEntity);
 
         const yearlyFinishesStats = await yearlyFinishesRepository.find();
-        const combineResultsStats = await combineResultsRepository.find();
+        const combineResultsStats = await combineResultsRepository.find()
+            .then(stats => statsMapper.mapAvatarOnly(stats))
         const allTimeWinnersStats = await allTimeWinnersRepository.find()
             .then(stats => statsMapper.mapAvatarAndRtpScore(stats))
         const allTimeStandingsStats = await allTimeStandingsRepository.find()
