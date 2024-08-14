@@ -20,16 +20,16 @@ type CombineResultsStats = {
     year: number;
     avatar: string;
     sleeper_username: string;
-    total_picks_votes: number;
-    total_correct_picks: number;
-    flip_cup_time: number;
-    beer_pong_score: number;
-    grid_score: number;
-    sprint_time: number;
-    football_goal_hits: number;
-    total_push_ups: number;
-    football_bucket_hits: number;
-    total_combine_score: number;
+    total_picks_votes?: number | null;
+    total_correct_picks?: number | null;
+    flip_cup_time?: number | null;
+    beer_pong_score?: number | null;
+    grid_score?: number | null;
+    sprint_time?: number | null;
+    football_goal_hits?: number | null;
+    total_push_ups?: number | null;
+    football_bucket_hits?: number | null;
+    total_combine_score?: number | null;
 };
 
 interface CombineResultsProps {
@@ -40,14 +40,12 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
     const [sortConfig, setSortConfig] = useState<{ key: keyof CombineResultsStats | 'correct_pick_percentage'; direction: 'ascending' | 'descending' } | null>(null);
     const [selectedYears, setSelectedYears] = useState<number[]>([]);
 
-    // Define the keys for the categories
     const categories: (keyof CombineResultsStats | 'correct_pick_percentage')[] = [
         'correct_pick_percentage', 'total_correct_picks', 'flip_cup_time',
         'beer_pong_score', 'grid_score', 'sprint_time', 'football_goal_hits',
         'total_push_ups', 'football_bucket_hits', 'total_combine_score'
     ];
 
-    // Icons for each category
     const categoryIcons: Record<string, JSX.Element> = {
         'correct_pick_percentage': <FaPercentage color="hotpink" />,
         'total_correct_picks': <GiCheckMark color="hotpink" />,
@@ -62,32 +60,24 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
     };
 
     const getCorrectPickPercentage = (stat: CombineResultsStats) => {
-        return Math.round((stat.total_correct_picks / stat.total_picks_votes) * 1000) / 10 || 0;
+        if (stat.total_correct_picks == null || stat.total_picks_votes == null || stat.total_picks_votes === 0) {
+            return 0;
+        }
+        return Math.round((stat.total_correct_picks / stat.total_picks_votes) * 1000) / 10;
     };
 
     const sortedStats = useMemo(() => {
         let sortableStats = [...stats];
         if (sortConfig !== null) {
             sortableStats.sort((a, b) => {
-                const aValue = sortConfig.key === 'correct_pick_percentage' ? getCorrectPickPercentage(a) : a[sortConfig.key];
-                const bValue = sortConfig.key === 'correct_pick_percentage' ? getCorrectPickPercentage(b) : b[sortConfig.key];
+                const aValue = sortConfig.key === 'correct_pick_percentage' ? getCorrectPickPercentage(a) : a[sortConfig.key] ?? (sortConfig.key === 'flip_cup_time' || sortConfig.key === 'sprint_time' || sortConfig.key === 'grid_score' ? Infinity : -Infinity);
+                const bValue = sortConfig.key === 'correct_pick_percentage' ? getCorrectPickPercentage(b) : b[sortConfig.key] ?? (sortConfig.key === 'flip_cup_time' || sortConfig.key === 'sprint_time' || sortConfig.key === 'grid_score' ? Infinity : -Infinity);
 
                 if (sortConfig.key === 'flip_cup_time' || sortConfig.key === 'sprint_time' || sortConfig.key === 'grid_score') {
-                    if (aValue < bValue) {
-                        return sortConfig.direction === 'ascending' ? -1 : 1;
-                    }
-                    if (aValue > bValue) {
-                        return sortConfig.direction === 'ascending' ? 1 : -1;
-                    }
+                    return (aValue < bValue ? -1 : 1) * (sortConfig.direction === 'ascending' ? 1 : -1);
                 } else {
-                    if (aValue > bValue) {
-                        return sortConfig.direction === 'ascending' ? -1 : 1;
-                    }
-                    if (aValue < bValue) {
-                        return sortConfig.direction === 'ascending' ? 1 : -1;
-                    }
+                    return (aValue > bValue ? -1 : 1) * (sortConfig.direction === 'ascending' ? 1 : -1);
                 }
-                return 0;
             });
         }
         return sortableStats;
@@ -122,13 +112,16 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
         const tops = categories.reduce((acc, category) => {
             let bestStat = statsWithPercentage[0];
             statsWithPercentage.forEach(stat => {
-                if (category === 'flip_cup_time' || category === 'sprint_time' || category === 'grid_score') {
-                    if (stat[category] < bestStat[category]) bestStat = stat;
+                const statValue = stat[category as keyof CombineResultsStats];
+                const bestValue = bestStat[category as keyof CombineResultsStats];
+
+                if (category === 'flip_cup_time' || category === 'sprint_time' || category === 'grid_score' || category == 'beer_pong_score') {
+                    if (statValue != null && (bestValue == null || statValue < bestValue)) bestStat = stat;
                 } else {
-                    if (stat[category] > bestStat[category]) bestStat = stat;
+                    if (statValue != null && (bestValue == null || statValue > bestValue)) bestStat = stat;
                 }
             });
-            acc[category] = { user: bestStat.sleeper_username, value: bestStat[category] };
+            acc[category] = { user: bestStat.sleeper_username, value: bestStat[category as keyof CombineResultsStats] ?? '-' };
             return acc;
         }, {} as Record<string, { user: string; value: string | number }>);
 
@@ -206,16 +199,16 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
                             </Figure>
                         </td>
                         <td className="v-center">{stat.sleeper_username}</td>
-                        <td className="v-center">{stat.total_picks_votes}</td>
-                        <td className="v-center">{stat.total_correct_picks}</td>
-                        <td className="v-center">{stat.flip_cup_time}</td>
-                        <td className="v-center">{stat.beer_pong_score}</td>
-                        <td className="v-center">{stat.grid_score}</td>
-                        <td className="v-center">{stat.sprint_time}</td>
-                        <td className="v-center">{stat.football_goal_hits}</td>
-                        <td className="v-center">{stat.total_push_ups}</td>
-                        <td className="v-center">{stat.football_bucket_hits}</td>
-                        <td className="v-center">{stat.total_combine_score}</td>
+                        <td className="v-center">{stat.total_picks_votes ?? '-'}</td>
+                        <td className="v-center">{stat.total_correct_picks ?? '-'}</td>
+                        <td className="v-center">{stat.flip_cup_time ?? '-'}</td>
+                        <td className="v-center">{stat.beer_pong_score ?? '-'}</td>
+                        <td className="v-center">{stat.grid_score ?? '-'}</td>
+                        <td className="v-center">{stat.sprint_time ?? '-'}</td>
+                        <td className="v-center">{stat.football_goal_hits ?? '-'}</td>
+                        <td className="v-center">{stat.total_push_ups ?? '-'}</td>
+                        <td className="v-center">{stat.football_bucket_hits ?? '-'}</td>
+                        <td className="v-center">{stat.total_combine_score ?? '-'}</td>
                     </tr>
                 ))}
                 </tbody>
