@@ -6,7 +6,8 @@ import {
     GiSprint,
     GiMuscleUp,
     GiPodium,
-    GiGoalKeeper
+    GiGoalKeeper,
+    GiGlassBall
 } from 'react-icons/gi';
 import { LuGrid } from "react-icons/lu";
 import { FaPercentage } from "react-icons/fa";
@@ -22,6 +23,7 @@ type CombineResultsStats = {
     total_picks_votes: number;
     total_correct_picks: number;
     flip_cup_time: number;
+    beer_pong_score: number;
     grid_score: number;
     sprint_time: number;
     football_goal_hits: number;
@@ -41,7 +43,7 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
     // Define the keys for the categories
     const categories: (keyof CombineResultsStats | 'correct_pick_percentage')[] = [
         'correct_pick_percentage', 'total_correct_picks', 'flip_cup_time',
-        'grid_score', 'sprint_time', 'football_goal_hits',
+        'beer_pong_score', 'grid_score', 'sprint_time', 'football_goal_hits',
         'total_push_ups', 'football_bucket_hits', 'total_combine_score'
     ];
 
@@ -50,6 +52,7 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
         'correct_pick_percentage': <FaPercentage color="hotpink" />,
         'total_correct_picks': <GiCheckMark color="hotpink" />,
         'flip_cup_time': <BsCupStraw color="hotpink" />,
+        'beer_pong_score': <GiGlassBall color="hotpink" />,
         'grid_score': <LuGrid color="hotpink" />,
         'sprint_time': <GiSprint color="hotpink" />,
         'football_goal_hits': <GiGoalKeeper color="hotpink" />,
@@ -179,6 +182,7 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
                     <th scope="col" onClick={() => requestSort('total_picks_votes')} style={{color: 'hotpink'}}>Total Picks (amount) {getSortIndicator('total_picks_votes')}</th>
                     <th scope="col" onClick={() => requestSort('total_correct_picks')} style={{color: 'hotpink'}}>Correct Picks (amount) {getSortIndicator('total_correct_picks')}</th>
                     <th scope="col" onClick={() => requestSort('flip_cup_time')} style={{color: 'hotpink'}}>Flip Cup (seconds) {getSortIndicator('flip_cup_time')}</th>
+                    <th scope="col" onClick={() => requestSort('beer_pong_score')} style={{color: 'hotpink'}}>Beer Pong Score {getSortIndicator('beer_pong_score')}</th>
                     <th scope="col" onClick={() => requestSort('grid_score')} style={{color: 'hotpink'}}>Grid (score) {getSortIndicator('grid_score')}</th>
                     <th scope="col" onClick={() => requestSort('sprint_time')} style={{color: 'hotpink'}}>100m Sprint Time (seconds) {getSortIndicator('sprint_time')}</th>
                     <th scope="col" onClick={() => requestSort('football_goal_hits')} style={{color: 'hotpink'}}>Football Goal Hits (of 30) {getSortIndicator('football_goal_hits')}</th>
@@ -205,6 +209,7 @@ const CombineResultsTable: React.FC<CombineResultsProps> = ({ stats }) => {
                         <td className="v-center">{stat.total_picks_votes}</td>
                         <td className="v-center">{stat.total_correct_picks}</td>
                         <td className="v-center">{stat.flip_cup_time}</td>
+                        <td className="v-center">{stat.beer_pong_score}</td>
                         <td className="v-center">{stat.grid_score}</td>
                         <td className="v-center">{stat.sprint_time}</td>
                         <td className="v-center">{stat.football_goal_hits}</td>

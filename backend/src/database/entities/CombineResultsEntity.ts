@@ -22,6 +22,9 @@ export class CombineResultsEntity implements ISleeperUser {
     @Column({type: "float"})
     flip_cup_time!: number;
 
+    @Column({ type: "int", default: 0 })
+    beer_pong_score!: number;
+
     @Column({type: "int"})
     grid_score!: number;
 

@@ -85,6 +85,7 @@ interface CombineResultsStats {
     total_picks_votes: number,
     total_correct_picks: number,
     flip_cup_time: number,
+    beer_pong_score: number,
     grid_score: number,
     sprint_time: number,
     football_goal_hits: number,
