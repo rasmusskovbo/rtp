@@ -1,14 +1,14 @@
-import React, {FC, useState} from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import Player from 'react-player';
 import { Card } from 'react-bootstrap';
 import axios from 'axios';
-import {GiAmericanFootballHelmet} from "react-icons/gi";
+import { GiAmericanFootballHelmet } from 'react-icons/gi';
 
 export enum ContentType {
-    TEXT = "text",
-    VIDEO = "video",
-    PDF = "pdf",
-    AUDIO = "audio"
+    TEXT = 'text',
+    VIDEO = 'video',
+    PDF = 'pdf',
+    AUDIO = 'audio',
 }
 
 export interface PostsEntity {
@@ -28,16 +28,34 @@ interface PostDisplayProps {
 
 const PostDisplay: FC<PostDisplayProps> = ({ post }) => {
     const [upvotes, setUpvotes] = useState(post.upvotes);
+    const [embedUrl, setEmbedUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (post.type === ContentType.VIDEO && post.contentLink.includes('proxy')) {
+            // Fetch the embed URL if the contentLink contains 'proxy'
+            axios.get(post.contentLink)
+                .then(response => {
+                    if (response.data.embedUrl) {
+                        setEmbedUrl(response.data.embedUrl);
+                    } else {
+                        console.error('Invalid response structure, missing embedUrl');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching video embed URL:', error);
+                });
+        }
+    }, [post.type, post.contentLink]);
 
     const formatDate = (date: Date) => {
         const options = { day: '2-digit', month: 'short', year: 'numeric' } as const;
         return new Intl.DateTimeFormat('en-GB', options).format(date);
-    }
+    };
 
     const handleUpvote = async () => {
         setUpvotes(prevUpvotes => prevUpvotes + 1);
         await axios.post(`${process.env.API_URL}/api/posts/upvote/${post.id}`);
-    }
+    };
 
     return (
         <Card className="mb-4">
@@ -46,18 +64,34 @@ const PostDisplay: FC<PostDisplayProps> = ({ post }) => {
                 {post.type === ContentType.TEXT && (
                     <Card.Text style={{ whiteSpace: 'pre-line' }}>{post.content}</Card.Text>
                 )}
-                {post.type === ContentType.VIDEO &&
-                    <Player url={post.contentLink} controls playing={false} playsinline width="100%" height="auto" />}
-                {post.type === ContentType.AUDIO &&
-                    <Player url={post.contentLink} controls playing={false} playsinline width="100%" height="50px" />}
-                {post.type === ContentType.PDF &&
+                {post.type === ContentType.VIDEO && post.contentLink.includes('proxy') && embedUrl && (
+                    // Render the iframe for the new proxy-based links
+                    <iframe
+                        src={embedUrl}
+                        width="100%"
+                        height="480px"
+                        allow="autoplay; encrypted-media"
+                        allowFullScreen
+                        title="Video Player"
+                    ></iframe>
+                )}
+                {post.type === ContentType.VIDEO && !post.contentLink.includes('proxy') && (
+                    // Render the old react-player for the original content links
+                    <Player url={post.contentLink} controls playing={false} playsinline width="100%" height="auto" />
+                )}
+                {post.type === ContentType.AUDIO && (
+                    <audio controls src={post.contentLink}>
+                        Your browser does not support the audio element.
+                    </audio>
+                )}
+                {post.type === ContentType.PDF && (
                     <>
                         <Card.Text>{post.content}</Card.Text>
                         <a href={post.contentLink} download className="btn btn-primary">
                             Download PDF
                         </a>
                     </>
-                }
+                )}
             </Card.Body>
             <Card.Footer className="d-flex justify-content-between align-items-center">
                 <small className="text-muted">
@@ -67,16 +101,15 @@ const PostDisplay: FC<PostDisplayProps> = ({ post }) => {
                     <button
                         className="btn btn-link hover-grow"
                         onClick={handleUpvote}
-                        style={{color: 'pink'}}
+                        style={{ color: 'pink' }}
                     >
                         <GiAmericanFootballHelmet color="hotpink" size="28.8" />
                     </button>
-                    <small style={{color: 'hotpink'}}>
+                    <small style={{ color: 'hotpink' }}>
                         {upvotes}
                     </small>
                 </div>
             </Card.Footer>
-
         </Card>
     );
 };

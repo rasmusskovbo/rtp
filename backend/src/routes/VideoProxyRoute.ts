@@ -1,29 +1,29 @@
-import express, {NextFunction, Request, Response, Router} from 'express';
-import upload from '../aws/S3Client'
-import {ContentType, PostsEntity} from "../database/entities/PostEntity";
-import {getRepository} from "typeorm";
-import statsRouter from "./StatsRoute";
-import axios from "axios";
+import express, { Request, Response } from 'express';
 
-const videoProxyRoute: Router = express.Router();
+const videoProxyRoute: express.Router = express.Router();
 
-videoProxyRoute.get('/proxy', async (req, res) => {
-    const fileId = req.query.id as string;
+videoProxyRoute.get('/proxy', (req: Request, res: Response) => {
+    let fileId = req.query.id as string;
 
     if (!fileId) {
         return res.status(400).send('File ID is required');
     }
 
-    const googleDriveUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+    console.log(fileId)
 
-    try {
-        const response = await axios.get(googleDriveUrl, {responseType: 'stream'});
-        res.setHeader('Content-Type', 'video/mp4'); // Change this if the video format is different
-        response.data.pipe(res);
-    } catch (error) {
-        console.error('Error fetching video:', error);
-        res.status(500).send('Error fetching video');
+    // Check if fileId contains the full URL and extract the actual ID
+    if (fileId.startsWith('http')) {
+        const url = new URL(fileId);
+        fileId = url.searchParams.get('id') || fileId;
     }
+
+    console.log("New fileID: " + fileId)
+
+    // Generate the Google Drive embed URL
+    const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+
+    // Send the embed URL back to the client
+    res.json({ embedUrl });
 });
 
 export default videoProxyRoute;
