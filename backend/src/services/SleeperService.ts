@@ -15,7 +15,7 @@ export const BASEURL_SLEEPER_AVATAR = "https://sleepercdn.com/avatars/thumbs/";
 const CACHE_FIELD = "sleeperService";
 const AVATAR_EXPIRATION = 60 * 60 * 24; // 24 hours
 const ROSTER_EXPIRATION = 60 * 60 * 24; // 24 hours
-export const SLEEPER_LEAGUE_ID = "976587245010333696";
+export const SLEEPER_LEAGUE_ID = "1097262136528719872";
 //Dynasty -> "917218485867139072" RTP -> 976587245010333696
 
 export class SleeperService {

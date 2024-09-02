@@ -30,7 +30,7 @@ router.get('/updatematchups', async (req: Request, res: Response) => {
 
     await upsertAndMapMatchupsForWeek(currentWeek.weekNumber);
 
-    res.status(200);
+    res.status(200).send('Matchups updated successfully');
 });
 
 // Setup/update rosters
@@ -51,7 +51,7 @@ router.get('/lockoutvote', async (req: Request, res: Response) => {
 
     await nflWeekRepository.save(currentWeekEntity)
 
-    res.status(200);
+    res.status(200).send('Votes locked out successfully');
 });
 
 // Update leaderboards
@@ -69,7 +69,7 @@ router.get('/updateleaderboard', async (req: Request, res: Response) => {
     // Check all votes for each matchup ID. For each vote, for each matchup, mark it correct or incorrect
     await processVotesForMatchupsForWeek(currentWeek);
 
-    res.status(200);
+    res.status(200).send('Leaderboard updated successfully');
 });
 
 
