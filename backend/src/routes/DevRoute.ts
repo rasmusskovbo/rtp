@@ -17,9 +17,9 @@ const router = express.Router();
 router.get('/updaterosters', async (req: Request, res: Response) => {
     const sleeperService = new SleeperService();
 
-    sleeperService.fetchAndUpsertRostersJob();
+    await sleeperService.fetchAndUpsertRostersJob();
 
-    res.status(200);
+    res.status(200).send();
 });
 
 // Setup sleeper matchups for current week
@@ -37,9 +37,9 @@ router.get('/updatematchups', async (req: Request, res: Response) => {
 router.get('/updaterosters', async (req: Request, res: Response) => {
     const sleeperService = new SleeperService();
 
-    sleeperService.fetchAndUpsertRostersJob();
+    await sleeperService.fetchAndUpsertRostersJob();
 
-    res.status(200);
+    res.status(200).send("Updated rosters successfully");
 });
 
 // Test vote lockout rosters
