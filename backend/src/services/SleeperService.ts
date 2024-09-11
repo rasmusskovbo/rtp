@@ -5,7 +5,6 @@ import {SleeperRosterEntity} from "../database/entities/SleeperRosterEntity";
 import {SleeperRosterModel} from "../models/SleeperRosterModel";
 import {PlayerEntity} from "../database/entities/PlayerEntity";
 import dotenv from "dotenv";
-import {getObjectFromCache, putObjectInCache} from "../cache/RedisClient";
 import {mapRosterToEntity} from "../mappers/RosterMapper";
 import {TeamEntity} from "../database/entities/TeamEntity";
 
@@ -20,21 +19,12 @@ export const SLEEPER_LEAGUE_ID = "1097262136528719872";
 
 export class SleeperService {
     public async getSleeperUserBySleeperUsername(username: string): Promise<SleeperUserEntity> {
-        // Check cache for user
-        console.log(`Checking cache for user with username: ${username}`);
-        const cachedUser = await getObjectFromCache<SleeperUserEntity>(username, CACHE_FIELD);
-        if (cachedUser) {
-            console.log("CACHE HIT. Returning result.");
-            return cachedUser;
-        }
-
         // Check the database
         console.log("NO CACHE. Checking database...");
         const sleeperRepo = getRepository(SleeperUserEntity);
         let dbSleeperUser = await sleeperRepo.findOne({ where: { username } });
         if (dbSleeperUser) {
             console.log("DATABASE HIT. Caching and returning result.");
-            await putObjectInCache(username, dbSleeperUser, ROSTER_EXPIRATION, CACHE_FIELD);
             return dbSleeperUser;
         }
 
@@ -51,8 +41,6 @@ export class SleeperService {
 
             await sleeperRepo.save(dbSleeperUser);
 
-            // Save in cache
-            await putObjectInCache(username, dbSleeperUser, ROSTER_EXPIRATION, CACHE_FIELD);
             console.log("User was successfully fetched and cached. Returning user.");
             return dbSleeperUser;
         } else {
@@ -64,13 +52,7 @@ export class SleeperService {
     public async getSleeperRosterForOwnerId(ownerId: string): Promise<SleeperRosterEntity> {
         // Checking the cache
         console.log("Checking cache for roster with owner ID: " + ownerId)
-        let roster = await getObjectFromCache<SleeperRosterEntity>(ownerId, CACHE_FIELD);
-
-        // If in cache, return cache
-        if (roster) {
-            console.log("CACHE HIT. Returning result.")
-            return roster;
-        }
+        let roster;
 
         // Get repository for the RosterEntity
         const repo = getRepository(SleeperRosterEntity);
@@ -81,10 +63,6 @@ export class SleeperService {
 
         if (roster) {
             console.log("DATABASE HIT..")
-
-            console.log("Caching roster...")
-            await putObjectInCache(ownerId, roster!, ROSTER_EXPIRATION, CACHE_FIELD);
-
             console.log("Returning updated roster.")
             return roster;
         }
@@ -97,7 +75,6 @@ export class SleeperService {
 
         if (roster) {
             console.log("Roster was sucessfully refreshed. Returning roster.")
-            await putObjectInCache(ownerId, roster!, ROSTER_EXPIRATION, CACHE_FIELD);
             return roster
         } else {
             throw new Error(`Unable to find roster for ownerId ${ownerId}`);

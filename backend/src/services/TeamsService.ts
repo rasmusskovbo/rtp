@@ -3,7 +3,6 @@ import { TeamEntity } from '../database/entities/TeamEntity';
 import { AllTimeStandingsEntity } from '../database/entities/AllTimeStandingsEntity';
 import { AllTimeWinnersEntity } from '../database/entities/AllTimeWinnersEntity';
 import {SleeperService} from "./SleeperService";
-import {getObjectFromCache, putObjectInCache} from "../cache/RedisClient";
 import {doGetSleeperUserByUsername} from "../clients/SleeperClient";
 import {RivalsService} from "./RivalsService";
 
@@ -42,14 +41,6 @@ export class TeamsService {
         const cacheKey = 'allTeams';
         const cacheField = 'teamData';
         const rivalService = new RivalsService()
-
-        // Try to get the data from cache first
-        const cachedData = await getObjectFromCache<TeamData[]>(cacheKey, cacheField);
-
-        if (cachedData) {
-            console.log("Retrieved teams from cache");
-            return cachedData;
-        }
 
         const sleeperService = new SleeperService();
         const teamRepository = getRepository(TeamEntity);
@@ -124,10 +115,6 @@ export class TeamsService {
                 })) : [],
             } as TeamData;
         }));
-
-        // Save the result to cache with a 12-hour expiration time (43200 seconds)
-        const finalResult = await result;
-        await putObjectInCache(cacheKey, finalResult, TEAMS_EXPIRATION_TIME, cacheField);
 
         return result;
     }

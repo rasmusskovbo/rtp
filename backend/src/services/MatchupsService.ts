@@ -4,7 +4,6 @@ import { MatchupEntity } from "../database/entities/MatchupEntity";
 import {getMatchupsByWeek} from "../clients/SleeperClient";
 import {mapMatchups} from "../mappers/MatchupsMapper";
 import {CurrentWeekEntity} from "../database/entities/CurrentWeekEntity";
-import {getFromCache, getObjectFromCache, invalidateCacheKey, putInCache, putObjectInCache} from "../cache/RedisClient";
 import {VoteEntity} from "../database/entities/VoteEntity";
 import {UserEntity} from "../database/entities/UserEntity";
 import {SleeperRosterEntity} from "../database/entities/SleeperRosterEntity";
@@ -69,13 +68,6 @@ export async function upsertAndMapMatchupsForWeek(week: number): Promise<void> {
 // Automatically fetches matchups for current week based on DB input.
 export async function getMatchupsForCurrentWeek(): Promise<MatchupEntity[]> {
     try {
-        // Get the current week from cache first
-        const cachedCurrentWeek = await getObjectFromCache<CurrentWeekEntity>("currentWeek", "week");
-        if (cachedCurrentWeek) {
-            const cachedMatchups = await getObjectFromCache<MatchupEntity[]>("matchups", "currentWeek");
-            if (cachedMatchups) return cachedMatchups;
-        }
-
         const currentWeekRepo = getRepository(CurrentWeekEntity);
         const currentWeek = await currentWeekRepo.find();
 
@@ -97,10 +89,6 @@ export async function getMatchupsForCurrentWeek(): Promise<MatchupEntity[]> {
             };
         }));
 
-        // Cache the current week and matchups
-        await putObjectInCache("currentWeek", currentWeek, MATCHUP_CACHE_EXPIRATION, "week");
-        await putObjectInCache(MATCHUPS_CACHE_KEY, matchupsWithVotes, MATCHUP_CACHE_EXPIRATION, "currentWeek");
-
         return matchupsWithVotes;
     } catch (error) {
         console.error("An error occurred while getting matchups for the current week:", error);
@@ -115,10 +103,6 @@ export async function getMatchupsForCurrentWeek(): Promise<MatchupEntity[]> {
  */
 export async function getMatchupsForWeek(weekNumber: number): Promise<MatchupEntity[]> {
     try {
-
-        const cachedMatchups = await getObjectFromCache<MatchupEntity[]>(`matchupsWeek${weekNumber}`, "week");
-        if (cachedMatchups) return cachedMatchups;
-
         const matchupRepository = getRepository(MatchupEntity);
         const matchups = await matchupRepository.find({
             where: { week: weekNumber },
@@ -133,8 +117,6 @@ export async function getMatchupsForWeek(weekNumber: number): Promise<MatchupEnt
             };
         }));
 
-        await putObjectInCache(`matchupsWeek${weekNumber}`, matchupsWithVotes, MATCHUP_CACHE_EXPIRATION, "week");
-
         return matchupsWithVotes;
     } catch (error) {
         console.error(`An error occurred while getting matchups for week ${weekNumber}:`, error);
@@ -145,19 +127,7 @@ export async function getMatchupsForWeek(weekNumber: number): Promise<MatchupEnt
 
 export async function getUserVote(request: UserVoteRequest): Promise<UserVoteResult> {
     try {
-        const cacheKey = getCacheKeyForVote(request.userAsString, request.matchupId);
-        const cachedVote = await getFromCache(cacheKey, "hasVoted");
-        const cachedRosterId = await getFromCache(cacheKey, "votedRosterId");
-
-        if (cachedVote) {
-            return {
-                hasVoted: cachedVote === 'true',
-                votedRosterId: cachedRosterId ? cachedRosterId : undefined
-            };
-        }
-
         console.log(`Checking if user: ${request.userAsString} has voted in matchup with id: ${request.matchupId}`);
-
         const weekRepository = getRepository(CurrentWeekEntity);
         const currentWeekEntity = await weekRepository.find();
 
@@ -189,12 +159,6 @@ export async function getUserVote(request: UserVoteRequest): Promise<UserVoteRes
         const votedRosterId = vote ? vote.roster.id.toString() : undefined;
 
         console.log("Has voted:", hasVoted, "Voted for roster:", votedRosterId);
-
-        await putInCache(cacheKey, hasVoted.toString(), VOTE_CACHE_EXPIRATION, "hasVoted");
-
-        if (votedRosterId) {
-            await putInCache(cacheKey, votedRosterId.toString(), VOTE_CACHE_EXPIRATION, "votedRosterId");
-        }
 
         return { hasVoted, votedRosterId };
 
@@ -296,9 +260,6 @@ export async function castVoteForMatchup(request: UserVoteRequest): Promise<bool
 
             // Save the vote to the database
             try {
-                // Invalidate caches to refresh stats
-                invalidateCacheKey(getCacheKeyForVote(request.userAsString, request.matchupId));
-                invalidateCacheKey(MATCHUPS_CACHE_KEY);
                 await voteRepository.save(vote);
                 console.log(`Vote successfully cast for user: ${request.userAsString}, matchupId: ${request.matchupId}, rosterId: ${request.rosterId}`);
                 return true;
@@ -357,9 +318,5 @@ async function getVoteTotalsForMatchup(matchupId: number): Promise<MatchupVoteTo
 export function parseUsername(userAsString: string): string {
     const parsedObject = JSON.parse(userAsString);
     return parsedObject.name;
-}
-
-function getCacheKeyForVote(userAsString: string, matchupId: number): string {
-    return `userVote:${userAsString}:${matchupId}`;
 }
 
