@@ -3,6 +3,8 @@ import Player from 'react-player';
 import { Card } from 'react-bootstrap';
 import axios from 'axios';
 import { GiAmericanFootballHelmet } from 'react-icons/gi';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export enum ContentType {
     TEXT = 'text',
@@ -62,7 +64,31 @@ const PostDisplay: FC<PostDisplayProps> = ({ post }) => {
             <Card.Body>
                 <Card.Title>{post.title}</Card.Title>
                 {post.type === ContentType.TEXT && (
-                    <Card.Text style={{ whiteSpace: 'pre-line' }}>{post.content}</Card.Text>
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                            h1: ({ node, ...props }) => (
+                                <h1 style={{ color: 'hotpink', fontSize: '100%' }} {...props} />
+                            ),
+                            h2: ({ node, ...props }) => (
+                                <h2 style={{ color: 'hotpink', fontSize: '90%' }} {...props} />
+                            ),
+                            h3: ({ node, ...props }) => (
+                                <h3 style={{ color: 'hotpink', fontSize: '80%' }} {...props} />
+                            ),
+                            h4: ({ node, ...props }) => (
+                                <h4 style={{ color: 'hotpink', fontSize: '80%' }} {...props} />
+                            ),
+                            h5: ({ node, ...props }) => (
+                                <h5 style={{ color: 'hotpink', fontSize: '80%' }} {...props} />
+                            ),
+                            h6: ({ node, ...props }) => (
+                                <h6 style={{ color: 'hotpink', fontSize: '80%' }} {...props} />
+                            ),
+                        }}
+                    >
+                        {post.content}
+                    </ReactMarkdown>
                 )}
                 {post.type === ContentType.VIDEO && post.contentLink.includes('proxy') && embedUrl && (
                     // Render the iframe for the new proxy-based links

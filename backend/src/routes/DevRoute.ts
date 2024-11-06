@@ -1,17 +1,18 @@
 import express, {Request, Response} from "express";
-import {
-    getPicksLeaderboard,
-    getPicksStatistics,
-    processVotesForMatchupsForWeek,
-    updateWinnersForMatchups
-} from "../services/PicksService";
+import {processVotesForMatchupsForWeek, updateWinnersForMatchups} from "../services/PicksService";
 import {upsertAndMapMatchupsForWeek} from "../services/MatchupsService";
 import {getRepository} from "typeorm";
 import {CurrentWeekEntity} from "../database/entities/CurrentWeekEntity";
 import {SleeperService} from "../services/SleeperService";
+import {fetchAndSavePreMatchupArticle} from "../services/OpenAPIService";
 
 const router = express.Router();
 
+router.get("/article/prematchup", async (req: Request, res: Response) => {
+    const data = await fetchAndSavePreMatchupArticle();
+
+    res.status(200).send(data);
+})
 
 // Setup/update rosters
 router.get('/updaterosters', async (req: Request, res: Response) => {

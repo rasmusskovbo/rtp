@@ -16,6 +16,7 @@ import matchupsRoute from "./routes/MatchupsRoute";
 import picksRoute from "./routes/PicksRoute";
 import devRoute from "./routes/DevRoute";
 import videoProxyRoute from "./routes/VideoProxyRoute";
+import * as process from "process";
 
 const app = express();
 
