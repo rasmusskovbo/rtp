@@ -3,7 +3,7 @@ import Player from 'react-player';
 import { Card } from 'react-bootstrap';
 import axios from 'axios';
 import { GiAmericanFootballHelmet } from 'react-icons/gi';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm';
 
 export enum ContentType {
