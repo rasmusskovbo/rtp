@@ -36,7 +36,7 @@ export async function fetchAndSavePreMatchupArticle() {
 
     const postsRepository = getRepository(PostsEntity);
     const newPost = new PostsEntity();
-    newPost.title = "Road To Pink - Matchup Previews for Week " + currentWeek;
+    newPost.title = "Road To Pink - Matchup Previews for Week " + currentWeek + 1;
     newPost.author = "Scott Hanson";
     newPost.type = ContentType.TEXT;
     newPost.content = article;
