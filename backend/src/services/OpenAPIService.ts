@@ -15,7 +15,7 @@ const sharedInstructions =
     "Include serious, strategic replies from the 'managers' of the teams, as if you interviewed them in real time." +
     "It is important that you touch on every matchup evenly, within the character limit." +
     "Write a very short intro for the week, before presenting your analysis of each matchup." +
-    "Keep your article to max 5000 characters." +
+    "Keep your article to max 7000 characters. It's very important you cover each matchup within the limit, everytime." +
     "Note that the frontend is using React-Markdown. Stylize accordingly.";
 
 const preweekInstructions =
