@@ -2,8 +2,8 @@
 import cron from "node-cron";
 import {fetchAndSavePreMatchupArticle} from "../services/OpenAPIService";
 
-// Cron expression to run the job every Wednesday at 06:00 UTC
-const cronExpression = '0 5 * * 4';
+// Cron expression to run the job every Thursday at 06:00 UTC
+const cronExpression = '0 7 * * 4';
 
 // Schedule the cron job
 cron.schedule(cronExpression, async () => {

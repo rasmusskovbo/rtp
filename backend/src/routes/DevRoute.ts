@@ -4,12 +4,18 @@ import {upsertAndMapMatchupsForWeek} from "../services/MatchupsService";
 import {getRepository} from "typeorm";
 import {CurrentWeekEntity} from "../database/entities/CurrentWeekEntity";
 import {SleeperService} from "../services/SleeperService";
-import {fetchAndSavePreMatchupArticle} from "../services/OpenAPIService";
+import {fetchAndSavePostMatchupArticle, fetchAndSavePreMatchupArticle} from "../services/OpenAPIService";
 
 const router = express.Router();
 
 router.get("/article/prematchup", async (req: Request, res: Response) => {
     const data = await fetchAndSavePreMatchupArticle();
+
+    res.status(200).send(data);
+})
+
+router.get("/article/recap", async (req: Request, res: Response) => {
+    const data = await fetchAndSavePostMatchupArticle();
 
     res.status(200).send(data);
 })
