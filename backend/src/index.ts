@@ -13,7 +13,7 @@ import  "./scheduler/LeaderboardUpdater";
 import  "./scheduler/MatchupUpdater";
 import  "./scheduler/VoteLockoutUpdater";
 import  "./scheduler/PreMatchupUpdater"
-import  "./scheduler/RecapArticleUpdater"
+//import  "./scheduler/RecapArticleUpdater"
 import matchupsRoute from "./routes/MatchupsRoute";
 import picksRoute from "./routes/PicksRoute";
 import devRoute from "./routes/DevRoute";
