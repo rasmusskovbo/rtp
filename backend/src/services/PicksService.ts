@@ -124,7 +124,7 @@ export async function getVoteLockoutDetails(): Promise<VoteLockoutDetails> {
         return { date: nextWed, isVoteLockedOut: true };
     } else {
         // If the vote is not locked out, find the next Thursday at 21:00 UTC
-        const nextThu = DateTime.now().setZone('UTC').plus({ days: (4 - DateTime.now().weekday + 7) % 7 }).set({ hour: 21, minute: 0, second: 0, millisecond: 0 });
+        const nextThu = DateTime.now().setZone('UTC').plus({ days: (4 - DateTime.now().weekday + 7) % 7 }).set({ hour: 18, minute: 0, second: 0, millisecond: 0 });
         return { date: nextThu, isVoteLockedOut: false };
     }
 

@@ -4,7 +4,7 @@ import {getRepository} from "typeorm";
 import {CurrentWeekEntity} from "../database/entities/CurrentWeekEntity";
 
 // Every Thursday at 21:00 UTC
-const cronExpression = '0 21 * * 4';
+const cronExpression = '0 18 * * 4'; // temp at 18 instead
 
 // Schedule the cron job
 cron.schedule(cronExpression, async () => {
