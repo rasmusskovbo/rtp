@@ -140,27 +140,33 @@ export async function getVoteLockoutDetailsForWeek(week: number): Promise<VoteLo
     // Fetch the current week entity from the database
     const currentWeekEntity = await getRepository(CurrentWeekEntity).find();
 
-    if (!currentWeekEntity) {
+    if (!currentWeekEntity || currentWeekEntity.length === 0) {
         throw new Error("No current week found in database");
     }
 
-    const currentWeek = currentWeekEntity[0]
+    const currentWeek = currentWeekEntity[0];
+    const now = DateTime.now().setZone('Europe/Copenhagen');
 
+    // If querying for a non-current week, vote is locked out
     if (currentWeek.weekNumber > week) {
-        // If querying for a non current week, vote is locked out.
-        return { date: DateTime.now(), isVoteLockedOut: true };
+        return { date: now, isVoteLockedOut: true };
     }
 
     if (currentWeek.voteLockedOut) {
-        // If the vote is locked out, find the next Wednesday at 05:00 UTC
-        const nextWed = DateTime.now().setZone('UTC').plus({ days: (3 - DateTime.now().weekday + 7) % 7 }).set({ hour: 5, minute: 0, second: 0, millisecond: 0 });
-        return { date: nextWed, isVoteLockedOut: true };
-    } else {
-        // If the vote is not locked out, find the next Thursday at 21:00 UTC
-        const nextThu = DateTime.now().setZone('UTC').plus({ days: (4 - DateTime.now().weekday + 7) % 7 }).set({ hour: 21, minute: 0, second: 0, millisecond: 0 });
-        return { date: nextThu, isVoteLockedOut: false };
-    }
+        // Matchup availability deadline: Next **Friday at 01:00 AM Copenhagen time**
+        const nextFriday = now
+            .plus({ days: (5 - now.weekday + 7) % 7 }) // Calculate next Friday
+            .set({ hour: 1, minute: 0, second: 0, millisecond: 0 });
 
+        return { date: nextFriday, isVoteLockedOut: true };
+    } else {
+        // Vote lockout deadline: Next **Thursday at 01:00 AM Copenhagen time**
+        const nextThursday = now
+            .plus({ days: (4 - now.weekday + 7) % 7 }) // Calculate next Thursday
+            .set({ hour: 1, minute: 0, second: 0, millisecond: 0 });
+
+        return { date: nextThursday, isVoteLockedOut: false };
+    }
 }
 
 /** AWARD CARDS **/
