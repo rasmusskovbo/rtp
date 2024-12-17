@@ -120,19 +120,19 @@ export async function getVoteLockoutDetails(): Promise<VoteLockoutDetails> {
     const now = DateTime.now().setZone('Europe/Copenhagen');
 
     if (currentWeek.voteLockedOut) {
-        // Matchup availability deadline: Next Friday at 01:00 AM Copenhagen time
-        const nextFriday = now
-            .plus({ days: (5 - now.weekday + 7) % 7 }) // Calculate next Friday
-            .set({ hour: 1, minute: 0, second: 0, millisecond: 0 });
+        // Matchup availability deadline: Next Wednesday at 10:30 AM Copenhagen time
+        const nextWednesday = now
+            .plus({ days: (3 - now.weekday + 7) % 7 }) // Calculate next Friday
+            .set({ hour: 10, minute: 30, second: 0, millisecond: 0 });
 
-        return { date: nextFriday, isVoteLockedOut: true };
+        return { date: nextWednesday, isVoteLockedOut: true };
     } else {
-        // Vote lockout deadline: Next Thursday at 01:00 AM Copenhagen time
-        const nextThursday = now
-            .plus({ days: (4 - now.weekday + 7) % 7 }) // Calculate next Thursday
+        // Vote lockout deadline: Next Friday at 01:00 AM Copenhagen time
+        const nexFriday = now
+            .plus({ days: (5 - now.weekday + 7) % 7 }) // Calculate next Thursday
             .set({ hour: 1, minute: 0, second: 0, millisecond: 0 });
 
-        return { date: nextThursday, isVoteLockedOut: false };
+        return { date: nexFriday, isVoteLockedOut: false };
     }
 }
 
@@ -153,19 +153,19 @@ export async function getVoteLockoutDetailsForWeek(week: number): Promise<VoteLo
     }
 
     if (currentWeek.voteLockedOut) {
-        // Matchup availability deadline: Next **Friday at 01:00 AM Copenhagen time**
-        const nextFriday = now
-            .plus({ days: (5 - now.weekday + 7) % 7 }) // Calculate next Friday
-            .set({ hour: 1, minute: 0, second: 0, millisecond: 0 });
+        // Matchup availability deadline: Next **Wednesday at 10:30 AM Copenhagen time**
+        const nextWednesday = now
+            .plus({ days: (3 - now.weekday + 7) % 7 }) // Calculate next Friday
+            .set({ hour: 10, minute: 30, second: 0, millisecond: 0 });
 
-        return { date: nextFriday, isVoteLockedOut: true };
+        return { date: nextWednesday, isVoteLockedOut: true };
     } else {
-        // Vote lockout deadline: Next **Thursday at 01:00 AM Copenhagen time**
-        const nextThursday = now
-            .plus({ days: (4 - now.weekday + 7) % 7 }) // Calculate next Thursday
+        // Vote lockout deadline: Next Friday at 01:00 AM Copenhagen time
+        const nexFriday = now
+            .plus({ days: (5 - now.weekday + 7) % 7 }) // Calculate next Thursday
             .set({ hour: 1, minute: 0, second: 0, millisecond: 0 });
 
-        return { date: nextThursday, isVoteLockedOut: false };
+        return { date: nexFriday, isVoteLockedOut: false };
     }
 }
 

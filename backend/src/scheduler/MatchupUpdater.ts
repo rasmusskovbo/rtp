@@ -6,7 +6,7 @@ import { CurrentWeekEntity } from "../database/entities/CurrentWeekEntity";
 // Import DateTime from Luxon
 import { DateTime } from 'luxon';
 
-// Cron expression to run the job at 10:30 AM Copenhagen Local Time
+// Cron expression to run the job at 10:30 AM Copenhagen Local Time, Wednesdays
 const cronExpression = '30 10 * * 3';
 const timeZone = 'Europe/Copenhagen';
 
