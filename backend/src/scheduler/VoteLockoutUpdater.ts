@@ -4,7 +4,8 @@ import { CurrentWeekEntity } from "../database/entities/CurrentWeekEntity";
 import { DateTime } from "luxon";
 
 // Cron expression for 01:00 AM every Friday Copenhagen time
-const cronExpression = '0 1 * * 5';
+//const cronExpression = '0 1 * * 5';
+const cronExpression = '30 18 * * 3'; // temp
 const timeZone = 'Europe/Copenhagen';
 
 // Schedule the cron job
