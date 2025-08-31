@@ -49,6 +49,15 @@ router.get('/updaterosters', async (req: Request, res: Response) => {
     res.status(200).send("Updated rosters successfully");
 });
 
+// Setup/update rosters
+router.get('/updateplayers', async (req: Request, res: Response) => {
+    const sleeperService = new SleeperService();
+
+    await sleeperService.updatePlayersJob();
+
+    res.status(200).send("Updated players successfully");
+});
+
 // Test vote lockout rosters
 router.get('/lockoutvote', async (req: Request, res: Response) => {
     const nflWeekRepository = getRepository(CurrentWeekEntity);
