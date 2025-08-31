@@ -135,14 +135,24 @@ export class SleeperService {
     }
 
     // Uses the usernames in the team repo to fetch all sleeperuser info, incl ids
-    public async fetchAndUpdateAllSleeperUsers() {
-        console.log("Updating all users based on team repo")
-        const teamRepo = getRepository(TeamEntity)
+    public async fetchAndUpdateAllSleeperUsers(): Promise<void> {
+        console.log("Updating all users based on team repo");
+        const teamRepo = getRepository(TeamEntity);
+        const allTeams = await teamRepo.find();
 
-        const allTeams = await teamRepo.find()
-        await allTeams.forEach(team => {
-             this.getSleeperUserBySleeperUsername(team.sleeperUsername);
-        });
+        const usernames = allTeams
+            .map(t => t.sleeperUsername)
+            .filter((u): u is string => !!u);
+
+        await Promise.all(
+            usernames.map(async (username) => {
+                try {
+                    await this.getSleeperUserBySleeperUsername(username);
+                } catch (err) {
+                    console.error(`Failed to upsert Sleeper user ${username}:`, err);
+                }
+            })
+        );
     }
 
 }
