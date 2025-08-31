@@ -29,9 +29,10 @@ export class SleeperService {
         }
 
         // Fetch new data using sleeperClient
-        console.log("No user found in Database or Cache. Fetching new data...");
+        console.log("No user found in Database or Cache. Fetching new data for username: " + username);
         const sleeperUser = await doGetSleeperUserByUsername(username);
         if (sleeperUser) {
+            console.log("Successfully fetched Sleeper User for: " + username)
             dbSleeperUser = new SleeperUserEntity();
 
             dbSleeperUser.user_id = sleeperUser.user_id;
