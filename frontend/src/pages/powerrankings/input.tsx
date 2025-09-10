@@ -30,6 +30,10 @@ const PowerRankingsInputPage: NextPage = () => {
   const [teamsOrder, setTeamsOrder] = useState<Team[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
+  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
+  const [overPosition, setOverPosition] = useState<'above' | 'below' | null>(null);
   const draggedIndexRef = React.useRef<number | null>(null);
 
   useEffect(() => {
@@ -89,20 +93,77 @@ const PowerRankingsInputPage: NextPage = () => {
     fetchTeams();
   }, [loggedInUser, router]);
 
-  const handleDragStart = (index: number) => {
+  useEffect(() => {
+    // Detect coarse pointer / touch devices for mobile-friendly controls
+    if (typeof window !== 'undefined') {
+      const isTouch = 'ontouchstart' in window || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+      setIsTouchDevice(!!isTouch);
+    }
+  }, []);
+
+  const handleDragStart = (index: number, e: React.DragEvent<HTMLTableRowElement>) => {
     draggedIndexRef.current = index;
+    setDraggingIndex(index);
+    // Improve drag image behavior
+    if (e.dataTransfer.setDragImage) {
+      const crt = document.createElement('div');
+      crt.style.padding = '8px 12px';
+      crt.style.background = '#fff';
+      crt.style.border = '2px solid #0d6efd';
+      crt.style.borderRadius = '6px';
+      crt.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+      crt.style.position = 'absolute';
+      crt.style.top = '-9999px';
+      crt.textContent = `Moving row #${index + 1}`;
+      document.body.appendChild(crt);
+      e.dataTransfer.setDragImage(crt, 0, 0);
+      setTimeout(() => document.body.removeChild(crt), 0);
+    }
+  };
+
+  const handleDragOver = (index: number, e: React.DragEvent<HTMLTableRowElement>) => {
+    e.preventDefault();
+    if (draggedIndexRef.current === null) return;
+    const rect = (e.currentTarget as HTMLTableRowElement).getBoundingClientRect();
+    const midpoint = rect.top + rect.height / 2;
+    const isAbove = e.clientY < midpoint;
+    setOverIndex(index);
+    setOverPosition(isAbove ? 'above' : 'below');
+  };
+
+  const clearDragState = () => {
+    draggedIndexRef.current = null;
+    setDraggingIndex(null);
+    setOverIndex(null);
+    setOverPosition(null);
   };
 
   const handleDrop = (targetIndex: number) => {
     const from = draggedIndexRef.current;
-    if (from === null || from === targetIndex) return;
+    if (from === null) return;
     setTeamsOrder((prev) => {
       const updated = [...prev];
       const [moved] = updated.splice(from, 1);
-      updated.splice(targetIndex, 0, moved);
+      let insertionIndex = overPosition === 'above' ? targetIndex : targetIndex + 1;
+      if (from < insertionIndex) insertionIndex -= 1;
+      updated.splice(insertionIndex, 0, moved);
       return updated;
     });
-    draggedIndexRef.current = null;
+    clearDragState();
+  };
+
+  const handleDragEnd = () => {
+    clearDragState();
+  };
+
+  const moveRow = (from: number, to: number) => {
+    if (to < 0 || to >= teamsOrder.length) return;
+    setTeamsOrder((prev) => {
+      const updated = [...prev];
+      const [moved] = updated.splice(from, 1);
+      updated.splice(to, 0, moved);
+      return updated;
+    });
   };
 
   const handleSubmit = async () => {
@@ -167,9 +228,18 @@ const PowerRankingsInputPage: NextPage = () => {
                   <>
                     <div className="d-flex justify-content-between align-items-center mb-3">
                       <h5 className="mb-0">Drag rows to set ranks 1–12</h5>
-                      <Button variant="secondary" onClick={() => router.push('/powerrankings')}>
-                        Cancel
-                      </Button>
+                      <div className="d-flex align-items-center gap-2">
+                        <Button variant="secondary" onClick={() => router.push('/powerrankings')}>
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="primary"
+                          onClick={handleSubmit}
+                          disabled={submitting || teamsOrder.length !== 12}
+                        >
+                          {submitting ? 'Submitting…' : 'Submit Rankings'}
+                        </Button>
+                      </div>
                     </div>
                     <Table striped responsive="sm" className="text-center">
                       <thead>
@@ -178,46 +248,76 @@ const PowerRankingsInputPage: NextPage = () => {
                           <th scope="col">Team Logo</th>
                           <th scope="col">Team Name</th>
                           <th scope="col">Owner</th>
+                          {isTouchDevice && <th scope="col">Actions</th>}
                         </tr>
                       </thead>
                       <tbody>
-                        {teamsOrder.map((team, index) => (
-                          <tr
-                            key={team.id}
-                            draggable
-                            onDragStart={() => handleDragStart(index)}
-                            onDragOver={(e) => e.preventDefault()}
-                            onDrop={() => handleDrop(index)}
-                            style={{ cursor: 'grab' }}
-                            title="Drag to reorder"
-                          >
-                            <td className="v-center"><strong>{index + 1}</strong></td>
-                            <td>
-                              <Figure id="avatar" className="mb-0">
-                                <Figure.Image
-                                  width={32}
-                                  height={32}
-                                  alt={team.teamName}
-                                  src={team.teamLogo}
-                                  rounded
-                                />
-                              </Figure>
-                            </td>
-                            <td className="v-center"><strong>{team.teamName}</strong></td>
-                            <td className="v-center">{team.ownerName}</td>
-                          </tr>
-                        ))}
+                        {teamsOrder.map((team, index) => {
+                          const isDragging = draggingIndex === index;
+                          const showTopLine = draggingIndex !== null && overIndex === index && overPosition === 'above';
+                          const showBottomLine = draggingIndex !== null && overIndex === index && overPosition === 'below';
+                          return (
+                            <tr
+                              key={team.id}
+                              draggable={!isTouchDevice}
+                              onDragStart={(e) => handleDragStart(index, e)}
+                              onDragOver={(e) => handleDragOver(index, e)}
+                              onDrop={() => handleDrop(index)}
+                              onDragEnd={handleDragEnd}
+                              style={{
+                                cursor: isTouchDevice ? 'default' : 'grab',
+                                outline: isDragging ? '2px solid #0d6efd' : 'none',
+                                outlineOffset: '-2px',
+                                borderTop: showTopLine ? '3px solid #0d6efd' : undefined,
+                                borderBottom: showBottomLine ? '3px solid #0d6efd' : undefined,
+                                backgroundColor: isDragging ? 'rgba(13,110,253,0.04)' : undefined,
+                              }}
+                              title={isTouchDevice ? undefined : 'Drag to reorder'}
+                            >
+                              <td className="v-center"><strong>{index + 1}</strong></td>
+                              <td>
+                                <Figure id="avatar" className="mb-0">
+                                  <Figure.Image
+                                    width={32}
+                                    height={32}
+                                    alt={team.teamName}
+                                    src={team.teamLogo}
+                                    rounded
+                                  />
+                                </Figure>
+                              </td>
+                              <td className="v-center"><strong>{team.teamName}</strong></td>
+                              <td className="v-center">{team.ownerName}</td>
+                              {isTouchDevice && (
+                                <td className="v-center">
+                                  <div className="d-flex justify-content-center gap-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline-secondary"
+                                      disabled={index === 0}
+                                      onClick={() => moveRow(index, index - 1)}
+                                      aria-label={`Move ${team.teamName} up`}
+                                    >
+                                      ▲
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline-secondary"
+                                      disabled={index === teamsOrder.length - 1}
+                                      onClick={() => moveRow(index, index + 1)}
+                                      aria-label={`Move ${team.teamName} down`}
+                                    >
+                                      ▼
+                                    </Button>
+                                  </div>
+                                </td>
+                              )}
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </Table>
-                    <div className="d-flex justify-content-end gap-2">
-                      <Button
-                        variant="primary"
-                        onClick={handleSubmit}
-                        disabled={submitting || teamsOrder.length !== 12}
-                      >
-                        {submitting ? 'Submitting…' : 'Submit Rankings'}
-                      </Button>
-                    </div>
+                    
                   </>
                 )}
               </Col>

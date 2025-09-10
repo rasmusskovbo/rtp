@@ -133,7 +133,13 @@ const PowerRankingsPage: NextPage = () => {
             </Container>
             
             {rankings.length > 0 ? (
-              <PowerRankingsTable rankings={rankings} />
+              <Container className="px-4 px-lg-5">
+                <Row className="gx-4 gx-lg-5 justify-content-center">
+                  <Col sm={12} md={10} lg={8}>
+                    <PowerRankingsTable rankings={rankings} />
+                  </Col>
+                </Row>
+              </Container>
             ) : (
               <Container className="px-4 px-lg-5">
                 <Row className="gx-4 gx-lg-5 justify-content-center">
