@@ -15,4 +15,12 @@ export class AuthService {
             return null;
         }
     }
+
+    async getUserByUsername(username: string): Promise<UserEntity | null> {
+        const userRepository = getRepository(UserEntity);
+        return await userRepository
+            .createQueryBuilder("user")
+            .where("user.username ILIKE :username", { username })
+            .getOne();
+    }
 }

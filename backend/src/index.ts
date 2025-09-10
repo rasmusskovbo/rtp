@@ -18,6 +18,7 @@ import matchupsRoute from "./routes/MatchupsRoute";
 import picksRoute from "./routes/PicksRoute";
 import devRoute from "./routes/DevRoute";
 import videoProxyRoute from "./routes/VideoProxyRoute";
+import powerRankingRoute from "./routes/PowerRankingRoute";
 import * as process from "process";
 
 const app = express();
@@ -53,11 +54,15 @@ connectToDb().then(() => {
     app.use('/auth', loginRouter);
     app.use('/dev', devRoute)
     app.use('/api', videoProxyRoute)
+    app.use('/api', powerRankingRoute)
 
-}).catch(error => console.log(error));
+    const port = process.env.PORT || 4000;
+    app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+    });
 
-const port = process.env.PORT || 4000;
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+}).catch(error => {
+    console.log('Database connection failed:', error);
+    process.exit(1);
 });
 
