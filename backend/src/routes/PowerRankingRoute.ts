@@ -67,6 +67,28 @@ router.get('/power-rankings/week', async (req: Request, res: Response<GetWeeklyR
     }
 });
 
+// GET /api/power-rankings/week/:week - Get rankings for a specific week
+router.get('/power-rankings/week/:week', async (req: Request, res: Response<GetWeeklyRankingsResponse | ErrorResponse>) => {
+    try {
+        const weekParam = req.params.week;
+        const week = parseInt(weekParam, 10);
+        if (Number.isNaN(week) || week < 1 || week > 17) {
+            const errorResponse: ErrorResponse = { error: 'Week must be an integer between 1 and 17' };
+            res.status(400).json(errorResponse);
+            return;
+        }
+
+        console.log(`Received request for /power-rankings/week/${week}`);
+        const rankings = await PowerRankingService.getRankingsForWeek(week);
+        const response: GetWeeklyRankingsResponse = { rankings };
+        res.json(response);
+    } catch (err) {
+        console.error(err);
+        const errorResponse: ErrorResponse = { error: 'An error occurred while retrieving power rankings for the week' };
+        res.status(500).json(errorResponse);
+    }
+});
+
 // GET /api/power-rankings/weeks - Get all available weeks
 router.get('/power-rankings/weeks', async (req: Request, res: Response<GetAvailableWeeksResponse | ErrorResponse>) => {
     try {
