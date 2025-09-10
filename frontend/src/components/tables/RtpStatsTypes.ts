@@ -99,6 +99,32 @@ export interface CombineResultsProps {
     stats: CombineResultsStats[];
 }
 
+interface PowerRankingTeam {
+    id: number;
+    sleeperUsername: string;
+    teamName: string;
+    ownerName: string;
+    nationality: string;
+    teamMascot: string;
+    yearsInLeague: number;
+    bio: string;
+    teamLogo: string;
+    ownerImage: string;
+}
+
+interface PowerRankingData {
+    team: PowerRankingTeam;
+    currentRank: number;
+    lastWeekRank?: number;
+    rankDifference?: number;
+    averageRank: number;
+    totalRankings: number;
+}
+
+export interface PowerRankingsProps {
+    rankings: PowerRankingData[];
+}
+
 interface RtpStatsTypes {
     allTimeWinners: AllTimeWinnersProps;
     allTimeStandings: AllTimeStandingsProps;
