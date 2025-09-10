@@ -29,6 +29,10 @@ export interface GetAvailableWeeksResponse {
     weeks: number[];
 }
 
+export interface GetCurrentWeekResponse {
+    currentWeek: number;
+}
+
 export interface GetUserRankingsResponse {
     userRankings: UserRankingSubmission[];
 }
@@ -99,6 +103,20 @@ router.get('/power-rankings/weeks', async (req: Request, res: Response<GetAvaila
     } catch (err) {
         console.error(err);
         const errorResponse: ErrorResponse = { error: 'An error occurred while retrieving available weeks' };
+        res.status(500).json(errorResponse);
+    }
+});
+
+// GET /api/power-rankings/current-week - Get current week number
+router.get('/power-rankings/current-week', async (req: Request, res: Response<GetCurrentWeekResponse | ErrorResponse>) => {
+    try {
+        console.log("Received request for /power-rankings/current-week");
+        const currentWeek = await PowerRankingService.getCurrentWeekNumber();
+        const response: GetCurrentWeekResponse = { currentWeek };
+        res.json(response);
+    } catch (err) {
+        console.error(err);
+        const errorResponse: ErrorResponse = { error: 'An error occurred while retrieving current week' };
         res.status(500).json(errorResponse);
     }
 });

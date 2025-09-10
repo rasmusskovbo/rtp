@@ -28,7 +28,7 @@ export class PowerRankingService {
     /**
      * Look up the current week number from the database.
      */
-    private static async getCurrentWeekNumber(): Promise<number> {
+    public static async getCurrentWeekNumber(): Promise<number> {
         const weekRepository = getRepository(CurrentWeekEntity);
         const currentWeekEntity = await weekRepository.find();
         if (!currentWeekEntity || currentWeekEntity.length === 0) {

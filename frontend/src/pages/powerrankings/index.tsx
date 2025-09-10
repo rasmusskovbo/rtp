@@ -33,6 +33,7 @@ const PowerRankingsPage: NextPage = () => {
   const [weeklyRanks, setWeeklyRanks] = useState<Record<number, Record<number, number>>>({});
   const [trendLoading, setTrendLoading] = useState(false);
   const [trendError, setTrendError] = useState<string | null>(null);
+  const [currentWeek, setCurrentWeek] = useState<number | null>(null);
   const router = useRouter();
 
   const handleLoginSuccess = () => {
@@ -46,12 +47,21 @@ const PowerRankingsPage: NextPage = () => {
       try {
         setLoading(true);
         setError(null);
-        const { data } = await axios.get(`${process.env.API_URL}/api/power-rankings`);
         
-        if (data?.rankings && Array.isArray(data.rankings)) {
-          setRankings(data.rankings);
+        // Fetch current week and rankings in parallel
+        const [rankingsResponse, currentWeekResponse] = await Promise.all([
+          axios.get(`${process.env.API_URL}/api/power-rankings`),
+          axios.get(`${process.env.API_URL}/api/power-rankings/current-week`)
+        ]);
+        
+        if (rankingsResponse.data?.rankings && Array.isArray(rankingsResponse.data.rankings)) {
+          setRankings(rankingsResponse.data.rankings);
         } else {
           setError('Invalid data received from server');
+        }
+        
+        if (currentWeekResponse.data?.currentWeek) {
+          setCurrentWeek(currentWeekResponse.data.currentWeek);
         }
       } catch (err) {
         console.error('Error fetching power rankings:', err);
@@ -325,7 +335,7 @@ const PowerRankingsPage: NextPage = () => {
       />
       <div>
         <RoadToPinkHead title={'Power Rankings'} />
-        <Header title={'Power Rankings'} />
+        <Header title={currentWeek ? `Power Rankings for Week ${currentWeek}` : 'Power Rankings'} />
         
         {loading ? (
           <Container className="px-4 px-lg-5">
