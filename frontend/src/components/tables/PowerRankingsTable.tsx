@@ -29,7 +29,6 @@ const PowerRankingsTable: React.FC<PowerRankingsProps> = ({ rankings }) => {
                         <th scope="col">Last Week</th>
                         <th scope="col">Change</th>
                         <th scope="col">Avg Rank</th>
-                        <th scope="col">Total Votes</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -67,7 +66,6 @@ const PowerRankingsTable: React.FC<PowerRankingsProps> = ({ rankings }) => {
                                     <strong>{getRankDifferenceDisplay(ranking.rankDifference)}</strong>
                                 </td>
                                 <td className="v-center">{ranking.averageRank.toFixed(1)}</td>
-                                <td className="v-center">{ranking.totalRankings}</td>
                             </tr>
                         );
                     })}

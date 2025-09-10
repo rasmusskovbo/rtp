@@ -180,13 +180,16 @@ export class PowerRankingService {
             throw new Error('Must provide exactly 12 rankings (one for each team)');
         }
 
-        // Delete existing rankings for this user and week
-        await rankingRepository
-            .createQueryBuilder()
-            .delete()
-            .where('userId = :userId', { userId })
-            .andWhere('week = :week', { week })
-            .execute();
+        // Enforce one submission per user per week
+        const existingCount = await rankingRepository
+            .createQueryBuilder('ranking')
+            .where('ranking.userId = :userId', { userId })
+            .andWhere('ranking.week = :week', { week })
+            .getCount();
+
+        if (existingCount > 0) {
+            throw new Error('You have already submitted rankings for this week');
+        }
 
         // Insert new rankings
         const rankingEntities = rankings.map(ranking => {
