@@ -9,6 +9,7 @@ import {AuthContext } from '../../auth/AuthProvider';
 const NavbarComponent: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [show, setShow] = useState(false);
+    const [redirectAfterLogin, setRedirectAfterLogin] = useState<string | null>(null);
     const authContext = useContext(AuthContext);
 
     if (!authContext) {
@@ -23,10 +24,27 @@ const NavbarComponent: React.FC = () => {
     const handleShow = () => setShow(true);
     const handleClose = () => setShow(false);
 
-    const uploadOnClick = loggedInUser ? () => { window.location.href='/upload' } : handleShow;
+    const uploadOnClick = () => {
+        if (loggedInUser) {
+            window.location.href = '/upload';
+        } else {
+            setRedirectAfterLogin('/upload');
+            handleShow();
+        }
+    };
+
+    const powerRankingsOnClick = () => {
+        if (loggedInUser) {
+            window.location.href = '/powerrankings';
+        } else {
+            setRedirectAfterLogin('/powerrankings');
+            handleShow();
+        }
+    };
+
     const handleLoginSucces = () => {
         setTimeout(() => {
-            window.location.href = '/upload';
+            window.location.href = redirectAfterLogin ?? '/';
         }, 1000);
     }
 
@@ -56,6 +74,9 @@ const NavbarComponent: React.FC = () => {
                         </Nav.Item>
                         <Nav.Item>
                             <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'} href="/picks">Picks</Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item onClick={powerRankingsOnClick}>
+                            <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'}>Power Rankings</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
                             <Nav.Link className={isOpen ? 'collapsed-hover-grow' : 'hover-grow'} href="/stats">Stats</Nav.Link>
