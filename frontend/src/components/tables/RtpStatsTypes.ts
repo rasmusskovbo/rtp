@@ -125,6 +125,27 @@ export interface PowerRankingsProps {
     rankings: PowerRankingData[];
 }
 
+export interface TrophyWinner {
+    userId: string;
+    username: string;
+    teamName: string;
+    value: number;
+    description: string;
+}
+
+export interface TrophyData {
+    id: string;
+    title: string;
+    description: string;
+    icon: string;
+    category: string;
+    winner: TrophyWinner | null;
+}
+
+export interface TrophiesProps {
+    trophies: TrophyData[];
+}
+
 interface RtpStatsTypes {
     allTimeWinners: AllTimeWinnersProps;
     allTimeStandings: AllTimeStandingsProps;

@@ -10,7 +10,8 @@ import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import PowerRankingsTable from '@/components/tables/PowerRankingsTable';
-import { PowerRankingsProps } from '@/components/tables/RtpStatsTypes';
+import PowerRankingTrophies from '@/components/tables/PowerRankingTrophies';
+import { PowerRankingsProps, TrophyData } from '@/components/tables/RtpStatsTypes';
 
 // Import team logos
 const ballotBoxBaronImagePath = require("../../assets/ballotboxbaron.png");
@@ -34,6 +35,9 @@ const PowerRankingsPage: NextPage = () => {
   const [trendLoading, setTrendLoading] = useState(false);
   const [trendError, setTrendError] = useState<string | null>(null);
   const [currentWeek, setCurrentWeek] = useState<number | null>(null);
+  const [trophies, setTrophies] = useState<TrophyData[]>([]);
+  const [trophiesLoading, setTrophiesLoading] = useState(false);
+  const [trophiesError, setTrophiesError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleLoginSuccess = () => {
@@ -123,6 +127,31 @@ const PowerRankingsPage: NextPage = () => {
 
     fetchTrends();
   }, [rankings]);
+
+  // Fetch trophy data
+  useEffect(() => {
+    const fetchTrophies = async () => {
+      try {
+        setTrophiesLoading(true);
+        setTrophiesError(null);
+        
+        const response = await axios.get(`${process.env.API_URL}/api/power-rankings/trophies`);
+        
+        if (response.data?.trophies && Array.isArray(response.data.trophies)) {
+          setTrophies(response.data.trophies);
+        } else {
+          setTrophiesError('Invalid trophy data received from server');
+        }
+      } catch (err) {
+        console.error('Error fetching trophies:', err);
+        setTrophiesError('Failed to load trophy data. Please try again later.');
+      } finally {
+        setTrophiesLoading(false);
+      }
+    };
+
+    fetchTrophies();
+  }, []);
 
   // Color palette matching the reference chart
   const teamColors = [
@@ -391,6 +420,30 @@ const PowerRankingsPage: NextPage = () => {
                       <div style={{ width: '90vw', maxWidth: '100%', margin: '0 auto' }}>
                         {renderTrendChart()}
                       </div>
+                    </Col>
+                  </Row>
+                </Container>
+
+                {/* Trophies Section */}
+                <Container className="px-4 px-lg-5">
+                  <Row className="gx-4 gx-lg-5 justify-content-center">
+                    <Col xs={12}>
+                      {trophiesLoading ? (
+                        <div className="text-center">
+                          <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading trophies...</span>
+                          </Spinner>
+                          <p className="mt-2">Loading trophies...</p>
+                        </div>
+                      ) : trophiesError ? (
+                        <div className="text-center">
+                          <div className="alert alert-warning" role="alert">
+                            {trophiesError}
+                          </div>
+                        </div>
+                      ) : (
+                        <PowerRankingTrophies trophies={trophies} />
+                      )}
                     </Col>
                   </Row>
                 </Container>
