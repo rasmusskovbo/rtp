@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { PowerRankingService, UserRankingSubmission, TeamRankingData, WeeklyRankingData } from '../services/PowerRankingService';
+import { PowerRankingTrophyService, TrophyData } from '../services/PowerRankingTrophyService';
 import { AuthService } from '../services/AuthService';
 
 // Request interfaces
@@ -35,6 +36,10 @@ export interface GetCurrentWeekResponse {
 
 export interface GetUserRankingsResponse {
     userRankings: UserRankingSubmission[];
+}
+
+export interface GetTrophiesResponse {
+    trophies: TrophyData[];
 }
 
 export interface ErrorResponse {
@@ -208,6 +213,20 @@ router.get('/power-rankings/user', async (req: Request<{}, GetUserRankingsRespon
     } catch (err) {
         console.error(err);
         const errorResponse: ErrorResponse = { error: 'An error occurred while retrieving user rankings' };
+        res.status(500).json(errorResponse);
+    }
+});
+
+// GET /api/power-rankings/trophies - Get all trophy data
+router.get('/power-rankings/trophies', async (req: Request, res: Response<GetTrophiesResponse | ErrorResponse>) => {
+    try {
+        console.log("Received request for /power-rankings/trophies");
+        const trophies = await PowerRankingTrophyService.getAllTrophies();
+        const response: GetTrophiesResponse = { trophies };
+        res.json(response);
+    } catch (err) {
+        console.error(err);
+        const errorResponse: ErrorResponse = { error: 'An error occurred while retrieving trophy data' };
         res.status(500).json(errorResponse);
     }
 });
