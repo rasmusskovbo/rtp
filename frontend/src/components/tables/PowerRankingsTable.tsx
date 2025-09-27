@@ -13,8 +13,8 @@ const PowerRankingsTable: React.FC<PowerRankingsProps> = ({ rankings }) => {
 
     const getRankDifferenceClass = (rankDifference?: number) => {
         if (rankDifference === undefined || rankDifference === 0) return '';
-        if (rankDifference > 0) return 'text-danger'; // Moved down (worse)
-        return 'text-success'; // Moved up (better)
+        if (rankDifference > 0) return 'text-success'; // Moved up (better)
+        return 'text-danger'; // Moved down (worse)
     };
 
     return (

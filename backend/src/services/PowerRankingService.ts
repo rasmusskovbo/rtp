@@ -88,8 +88,8 @@ export class PowerRankingService {
                 ? allRankings.reduce((sum, r) => sum + r.rank, 0) / allRankings.length
                 : 0;
 
-            // Calculate rank difference
-            const rankDifference = lastWeekRank !== undefined ? currentRank - lastWeekRank : undefined;
+            // Calculate rank difference (inverted: positive = moved up, negative = moved down)
+            const rankDifference = lastWeekRank !== undefined ? lastWeekRank - currentRank : undefined;
 
             teamRankings.push({
                 team,
