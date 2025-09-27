@@ -689,14 +689,20 @@ export class PowerRankingTrophyService {
     }
 
     private static async getUserTeam(userId: string): Promise<TeamEntity | null> {
-        const teamRepository = getRepository(TeamEntity);
-        const userRepository = getRepository(UserEntity);
+        const rankingRepository = getRepository(PowerRankingEntity);
         
-        const user = await userRepository.findOne({ where: { id: userId } });
-        if (!user) return null;
-
-        // Find team by sleeper username matching user username
-        return await teamRepository.findOne({ where: { sleeperUsername: user.username } });
+        // Find the team that this user ranked highest (rank 1) in the current week
+        // This is likely their own team
+        const currentWeek = await this.getCurrentWeekNumber();
+        const userRanking = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.team', 'team')
+            .where('ranking.userId = :userId', { userId })
+            .andWhere('ranking.week = :week', { week: currentWeek })
+            .andWhere('ranking.rank = 1')
+            .getOne();
+            
+        return userRanking ? userRanking.team : null;
     }
 
     private static async getUserTeamName(userId: string): Promise<string> {
