@@ -53,11 +53,6 @@ const PowerRankingTrophies: React.FC<TrophiesProps> = ({ trophies }) => {
                                             </span>
                                             <h6 className="mb-0">{trophy.title}</h6>
                                         </div>
-                                        {trophy.winner && (
-                                            <Badge bg="success" className="pulse">
-                                                Winner!
-                                            </Badge>
-                                        )}
                                     </Card.Header>
                                     
                                     <Card.Body className="d-flex flex-column">

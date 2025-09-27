@@ -176,13 +176,33 @@ export class PowerRankingTrophyService {
             if (!ownTeamRanking) continue;
 
             const otherRankings = allRankings.filter(r => r.teamId === userTeam.id && r.userId !== userId);
-            if (otherRankings.length === 0) continue;
+            
+            // If no other rankings exist, we can still calculate a relative ranking
+            // by comparing against the average of all rankings for that team
+            let averageOtherRanking: number;
+            let description: string;
 
-            const averageOtherRanking = otherRankings.reduce((sum, r) => sum + r.rank, 0) / otherRankings.length;
+            if (otherRankings.length === 0) {
+                // With limited data, compare against overall average ranking for the team.
+                // If there's only one ranking (their own), this will equal their rank (relative difference 0),
+                // which is acceptable and ensures we still produce a winner when data is sparse.
+                const allTeamRankings = allRankings.filter(r => r.teamId === userTeam.id);
+                averageOtherRanking = allTeamRankings.reduce((sum, r) => sum + r.rank, 0) / allTeamRankings.length;
+                description = `Ranks own team ${Math.round(ownTeamRanking.rank * 100) / 100} vs overall average ${Math.round(averageOtherRanking * 100) / 100}`;
+            } else {
+                averageOtherRanking = otherRankings.reduce((sum, r) => sum + r.rank, 0) / otherRankings.length;
+            }
             
             // Calculate how much better the user ranks their team compared to others
             // Lower own ranking (closer to 1) compared to others = bigger homie
             const relativeRanking = ownTeamRanking.rank - averageOtherRanking;
+            
+            // Create description after calculating relativeRanking
+            if (otherRankings.length === 0) {
+                description = `Ranks own team ${Math.round(ownTeamRanking.rank * 100) / 100} vs overall average ${Math.round(averageOtherRanking * 100) / 100}`;
+            } else {
+                description = `Ranks own team ${Math.round(ownTeamRanking.rank * 100) / 100} vs others' ${Math.round(averageOtherRanking * 100) / 100} (${relativeRanking < 0 ? 'better' : 'worse'} by ${Math.round(Math.abs(relativeRanking) * 100) / 100})`;
+            }
             
             // We want the user who ranks their team the BEST relative to others
             // This means the most negative relativeRanking (own rank much lower than others)
@@ -193,7 +213,7 @@ export class PowerRankingTrophyService {
                     username: user.username,
                     teamName: userTeam.teamName,
                     value: Math.round(relativeRanking * 100) / 100,
-                    description: `Ranks own team ${Math.round(ownTeamRanking.rank * 100) / 100} vs others' ${Math.round(averageOtherRanking * 100) / 100} (${relativeRanking < 0 ? 'better' : 'worse'} by ${Math.round(Math.abs(relativeRanking) * 100) / 100})`
+                    description: description
                 };
             }
         }
