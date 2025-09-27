@@ -2,6 +2,7 @@ import { getRepository } from 'typeorm';
 import { PowerRankingEntity } from '../database/entities/PowerRankingEntity';
 import { TeamEntity } from '../database/entities/TeamEntity';
 import { UserEntity } from '../database/entities/UserEntity';
+import { SleeperUserEntity } from '../database/entities/SleeperUserEntity';
 import { CurrentWeekEntity } from '../database/entities/CurrentWeekEntity';
 
 export interface TrophyWinner {
@@ -689,20 +690,21 @@ export class PowerRankingTrophyService {
     }
 
     private static async getUserTeam(userId: string): Promise<TeamEntity | null> {
-        const rankingRepository = getRepository(PowerRankingEntity);
+        const userRepository = getRepository(UserEntity);
+        const sleeperUserRepository = getRepository(SleeperUserEntity);
+        const teamRepository = getRepository(TeamEntity);
         
-        // Find the team that this user ranked highest (rank 1) in the current week
-        // This is likely their own team
-        const currentWeek = await this.getCurrentWeekNumber();
-        const userRanking = await rankingRepository
-            .createQueryBuilder('ranking')
-            .leftJoinAndSelect('ranking.team', 'team')
-            .where('ranking.userId = :userId', { userId })
-            .andWhere('ranking.week = :week', { week: currentWeek })
-            .andWhere('ranking.rank = 1')
-            .getOne();
-            
-        return userRanking ? userRanking.team : null;
+        // Get the user's username
+        const user = await userRepository.findOne({ where: { id: userId } });
+        if (!user) return null;
+        
+        // Find the corresponding SleeperUserEntity
+        const sleeperUser = await sleeperUserRepository.findOne({ where: { username: user.username } });
+        if (!sleeperUser) return null;
+        
+        // Find the team with matching sleeperUsername
+        const team = await teamRepository.findOne({ where: { sleeperUsername: sleeperUser.username } });
+        return team;
     }
 
     private static async getUserTeamName(userId: string): Promise<string> {
