@@ -35,7 +35,7 @@ export class PowerRankingTrophyService {
             {
                 id: 'biggest-homie',
                 title: 'Biggest Homie',
-                description: 'Largest difference between how you rank your own team vs. how others rank it',
+                description: 'User who ranks their own team highest compared to how others rank it',
                 icon: '🏠',
                 category: 'Bias & Self-Rating',
                 winner: await this.getBiggestHomie(allRankings)
@@ -164,7 +164,7 @@ export class PowerRankingTrophyService {
     // Bias & Self-Rating Trophies
     private static async getBiggestHomie(allRankings: PowerRankingEntity[]): Promise<TrophyWinner | null> {
         const userRankings = this.groupRankingsByUser(allRankings);
-        let maxDifference = -1;
+        let bestRelativeRanking = Infinity; // Lower is better (rank 1 is best)
         let winner: TrophyWinner | null = null;
 
         for (const [userId, rankings] of userRankings) {
@@ -179,16 +179,21 @@ export class PowerRankingTrophyService {
             if (otherRankings.length === 0) continue;
 
             const averageOtherRanking = otherRankings.reduce((sum, r) => sum + r.rank, 0) / otherRankings.length;
-            const difference = averageOtherRanking - ownTeamRanking.rank;
-
-            if (difference > maxDifference) {
-                maxDifference = difference;
+            
+            // Calculate how much better the user ranks their team compared to others
+            // Lower own ranking (closer to 1) compared to others = bigger homie
+            const relativeRanking = ownTeamRanking.rank - averageOtherRanking;
+            
+            // We want the user who ranks their team the BEST relative to others
+            // This means the most negative relativeRanking (own rank much lower than others)
+            if (relativeRanking < bestRelativeRanking) {
+                bestRelativeRanking = relativeRanking;
                 winner = {
                     userId,
                     username: user.username,
                     teamName: userTeam.teamName,
-                    value: Math.round(difference * 100) / 100,
-                    description: `Ranks own team ${Math.round(ownTeamRanking.rank * 100) / 100} vs others' ${Math.round(averageOtherRanking * 100) / 100}`
+                    value: Math.round(relativeRanking * 100) / 100,
+                    description: `Ranks own team ${Math.round(ownTeamRanking.rank * 100) / 100} vs others' ${Math.round(averageOtherRanking * 100) / 100} (${relativeRanking < 0 ? 'better' : 'worse'} by ${Math.round(Math.abs(relativeRanking) * 100) / 100})`
                 };
             }
         }
