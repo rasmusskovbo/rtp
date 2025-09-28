@@ -11,6 +11,12 @@ export interface TrophyWinner {
     teamName: string;
     value: number;
     description: string;
+    // Additional fields for Homer award
+    biasedTeamId?: number;
+    biasedTeamName?: string;
+    rankingDifference?: number;
+    averageUserRank?: number;
+    averageOthersRank?: number;
 }
 
 export interface TrophyData {
@@ -110,7 +116,7 @@ export class PowerRankingTrophyService {
             {
                 id: 'homer',
                 title: 'Homer',
-                description: 'Most biased toward certain teams (consistently ranks them higher than others)',
+                description: 'User who consistently ranks a specific other team higher than all other users',
                 icon: '🏈',
                 category: 'Ranking Behavior',
                 winner: await this.getHomer(allRankings)
@@ -118,7 +124,7 @@ export class PowerRankingTrophyService {
             {
                 id: 'hater',
                 title: 'Hater',
-                description: 'Most biased against certain teams (consistently ranks them lower than others)',
+                description: 'User who consistently ranks a specific other team lower than all other users',
                 icon: '😡',
                 category: 'Ranking Behavior',
                 winner: await this.getHater(allRankings)
@@ -629,12 +635,13 @@ export class PowerRankingTrophyService {
 
             if (contrarianScore > maxContrarian) {
                 maxContrarian = contrarianScore;
+                const averageDifference = contrarianScore / rankings.length;
                 winner = {
                     userId,
                     username: user.username,
                     teamName: await this.getUserTeamName(userId),
-                    value: Math.round(contrarianScore * 100) / 100,
-                    description: `Average difference of ${Math.round((contrarianScore / rankings.length) * 100) / 100} from consensus`
+                    value: Math.round(averageDifference * 100) / 100,
+                    description: `Average difference of ${Math.round(averageDifference * 100) / 100} from consensus`
                 };
             }
         }
@@ -726,35 +733,84 @@ export class PowerRankingTrophyService {
     }
 
     private static async getHomer(allRankings: PowerRankingEntity[]): Promise<TrophyWinner | null> {
-        const userRankings = this.groupRankingsByUser(allRankings);
-        let maxHomer = -1;
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const allRankingsAcrossWeeks: PowerRankingEntity[] = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .leftJoinAndSelect('ranking.team', 'team')
+            .getMany();
+
+        if (allRankingsAcrossWeeks.length === 0) return null;
+
+        const userRankings = this.groupRankingsByUser(allRankingsAcrossWeeks);
+        let maxHomerBias = -1;
         let winner: TrophyWinner | null = null;
 
+        // Pre-calculate the average ranking for each team by all users
+        const teamAverages = new Map<number, number>();
+        const teamRankingsByTeam = new Map<number, PowerRankingEntity[]>();
+        
+        for (const ranking of allRankingsAcrossWeeks) {
+            if (!teamRankingsByTeam.has(ranking.teamId)) {
+                teamRankingsByTeam.set(ranking.teamId, []);
+            }
+            teamRankingsByTeam.get(ranking.teamId)!.push(ranking);
+        }
+        
+        for (const [teamId, rankings] of teamRankingsByTeam) {
+            const avgRank = rankings.reduce((sum, r) => sum + r.rank, 0) / rankings.length;
+            teamAverages.set(teamId, avgRank);
+        }
+
+        // For each user, find the team they consistently rank higher than others
         for (const [userId, rankings] of userRankings) {
             const user = rankings[0].user;
-            let homerScore = 0;
-            let teamCount = 0;
-
+            
+            // Get the user's own team to exclude it from calculations
+            const userTeam = await this.getUserTeam(userId);
+            if (!userTeam) continue;
+            
+            // Group rankings by team for this user
+            const teamRankings = new Map<number, PowerRankingEntity[]>();
             for (const ranking of rankings) {
-                const otherRankings = allRankings.filter(r => r.teamId === ranking.teamId && r.userId !== userId);
-                if (otherRankings.length === 0) continue;
-
-                const averageOtherRanking = otherRankings.reduce((sum, r) => sum + r.rank, 0) / otherRankings.length;
-                const bias = averageOtherRanking - ranking.rank; // Positive means they ranked higher
-                homerScore += bias;
-                teamCount++;
+                if (!teamRankings.has(ranking.teamId)) {
+                    teamRankings.set(ranking.teamId, []);
+                }
+                teamRankings.get(ranking.teamId)!.push(ranking);
             }
 
-            if (teamCount > 0) {
-                const avgHomerScore = homerScore / teamCount;
-                if (avgHomerScore > maxHomer) {
-                    maxHomer = avgHomerScore;
+            // For each team this user has ranked (excluding their own team), calculate their bias
+            for (const [teamId, userTeamRankings] of teamRankings) {
+                // Skip the user's own team
+                if (teamId === userTeam.id) continue;
+                
+                // Get the overall average ranking for this team (all users)
+                const othersAvgRank = teamAverages.get(teamId) || 0;
+                
+                if (othersAvgRank === 0) continue;
+
+                // Calculate average ranking for this team by this user
+                const userAvgRank = userTeamRankings.reduce((sum, r) => sum + r.rank, 0) / userTeamRankings.length;
+                
+                // Calculate bias (positive means user ranks team higher/better than others)
+                const bias = othersAvgRank - userAvgRank;
+                
+                // Only consider positive bias (user ranks team higher than others)
+                if (bias > maxHomerBias && bias > 0) {
+                    maxHomerBias = bias;
+                    const team = userTeamRankings[0].team;
+                    
                     winner = {
                         userId,
                         username: user.username,
                         teamName: await this.getUserTeamName(userId),
-                        value: Math.round(avgHomerScore * 100) / 100,
-                        description: `Average bias of ${Math.round(avgHomerScore * 100) / 100} toward teams`
+                        value: Math.round(bias * 100) / 100,
+                        description: `Ranks ${team.teamName} ${Math.round(userAvgRank * 100) / 100} on average while others rank it ${Math.round(othersAvgRank * 100) / 100}`,
+                        biasedTeamId: teamId,
+                        biasedTeamName: team.teamName,
+                        rankingDifference: Math.round(bias * 100) / 100,
+                        averageUserRank: Math.round(userAvgRank * 100) / 100,
+                        averageOthersRank: Math.round(othersAvgRank * 100) / 100
                     };
                 }
             }
@@ -764,35 +820,84 @@ export class PowerRankingTrophyService {
     }
 
     private static async getHater(allRankings: PowerRankingEntity[]): Promise<TrophyWinner | null> {
-        const userRankings = this.groupRankingsByUser(allRankings);
-        let maxHater = -1;
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const allRankingsAcrossWeeks: PowerRankingEntity[] = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .leftJoinAndSelect('ranking.team', 'team')
+            .getMany();
+
+        if (allRankingsAcrossWeeks.length === 0) return null;
+
+        const userRankings = this.groupRankingsByUser(allRankingsAcrossWeeks);
+        let maxHaterBias = -1;
         let winner: TrophyWinner | null = null;
 
+        // Pre-calculate the average ranking for each team by all users
+        const teamAverages = new Map<number, number>();
+        const teamRankingsByTeam = new Map<number, PowerRankingEntity[]>();
+        
+        for (const ranking of allRankingsAcrossWeeks) {
+            if (!teamRankingsByTeam.has(ranking.teamId)) {
+                teamRankingsByTeam.set(ranking.teamId, []);
+            }
+            teamRankingsByTeam.get(ranking.teamId)!.push(ranking);
+        }
+        
+        for (const [teamId, rankings] of teamRankingsByTeam) {
+            const avgRank = rankings.reduce((sum, r) => sum + r.rank, 0) / rankings.length;
+            teamAverages.set(teamId, avgRank);
+        }
+
+        // For each user, find the team they consistently rank lower than others
         for (const [userId, rankings] of userRankings) {
             const user = rankings[0].user;
-            let haterScore = 0;
-            let teamCount = 0;
-
+            
+            // Get the user's own team to exclude it from calculations
+            const userTeam = await this.getUserTeam(userId);
+            if (!userTeam) continue;
+            
+            // Group rankings by team for this user
+            const teamRankings = new Map<number, PowerRankingEntity[]>();
             for (const ranking of rankings) {
-                const otherRankings = allRankings.filter(r => r.teamId === ranking.teamId && r.userId !== userId);
-                if (otherRankings.length === 0) continue;
-
-                const averageOtherRanking = otherRankings.reduce((sum, r) => sum + r.rank, 0) / otherRankings.length;
-                const bias = ranking.rank - averageOtherRanking; // Positive means they ranked lower
-                haterScore += bias;
-                teamCount++;
+                if (!teamRankings.has(ranking.teamId)) {
+                    teamRankings.set(ranking.teamId, []);
+                }
+                teamRankings.get(ranking.teamId)!.push(ranking);
             }
 
-            if (teamCount > 0) {
-                const avgHaterScore = haterScore / teamCount;
-                if (avgHaterScore > maxHater) {
-                    maxHater = avgHaterScore;
+            // For each team this user has ranked (excluding their own team), calculate their bias
+            for (const [teamId, userTeamRankings] of teamRankings) {
+                // Skip the user's own team
+                if (teamId === userTeam.id) continue;
+                
+                // Get the overall average ranking for this team (all users)
+                const othersAvgRank = teamAverages.get(teamId) || 0;
+                
+                if (othersAvgRank === 0) continue;
+
+                // Calculate average ranking for this team by this user
+                const userAvgRank = userTeamRankings.reduce((sum, r) => sum + r.rank, 0) / userTeamRankings.length;
+                
+                // Calculate bias (positive means user ranks team lower/worse than others)
+                const bias = userAvgRank - othersAvgRank;
+                
+                // Only consider positive bias (user ranks team lower than others)
+                if (bias > maxHaterBias && bias > 0) {
+                    maxHaterBias = bias;
+                    const team = userTeamRankings[0].team;
+                    
                     winner = {
                         userId,
                         username: user.username,
                         teamName: await this.getUserTeamName(userId),
-                        value: Math.round(avgHaterScore * 100) / 100,
-                        description: `Average bias of ${Math.round(avgHaterScore * 100) / 100} against teams`
+                        value: Math.round(bias * 100) / 100,
+                        description: `Ranks ${team.teamName} ${Math.round(userAvgRank * 100) / 100} on average while others rank it ${Math.round(othersAvgRank * 100) / 100}`,
+                        biasedTeamId: teamId,
+                        biasedTeamName: team.teamName,
+                        rankingDifference: Math.round(bias * 100) / 100,
+                        averageUserRank: Math.round(userAvgRank * 100) / 100,
+                        averageOthersRank: Math.round(othersAvgRank * 100) / 100
                     };
                 }
             }
