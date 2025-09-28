@@ -41,7 +41,7 @@ export class PowerRankingTrophyService {
                 winner: await this.getBiggestHomie(allRankings)
             },
             {
-                id: 'harsh-self-critic',
+                id: 'realist',
                 title: 'Realist',
                 description: 'Smallest difference between your own team ranking and others',
                 icon: '😤',
@@ -696,18 +696,39 @@ export class PowerRankingTrophyService {
         const userRepository = getRepository(UserEntity);
         const sleeperUserRepository = getRepository(SleeperUserEntity);
         const teamRepository = getRepository(TeamEntity);
-        
+
         // Get the user's username
         const user = await userRepository.findOne({ where: { id: userId } });
         if (!user) return null;
-        
-        // Find the corresponding SleeperUserEntity
-        const sleeperUser = await sleeperUserRepository.findOne({ where: { username: user.username } });
-        if (!sleeperUser) return null;
-        
-        // Find the team with matching sleeperUsername
-        const team = await teamRepository.findOne({ where: { sleeperUsername: sleeperUser.username } });
-        return team;
+
+        // 1) Try direct match via Team.ownerName (case-insensitive)
+        const teamByOwnerName = await teamRepository
+            .createQueryBuilder('team')
+            .where('LOWER(team.ownerName) = LOWER(:ownerName)', { ownerName: user.username })
+            .getOne();
+        if (teamByOwnerName) {
+            return teamByOwnerName;
+        }
+
+        // 2) Try mapping User.username -> SleeperUser (case-insensitive on username OR display_name)
+        const sleeperUser = await sleeperUserRepository
+            .createQueryBuilder('sleeper')
+            .where('LOWER(sleeper.username) = LOWER(:u)', { u: user.username })
+            .orWhere('LOWER(sleeper.display_name) = LOWER(:u)', { u: user.username })
+            .getOne();
+
+        if (sleeperUser) {
+            // 3) Find Team by Sleeper username (case-insensitive)
+            const teamBySleeperUsername = await teamRepository
+                .createQueryBuilder('team')
+                .where('LOWER(team.sleeperUsername) = LOWER(:sn)', { sn: sleeperUser.username })
+                .getOne();
+            if (teamBySleeperUsername) {
+                return teamBySleeperUsername;
+            }
+        }
+
+        return null;
     }
 
     private static async getUserTeamName(userId: string): Promise<string> {
