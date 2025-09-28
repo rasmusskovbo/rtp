@@ -137,18 +137,36 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
 
   return (
     <div className={`random-comments-container ${className}`}>
+      <style jsx>{`
+        .comments-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 15px;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 10px;
+        }
+        
+        @media (max-width: 768px) {
+          .comments-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+            padding: 0 5px;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .comments-grid {
+            padding: 0;
+          }
+        }
+      `}</style>
       <h4 className="mb-3 text-center" style={{ color: '#343a40', fontFamily: 'sans-serif' }}>
         Fan Comments
       </h4>
       <hr style={{ borderColor: '#e0e0e0', borderWidth: '1px', marginBottom: '20px' }} />
       
-      <div className="comments-grid" style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-        gap: '15px',
-        maxWidth: '1200px',
-        margin: '0 auto'
-      }}>
+      <div className="comments-grid">
         {displayedComments.map((comment) => {
           const isVisible = visibleComments.has(comment.id);
           const isDismissed = dismissedComments.has(comment.id);
@@ -167,25 +185,28 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
                 borderRadius: '8px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                 position: 'relative',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                minHeight: '120px',
+                width: '100%'
               }}
             >
-              <Card.Body style={{ padding: '15px' }}>
+              <Card.Body style={{ padding: '12px' }}>
                 <div className="d-flex justify-content-between align-items-start mb-2">
-                  <div className="d-flex align-items-center">
+                  <div className="d-flex align-items-center" style={{ flex: 1, minWidth: 0 }}>
                     <div
                       style={{
-                        fontSize: '20px',
-                        marginRight: '10px'
+                        fontSize: '18px',
+                        marginRight: '8px',
+                        flexShrink: 0
                       }}
                     >
                       💬
                     </div>
-                    <div>
-                      <strong style={{ fontSize: '14px', color: '#343a40' }}>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <strong style={{ fontSize: '13px', color: '#343a40', wordBreak: 'break-word' }}>
                         {comment.user.name}
                       </strong>
-                      <div style={{ fontSize: '14px', color: '#6c757d' }}>
+                      <div style={{ fontSize: '12px', color: '#6c757d', wordBreak: 'break-word' }}>
                         ranked {comment.team.teamName} <span style={{ 
                           fontWeight: 'bold',
                           color: comment.rank <= 3 ? '#FFD700' : comment.rank >= 10 ? '#FF69B4' : '#6c757d'
@@ -195,15 +216,15 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
                       </div>
                     </div>
                   </div>
-                  <div className="d-flex align-items-center">
+                  <div className="d-flex align-items-center" style={{ flexShrink: 0 }}>
                     <img 
                       src={comment.team.teamLogo} 
                       alt={comment.team.teamName}
                       style={{ 
-                        width: '30px', 
-                        height: '30px', 
-                        marginRight: '8px',
-                        borderRadius: '6px'
+                        width: '24px', 
+                        height: '24px', 
+                        marginRight: '6px',
+                        borderRadius: '4px'
                       }}
                     />
                     <Button
@@ -214,7 +235,9 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
                         padding: '2px 6px',
                         fontSize: '12px',
                         border: 'none',
-                        color: '#6c757d'
+                        color: '#6c757d',
+                        minWidth: '24px',
+                        height: '24px'
                       }}
                       title="Dismiss comment"
                     >
@@ -224,11 +247,13 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
                 </div>
                 
                 <div style={{ 
-                  fontSize: '14px', 
+                  fontSize: '13px', 
                   lineHeight: '1.4',
                   color: '#495057',
                   fontStyle: 'italic',
-                  marginTop: '8px'
+                  marginTop: '8px',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word'
                 }}>
                   &ldquo;{comment.comment}&rdquo;
                 </div>
