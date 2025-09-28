@@ -171,7 +171,16 @@ export class PowerRankingTrophyService {
 
     // Bias & Self-Rating Trophies
     private static async getBiggestHomie(allRankings: PowerRankingEntity[]): Promise<TrophyWinner | null> {
-        const userRankings = this.groupRankingsByUser(allRankings);
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const allRankingsAcrossWeeks: PowerRankingEntity[] = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .leftJoinAndSelect('ranking.team', 'team')
+            .getMany();
+
+        if (allRankingsAcrossWeeks.length === 0) return null;
+
+        const userRankings = this.groupRankingsByUser(allRankingsAcrossWeeks);
         let bestRelativeRanking = Infinity; // Lower is better (rank 1 is best)
         let winner: TrophyWinner | null = null;
 
@@ -180,37 +189,57 @@ export class PowerRankingTrophyService {
             const userTeam = await this.getUserTeam(userId);
             if (!userTeam) continue;
 
-            const ownTeamRanking = rankings.find(r => r.teamId === userTeam.id);
-            if (!ownTeamRanking) continue;
+            // All rankings for the user's team across all users/weeks
+            const teamRankingsAllUsers = allRankingsAcrossWeeks.filter(r => r.teamId === userTeam.id);
+            if (teamRankingsAllUsers.length === 0) continue;
 
-            const otherRankings = allRankings.filter(r => r.teamId === userTeam.id && r.userId !== userId);
-            
-            // If no other rankings exist, we can still calculate a relative ranking
-            // by comparing against the average of all rankings for that team
-            let averageOtherRanking: number;
+            // This user's rankings of their own team across weeks
+            const ownTeamRankings = rankings.filter(r => r.teamId === userTeam.id);
+            if (ownTeamRankings.length === 0) continue;
+
+            // Prefer averaging over weeks where both own and others' rankings exist
+            const weeks = new Set(teamRankingsAllUsers.map(r => r.week));
+            let sumOwn = 0;
+            let sumOthers = 0;
+            let pairedWeeksCount = 0;
+
+            for (const week of weeks) {
+                const ownThisWeek = ownTeamRankings.find(r => r.week === week);
+                if (!ownThisWeek) continue;
+                const othersThisWeek = teamRankingsAllUsers.filter(r => r.week === week && r.userId !== userId);
+                if (othersThisWeek.length === 0) continue;
+
+                const othersAvgThisWeek = othersThisWeek.reduce((sum, r) => sum + r.rank, 0) / othersThisWeek.length;
+                sumOwn += ownThisWeek.rank;
+                sumOthers += othersAvgThisWeek;
+                pairedWeeksCount++;
+            }
+
+            let ownAvg: number;
+            let othersAvg: number;
             let description: string;
 
-            if (otherRankings.length === 0) {
-                // With limited data, compare against overall average ranking for the team.
-                // If there's only one ranking (their own), this will equal their rank (relative difference 0),
-                // which is acceptable and ensures we still produce a winner when data is sparse.
-                const allTeamRankings = allRankings.filter(r => r.teamId === userTeam.id);
-                averageOtherRanking = allTeamRankings.reduce((sum, r) => sum + r.rank, 0) / allTeamRankings.length;
-                description = `Ranks own team ${Math.round(ownTeamRanking.rank * 100) / 100} vs overall average ${Math.round(averageOtherRanking * 100) / 100}`;
+            if (pairedWeeksCount > 0) {
+                ownAvg = sumOwn / pairedWeeksCount;
+                othersAvg = sumOthers / pairedWeeksCount;
+                description = `Own avg ${Math.round(ownAvg * 100) / 100} vs others' ${Math.round(othersAvg * 100) / 100} across ${pairedWeeksCount} weeks`;
             } else {
-                averageOtherRanking = otherRankings.reduce((sum, r) => sum + r.rank, 0) / otherRankings.length;
+                // Fallback to overall averages across all available weeks
+                ownAvg = ownTeamRankings.reduce((sum, r) => sum + r.rank, 0) / ownTeamRankings.length;
+                const othersAll = teamRankingsAllUsers.filter(r => r.userId !== userId);
+                if (othersAll.length > 0) {
+                    othersAvg = othersAll.reduce((sum, r) => sum + r.rank, 0) / othersAll.length;
+                    description = `Own avg ${Math.round(ownAvg * 100) / 100} vs others' ${Math.round(othersAvg * 100) / 100} across all weeks`;
+                } else {
+                    const teamOverallAvg = teamRankingsAllUsers.reduce((sum, r) => sum + r.rank, 0) / teamRankingsAllUsers.length;
+                    othersAvg = teamOverallAvg;
+                    description = `Own avg ${Math.round(ownAvg * 100) / 100} vs team overall avg ${Math.round(teamOverallAvg * 100) / 100}`;
+                }
             }
-            
+
             // Calculate how much better the user ranks their team compared to others
             // Lower own ranking (closer to 1) compared to others = bigger homie
-            const relativeRanking = ownTeamRanking.rank - averageOtherRanking;
-            
-            // Create description after calculating relativeRanking
-            if (otherRankings.length === 0) {
-                description = `Ranks own team ${Math.round(ownTeamRanking.rank * 100) / 100} vs overall average ${Math.round(averageOtherRanking * 100) / 100}`;
-            } else {
-                description = `Ranks own team ${Math.round(ownTeamRanking.rank * 100) / 100} vs others' ${Math.round(averageOtherRanking * 100) / 100} (${relativeRanking < 0 ? 'better' : 'worse'} by ${Math.round(Math.abs(relativeRanking) * 100) / 100})`;
-            }
+            const relativeRanking = ownAvg - othersAvg; // Negative => ranks own team better than others
             
             // We want the user who ranks their team the BEST relative to others
             // This means the most negative relativeRanking (own rank much lower than others)
