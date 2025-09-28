@@ -41,6 +41,14 @@ export class PowerRankingTrophyService {
                 winner: await this.getBiggestHomie(allRankings)
             },
             {
+                id: 'biggest-self-hater',
+                title: 'Biggest Self-Hater',
+                description: 'User who ranks their own team lowest compared to how others rank it (across all weeks)',
+                icon: '💔',
+                category: 'Bias & Self-Rating',
+                winner: await this.getBiggestSelfHater()
+            },
+            {
                 id: 'realist',
                 title: 'Realist',
                 description: 'Smallest difference between your own team ranking and others',
@@ -221,16 +229,179 @@ export class PowerRankingTrophyService {
         return winner;
     }
 
+    /**
+     * Opposite of Biggest Homie, computed across all weeks:
+     * Finds the user who, on average, ranks their own team the lowest compared to how others rank it.
+     * Rank scale: 1 (best) to 12 (worst). We select the most negative (othersAvg - ownAvg).
+     */
+    private static async getBiggestSelfHater(): Promise<TrophyWinner | null> {
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const allRankings: PowerRankingEntity[] = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .leftJoinAndSelect('ranking.team', 'team')
+            .getMany();
+
+        if (allRankings.length === 0) return null;
+
+        const userRankings = this.groupRankingsByUser(allRankings);
+        let minDifference = Infinity; // More negative is more self-hating
+        let winner: TrophyWinner | null = null;
+
+        for (const [userId, rankings] of userRankings) {
+            const user = rankings[0].user;
+            const userTeam = await this.getUserTeam(userId);
+            if (!userTeam) continue;
+
+            // All rankings for the user's team across all users/weeks
+            const teamRankingsAllUsers = allRankings.filter(r => r.teamId === userTeam.id);
+            if (teamRankingsAllUsers.length === 0) continue;
+
+            // This user's rankings of their own team across weeks
+            const ownTeamRankings = rankings.filter(r => r.teamId === userTeam.id);
+            if (ownTeamRankings.length === 0) continue;
+
+            // Prefer averaging over weeks where both own and others' rankings exist
+            const weeks = new Set(teamRankingsAllUsers.map(r => r.week));
+            let sumOwn = 0;
+            let sumOthers = 0;
+            let pairedWeeksCount = 0;
+
+            for (const week of weeks) {
+                const ownThisWeek = ownTeamRankings.find(r => r.week === week);
+                if (!ownThisWeek) continue;
+                const othersThisWeek = teamRankingsAllUsers.filter(r => r.week === week && r.userId !== userId);
+                if (othersThisWeek.length === 0) continue;
+
+                const othersAvgThisWeek = othersThisWeek.reduce((sum, r) => sum + r.rank, 0) / othersThisWeek.length;
+                sumOwn += ownThisWeek.rank;
+                sumOthers += othersAvgThisWeek;
+                pairedWeeksCount++;
+            }
+
+            let ownAvg: number;
+            let othersAvg: number;
+            let description: string;
+
+            if (pairedWeeksCount > 0) {
+                ownAvg = sumOwn / pairedWeeksCount;
+                othersAvg = sumOthers / pairedWeeksCount;
+                description = `Own avg ${Math.round(ownAvg * 100) / 100} vs others' ${Math.round(othersAvg * 100) / 100} across ${pairedWeeksCount} weeks`;
+            } else {
+                // Fallback to overall averages across all available weeks
+                ownAvg = ownTeamRankings.reduce((sum, r) => sum + r.rank, 0) / ownTeamRankings.length;
+                const othersAll = teamRankingsAllUsers.filter(r => r.userId !== userId);
+                if (othersAll.length > 0) {
+                    othersAvg = othersAll.reduce((sum, r) => sum + r.rank, 0) / othersAll.length;
+                    description = `Own avg ${Math.round(ownAvg * 100) / 100} vs others' ${Math.round(othersAvg * 100) / 100} across all weeks`;
+                } else {
+                    const teamOverallAvg = teamRankingsAllUsers.reduce((sum, r) => sum + r.rank, 0) / teamRankingsAllUsers.length;
+                    othersAvg = teamOverallAvg;
+                    description = `Own avg ${Math.round(ownAvg * 100) / 100} vs team overall avg ${Math.round(teamOverallAvg * 100) / 100}`;
+                }
+            }
+
+            const difference = othersAvg - ownAvg; // Negative => ranks own team worse than others
+
+            // Only consider negative differences for Self-Hater.
+            if (difference < 0 && difference < minDifference) {
+                minDifference = difference;
+                winner = {
+                    userId,
+                    username: user.username,
+                    teamName: userTeam.teamName,
+                    value: Math.round(difference * 100) / 100,
+                    description
+                };
+            }
+        }
+
+        return winner;
+    }
+
     private static async getHarshSelfCritic(allRankings: PowerRankingEntity[]): Promise<TrophyWinner | null> {
-        // For now, return a hardcoded winner based on the data we know
-        // Rasmus ranked his own team at 3, others average 2.67, difference = 0.33
-        return {
-            userId: "1a3ca698-b488-4d91-8acf-f74590f65d45",
-            username: "rasmus",
-            teamName: "The Wildfire Infernos",
-            value: 0.33,
-            description: "Only 0.33 difference from others' 2.67"
-        };
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const allRankingsAcrossWeeks: PowerRankingEntity[] = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .leftJoinAndSelect('ranking.team', 'team')
+            .getMany();
+
+        if (allRankingsAcrossWeeks.length === 0) return null;
+
+        const userRankings = this.groupRankingsByUser(allRankingsAcrossWeeks);
+        let minAbsoluteDifference = Infinity; // Smaller absolute difference = more realistic
+        let winner: TrophyWinner | null = null;
+
+        for (const [userId, rankings] of userRankings) {
+            const user = rankings[0].user;
+            const userTeam = await this.getUserTeam(userId);
+            if (!userTeam) continue;
+
+            // All rankings for the user's team across all users/weeks
+            const teamRankingsAllUsers = allRankingsAcrossWeeks.filter(r => r.teamId === userTeam.id);
+            if (teamRankingsAllUsers.length === 0) continue;
+
+            // This user's rankings of their own team across weeks
+            const ownTeamRankings = rankings.filter(r => r.teamId === userTeam.id);
+            if (ownTeamRankings.length === 0) continue;
+
+            // Prefer averaging over weeks where both own and others' rankings exist
+            const weeks = new Set(teamRankingsAllUsers.map(r => r.week));
+            let sumOwn = 0;
+            let sumOthers = 0;
+            let pairedWeeksCount = 0;
+
+            for (const week of weeks) {
+                const ownThisWeek = ownTeamRankings.find(r => r.week === week);
+                if (!ownThisWeek) continue;
+                const othersThisWeek = teamRankingsAllUsers.filter(r => r.week === week && r.userId !== userId);
+                if (othersThisWeek.length === 0) continue;
+
+                const othersAvgThisWeek = othersThisWeek.reduce((sum, r) => sum + r.rank, 0) / othersThisWeek.length;
+                sumOwn += ownThisWeek.rank;
+                sumOthers += othersAvgThisWeek;
+                pairedWeeksCount++;
+            }
+
+            let ownAvg: number;
+            let othersAvg: number;
+            let description: string;
+
+            if (pairedWeeksCount > 0) {
+                ownAvg = sumOwn / pairedWeeksCount;
+                othersAvg = sumOthers / pairedWeeksCount;
+                description = `Own avg ${Math.round(ownAvg * 100) / 100} vs others' ${Math.round(othersAvg * 100) / 100} across ${pairedWeeksCount} weeks`;
+            } else {
+                // Fallback to overall averages across all available weeks
+                ownAvg = ownTeamRankings.reduce((sum, r) => sum + r.rank, 0) / ownTeamRankings.length;
+                const othersAll = teamRankingsAllUsers.filter(r => r.userId !== userId);
+                if (othersAll.length > 0) {
+                    othersAvg = othersAll.reduce((sum, r) => sum + r.rank, 0) / othersAll.length;
+                    description = `Own avg ${Math.round(ownAvg * 100) / 100} vs others' ${Math.round(othersAvg * 100) / 100} across all weeks`;
+                } else {
+                    const teamOverallAvg = teamRankingsAllUsers.reduce((sum, r) => sum + r.rank, 0) / teamRankingsAllUsers.length;
+                    othersAvg = teamOverallAvg;
+                    description = `Own avg ${Math.round(ownAvg * 100) / 100} vs team overall avg ${Math.round(teamOverallAvg * 100) / 100}`;
+                }
+            }
+
+            const absoluteDifference = Math.abs(othersAvg - ownAvg); // Absolute difference for realism
+
+            // Find the smallest absolute difference (most realistic)
+            if (absoluteDifference < minAbsoluteDifference) {
+                minAbsoluteDifference = absoluteDifference;
+                winner = {
+                    userId,
+                    username: user.username,
+                    teamName: userTeam.teamName,
+                    value: Math.round(absoluteDifference * 100) / 100,
+                    description
+                };
+            }
+        }
+
+        return winner;
     }
 
     private static async getDelusionalOptimist(allRankings: PowerRankingEntity[]): Promise<TrophyWinner | null> {
