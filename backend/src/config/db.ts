@@ -18,6 +18,7 @@ import {MatchupEntity} from "../database/entities/MatchupEntity";
 import {VoteEntity} from "../database/entities/VoteEntity";
 import {CombineResultsEntity} from "../database/entities/CombineResultsEntity";
 import {PowerRankingEntity} from "../database/entities/PowerRankingEntity";
+import {CommentLikeEntity} from "../database/entities/CommentLikeEntity";
 
 dotenv.config()
 
@@ -49,7 +50,8 @@ export const connectToDb = async (): Promise<Connection> => {
             CurrentWeekEntity,
             MatchupEntity,
             VoteEntity,
-            PowerRankingEntity
+            PowerRankingEntity,
+            CommentLikeEntity
         ],
         synchronize: true,
         logging: ["error"]

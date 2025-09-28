@@ -47,6 +47,39 @@ export interface GetCommentsResponse {
         id: number;
         comment: string;
         rank: number;
+        likeCount: number;
+        userLiked: boolean;
+        team: {
+            id: number;
+            teamName: string;
+            ownerName: string;
+            teamLogo: string;
+        };
+        user: {
+            id: string;
+            name: string;
+        };
+    }>;
+}
+
+export interface LikeCommentRequest {
+    commentId: number;
+    username: string;
+}
+
+export interface LikeCommentResponse {
+    message: string;
+    likeCount: number;
+    userLiked: boolean;
+}
+
+export interface GetTopCommentsResponse {
+    topComments: Array<{
+        id: number;
+        comment: string;
+        rank: number;
+        likeCount: number;
+        userLiked: boolean;
         team: {
             id: number;
             teamName: string;
@@ -255,15 +288,26 @@ router.get('/power-rankings/trophies', async (req: Request, res: Response<GetTro
 });
 
 // GET /api/power-rankings/comments - Get all comments from current week
-router.get('/power-rankings/comments', async (req: Request, res: Response<GetCommentsResponse | ErrorResponse>) => {
+router.get('/power-rankings/comments', async (req: Request<{}, GetCommentsResponse | ErrorResponse, {}, { username?: string }>, res: Response<GetCommentsResponse | ErrorResponse>) => {
     try {
         console.log("Received request for /power-rankings/comments");
-        const comments = await PowerRankingService.getCurrentWeekComments();
+        const { username } = req.query;
+        
+        let userId: string | undefined;
+        if (username) {
+            const authService = new AuthService();
+            const user = await authService.getUserByUsername(username);
+            userId = user?.id;
+        }
+        
+        const comments = await PowerRankingService.getCurrentWeekCommentsWithLikes(userId);
         const response: GetCommentsResponse = { 
             comments: comments.map(c => ({
                 id: c.id,
                 comment: c.comment!,
                 rank: c.rank,
+                likeCount: c.likeCount,
+                userLiked: c.userLiked,
                 team: {
                     id: c.team.id,
                     teamName: c.team.teamName,
@@ -280,6 +324,153 @@ router.get('/power-rankings/comments', async (req: Request, res: Response<GetCom
     } catch (err) {
         console.error(err);
         const errorResponse: ErrorResponse = { error: 'An error occurred while retrieving comments' };
+        res.status(500).json(errorResponse);
+    }
+});
+
+// POST /api/power-rankings/comments/like - Like a comment
+router.post('/power-rankings/comments/like', async (req: Request<{}, LikeCommentResponse | ErrorResponse, LikeCommentRequest>, res: Response<LikeCommentResponse | ErrorResponse>) => {
+    try {
+        const { commentId, username } = req.body;
+        
+        if (!commentId || !username) {
+            const errorResponse: ErrorResponse = { error: 'Comment ID and username are required' };
+            res.status(400).json(errorResponse);
+            return;
+        }
+
+        // Get user ID from username
+        const authService = new AuthService();
+        const user = await authService.getUserByUsername(username);
+        
+        if (!user) {
+            const errorResponse: ErrorResponse = { error: 'Invalid username' };
+            res.status(400).json(errorResponse);
+            return;
+        }
+
+        console.log(`User ${username} liking comment ${commentId}`);
+        
+        await PowerRankingService.likeComment(commentId, user.id);
+        
+        // Get updated like count and status
+        const comments = await PowerRankingService.getCurrentWeekCommentsWithLikes(user.id);
+        const comment = comments.find(c => c.id === commentId);
+        
+        if (!comment) {
+            const errorResponse: ErrorResponse = { error: 'Comment not found' };
+            res.status(404).json(errorResponse);
+            return;
+        }
+
+        const response: LikeCommentResponse = {
+            message: 'Comment liked successfully',
+            likeCount: comment.likeCount,
+            userLiked: comment.userLiked
+        };
+        res.json(response);
+    } catch (err) {
+        console.error(err);
+        if (err instanceof Error) {
+            const errorResponse: ErrorResponse = { error: err.message };
+            res.status(400).json(errorResponse);
+        } else {
+            const errorResponse: ErrorResponse = { error: 'An error occurred while liking the comment' };
+            res.status(500).json(errorResponse);
+        }
+    }
+});
+
+// POST /api/power-rankings/comments/unlike - Unlike a comment
+router.post('/power-rankings/comments/unlike', async (req: Request<{}, LikeCommentResponse | ErrorResponse, LikeCommentRequest>, res: Response<LikeCommentResponse | ErrorResponse>) => {
+    try {
+        const { commentId, username } = req.body;
+        
+        if (!commentId || !username) {
+            const errorResponse: ErrorResponse = { error: 'Comment ID and username are required' };
+            res.status(400).json(errorResponse);
+            return;
+        }
+
+        // Get user ID from username
+        const authService = new AuthService();
+        const user = await authService.getUserByUsername(username);
+        
+        if (!user) {
+            const errorResponse: ErrorResponse = { error: 'Invalid username' };
+            res.status(400).json(errorResponse);
+            return;
+        }
+
+        console.log(`User ${username} unliking comment ${commentId}`);
+        
+        await PowerRankingService.unlikeComment(commentId, user.id);
+        
+        // Get updated like count and status
+        const comments = await PowerRankingService.getCurrentWeekCommentsWithLikes(user.id);
+        const comment = comments.find(c => c.id === commentId);
+        
+        if (!comment) {
+            const errorResponse: ErrorResponse = { error: 'Comment not found' };
+            res.status(404).json(errorResponse);
+            return;
+        }
+
+        const response: LikeCommentResponse = {
+            message: 'Comment unliked successfully',
+            likeCount: comment.likeCount,
+            userLiked: comment.userLiked
+        };
+        res.json(response);
+    } catch (err) {
+        console.error(err);
+        if (err instanceof Error) {
+            const errorResponse: ErrorResponse = { error: err.message };
+            res.status(400).json(errorResponse);
+        } else {
+            const errorResponse: ErrorResponse = { error: 'An error occurred while unliking the comment' };
+            res.status(500).json(errorResponse);
+        }
+    }
+});
+
+// GET /api/power-rankings/top-comments - Get top 3 most liked comments
+router.get('/power-rankings/top-comments', async (req: Request<{}, GetTopCommentsResponse | ErrorResponse, {}, { username?: string }>, res: Response<GetTopCommentsResponse | ErrorResponse>) => {
+    try {
+        console.log("Received request for /power-rankings/top-comments");
+        const { username } = req.query;
+        
+        let userId: string | undefined;
+        if (username) {
+            const authService = new AuthService();
+            const user = await authService.getUserByUsername(username);
+            userId = user?.id;
+        }
+        
+        const topComments = await PowerRankingService.getTopComments(userId);
+        const response: GetTopCommentsResponse = { 
+            topComments: topComments.map(c => ({
+                id: c.id,
+                comment: c.comment!,
+                rank: c.rank,
+                likeCount: c.likeCount,
+                userLiked: c.userLiked,
+                team: {
+                    id: c.team.id,
+                    teamName: c.team.teamName,
+                    ownerName: c.team.ownerName,
+                    teamLogo: c.team.teamLogo
+                },
+                user: {
+                    id: c.user.id,
+                    name: c.user.username
+                }
+            }))
+        };
+        res.json(response);
+    } catch (err) {
+        console.error(err);
+        const errorResponse: ErrorResponse = { error: 'An error occurred while retrieving top comments' };
         res.status(500).json(errorResponse);
     }
 });

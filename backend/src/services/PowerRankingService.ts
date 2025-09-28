@@ -3,6 +3,7 @@ import { PowerRankingEntity } from '../database/entities/PowerRankingEntity';
 import { TeamEntity } from '../database/entities/TeamEntity';
 import { UserEntity } from '../database/entities/UserEntity';
 import { CurrentWeekEntity } from '../database/entities/CurrentWeekEntity';
+import { CommentLikeEntity } from '../database/entities/CommentLikeEntity';
 
 export interface TeamRankingData {
     team: TeamEntity;
@@ -258,5 +259,149 @@ export class PowerRankingService {
             .andWhere('ranking.comment IS NOT NULL')
             .andWhere('ranking.comment != :empty', { empty: '' })
             .getMany();
+    }
+
+    /**
+     * Get all comments from the current week's rankings with like information
+     */
+    static async getCurrentWeekCommentsWithLikes(userId?: string): Promise<Array<PowerRankingEntity & { likeCount: number; userLiked: boolean }>> {
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const likeRepository = getRepository(CommentLikeEntity);
+        const week = await this.getCurrentWeekNumber();
+
+        const comments = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.team', 'team')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .where('ranking.week = :week', { week })
+            .andWhere('ranking.comment IS NOT NULL')
+            .andWhere('ranking.comment != :empty', { empty: '' })
+            .getMany();
+
+        // Get like counts and user like status for each comment
+        const commentsWithLikes = await Promise.all(comments.map(async (comment) => {
+            const likeCount = await likeRepository
+                .createQueryBuilder('like')
+                .where('like.comment = :commentId', { commentId: comment.id })
+                .getCount();
+
+            let userLiked = false;
+            if (userId) {
+                const userLike = await likeRepository
+                    .createQueryBuilder('like')
+                    .where('like.comment = :commentId', { commentId: comment.id })
+                    .andWhere('like.user = :userId', { userId })
+                    .getOne();
+                userLiked = !!userLike;
+            }
+
+            return {
+                ...comment,
+                likeCount,
+                userLiked
+            };
+        }));
+
+        return commentsWithLikes;
+    }
+
+    /**
+     * Like a comment
+     */
+    static async likeComment(commentId: number, userId: string): Promise<void> {
+        const likeRepository = getRepository(CommentLikeEntity);
+        const rankingRepository = getRepository(PowerRankingEntity);
+
+        // Check if comment exists
+        const comment = await rankingRepository.findOne({ where: { id: commentId } });
+        if (!comment) {
+            throw new Error('Comment not found');
+        }
+
+        // Check if user already liked this comment
+        const existingLike = await likeRepository
+            .createQueryBuilder('like')
+            .where('like.comment = :commentId', { commentId })
+            .andWhere('like.user = :userId', { userId })
+            .getOne();
+
+        if (existingLike) {
+            throw new Error('You have already liked this comment');
+        }
+
+        // Create new like
+        const like = new CommentLikeEntity();
+        like.comment = comment;
+        like.user = { id: userId } as UserEntity;
+        
+        await likeRepository.save(like);
+    }
+
+    /**
+     * Unlike a comment
+     */
+    static async unlikeComment(commentId: number, userId: string): Promise<void> {
+        const likeRepository = getRepository(CommentLikeEntity);
+
+        // Find and delete the like
+        const like = await likeRepository
+            .createQueryBuilder('like')
+            .where('like.comment = :commentId', { commentId })
+            .andWhere('like.user = :userId', { userId })
+            .getOne();
+
+        if (!like) {
+            throw new Error('Like not found');
+        }
+
+        await likeRepository.remove(like);
+    }
+
+    /**
+     * Get top 3 most liked comments from the current week
+     */
+    static async getTopComments(userId?: string): Promise<Array<PowerRankingEntity & { likeCount: number; userLiked: boolean }>> {
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const likeRepository = getRepository(CommentLikeEntity);
+        const week = await this.getCurrentWeekNumber();
+
+        // Get all comments with their like counts
+        const comments = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.team', 'team')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .where('ranking.week = :week', { week })
+            .andWhere('ranking.comment IS NOT NULL')
+            .andWhere('ranking.comment != :empty', { empty: '' })
+            .getMany();
+
+        // Get like counts and user like status for each comment
+        const commentsWithLikes = await Promise.all(comments.map(async (comment) => {
+            const likeCount = await likeRepository
+                .createQueryBuilder('like')
+                .where('like.comment = :commentId', { commentId: comment.id })
+                .getCount();
+
+            let userLiked = false;
+            if (userId) {
+                const userLike = await likeRepository
+                    .createQueryBuilder('like')
+                    .where('like.comment = :commentId', { commentId: comment.id })
+                    .andWhere('like.user = :userId', { userId })
+                    .getOne();
+                userLiked = !!userLike;
+            }
+
+            return {
+                ...comment,
+                likeCount,
+                userLiked
+            };
+        }));
+
+        // Sort by like count (descending) and take top 3
+        return commentsWithLikes
+            .sort((a, b) => b.likeCount - a.likeCount)
+            .slice(0, 3);
     }
 }

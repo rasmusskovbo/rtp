@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Card, Button, Spinner } from 'react-bootstrap';
 import axios from 'axios';
+import { AuthContext } from '@/auth/AuthProvider';
+import HeartIcon from './HeartIcon';
 
 interface Comment {
   id: number;
   comment: string;
   rank: number;
+  likeCount: number;
+  userLiked: boolean;
   team: {
     id: number;
     teamName: string;
@@ -23,12 +27,15 @@ interface RandomCommentsProps {
 }
 
 const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
+  const authContext = useContext(AuthContext);
+  const { loggedInUser } = authContext;
   const [allComments, setAllComments] = useState<Comment[]>([]);
   const [displayedComments, setDisplayedComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [visibleComments, setVisibleComments] = useState<Set<number>>(new Set());
   const [dismissedComments, setDismissedComments] = useState<Set<number>>(new Set());
+  const [likingComments, setLikingComments] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -36,7 +43,11 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
         setLoading(true);
         setError(null);
         
-        const response = await axios.get(`${process.env.API_URL}/api/power-rankings/comments`);
+        const url = loggedInUser 
+          ? `${process.env.API_URL}/api/power-rankings/comments?username=${loggedInUser.name}`
+          : `${process.env.API_URL}/api/power-rankings/comments`;
+        
+        const response = await axios.get(url);
         
         if (response.data?.comments && Array.isArray(response.data.comments)) {
           const fetchedComments = response.data.comments;
@@ -72,7 +83,7 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
     };
 
     fetchComments();
-  }, []);
+  }, [loggedInUser]);
 
   const handleDismiss = (commentId: number) => {
     setDismissedComments(prev => {
@@ -120,6 +131,50 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
     return rank + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
   };
 
+  const handleLike = async (commentId: number) => {
+    if (!loggedInUser) {
+      return; // Don't allow liking if not logged in
+    }
+
+    setLikingComments(prev => {
+      const newSet = new Set(prev);
+      newSet.add(commentId);
+      return newSet;
+    });
+
+    try {
+      const comment = displayedComments.find(c => c.id === commentId);
+      if (!comment) return;
+
+      const endpoint = comment.userLiked ? 'unlike' : 'like';
+      const response = await axios.post(`${process.env.API_URL}/api/power-rankings/comments/${endpoint}`, {
+        commentId,
+        username: loggedInUser.name
+      });
+
+      if (response.data) {
+        // Update the comment in both displayed and all comments
+        const updateComment = (comments: Comment[]) => 
+          comments.map(c => 
+            c.id === commentId 
+              ? { ...c, likeCount: response.data.likeCount, userLiked: response.data.userLiked }
+              : c
+          );
+
+        setDisplayedComments(updateComment);
+        setAllComments(updateComment);
+      }
+    } catch (error) {
+      console.error('Error liking comment:', error);
+    } finally {
+      setLikingComments(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(commentId);
+        return newSet;
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className={`text-center ${className}`}>
@@ -147,7 +202,19 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
           padding: 0 10px;
         }
         
-        @media (max-width: 768px) {
+        @media (min-width: 900px) {
+          .comments-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+        
+        @media (max-width: 899px) and (min-width: 600px) {
+          .comments-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        
+        @media (max-width: 599px) {
           .comments-grid {
             grid-template-columns: 1fr;
             gap: 12px;
@@ -187,7 +254,8 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
                 position: 'relative',
                 overflow: 'hidden',
                 minHeight: '120px',
-                width: '100%'
+                width: '100%',
+                paddingBottom: '40px' // Add space for the heart icon
               }}
             >
               <Card.Body style={{ padding: '12px' }}>
@@ -256,6 +324,33 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
                   overflowWrap: 'break-word'
                 }}>
                   &ldquo;{comment.comment}&rdquo;
+                </div>
+                
+                {/* Heart icon positioned absolutely at bottom right */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  right: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  zIndex: 10
+                }}>
+                  <HeartIcon
+                    isLiked={comment.userLiked}
+                    onClick={() => handleLike(comment.id)}
+                    size={16}
+                    className={likingComments.has(comment.id) ? 'liking' : ''}
+                  />
+                  {comment.likeCount > 0 && (
+                    <span style={{ 
+                      fontSize: '12px', 
+                      color: '#FF69B4', 
+                      marginLeft: '4px',
+                      fontWeight: 'bold'
+                    }}>
+                      {comment.likeCount}
+                    </span>
+                  )}
                 </div>
               </Card.Body>
             </Card>
