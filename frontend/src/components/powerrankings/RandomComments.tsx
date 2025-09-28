@@ -23,7 +23,8 @@ interface RandomCommentsProps {
 }
 
 const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [allComments, setAllComments] = useState<Comment[]>([]);
+  const [displayedComments, setDisplayedComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [visibleComments, setVisibleComments] = useState<Set<number>>(new Set());
@@ -38,13 +39,16 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
         const response = await axios.get(`${process.env.API_URL}/api/power-rankings/comments`);
         
         if (response.data?.comments && Array.isArray(response.data.comments)) {
-          const allComments = response.data.comments;
+          const fetchedComments = response.data.comments;
           
-          // Select 5 random comments
-          const shuffled = [...allComments].sort(() => 0.5 - Math.random());
-          const selectedComments = shuffled.slice(0, 5);
+          // Store all comments for potential replacement
+          setAllComments(fetchedComments);
           
-          setComments(selectedComments);
+          // Select 6 random comments
+          const shuffled = [...fetchedComments].sort(() => 0.5 - Math.random());
+          const selectedComments = shuffled.slice(0, 6);
+          
+          setDisplayedComments(selectedComments);
           
           // Show comments one by one with delays
           selectedComments.forEach((comment, index) => {
@@ -76,6 +80,38 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
       newSet.add(commentId);
       return newSet;
     });
+
+    // Find a replacement comment
+    const currentlyDisplayedIds = displayedComments.map(c => c.id);
+    const dismissedIds = Array.from(dismissedComments);
+    const allDismissedIds = [...dismissedIds, commentId];
+    
+    // Get comments that are not currently displayed and not dismissed
+    const availableComments = allComments.filter(c => 
+      !currentlyDisplayedIds.includes(c.id) && !allDismissedIds.includes(c.id)
+    );
+
+    if (availableComments.length > 0) {
+      // Select a random replacement comment
+      const randomIndex = Math.floor(Math.random() * availableComments.length);
+      const replacementComment = availableComments[randomIndex];
+      
+      // Replace the dismissed comment with the new one
+      setDisplayedComments(prev => 
+        prev.map(comment => 
+          comment.id === commentId ? replacementComment : comment
+        )
+      );
+
+      // Show the new comment with animation
+      setTimeout(() => {
+        setVisibleComments(prev => {
+          const newSet = new Set(prev);
+          newSet.add(replacementComment.id);
+          return newSet;
+        });
+      }, 100); // Small delay for smooth transition
+    }
   };
 
   const getRankText = (rank: number) => {
@@ -95,7 +131,7 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
     );
   }
 
-  if (error || comments.length === 0) {
+  if (error || displayedComments.length === 0) {
     return null; // Don't show anything if no comments or error
   }
 
@@ -113,7 +149,7 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
         maxWidth: '1200px',
         margin: '0 auto'
       }}>
-        {comments.map((comment) => {
+        {displayedComments.map((comment) => {
           const isVisible = visibleComments.has(comment.id);
           const isDismissed = dismissedComments.has(comment.id);
           
@@ -150,8 +186,7 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
                         {comment.user.name}
                       </strong>
                       <div style={{ fontSize: '14px', color: '#6c757d' }}>
-                        ranked {comment.team.teamName}{' '}
-                        <span style={{ 
+                        ranked {comment.team.teamName} <span style={{ 
                           fontWeight: 'bold',
                           color: comment.rank <= 3 ? '#FFD700' : comment.rank >= 10 ? '#FF69B4' : '#6c757d'
                         }}>
@@ -160,20 +195,32 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
                       </div>
                     </div>
                   </div>
-                  <Button
-                    variant="outline-secondary"
-                    size="sm"
-                    onClick={() => handleDismiss(comment.id)}
-                    style={{
-                      padding: '2px 6px',
-                      fontSize: '12px',
-                      border: 'none',
-                      color: '#6c757d'
-                    }}
-                    title="Dismiss comment"
-                  >
-                    ×
-                  </Button>
+                  <div className="d-flex align-items-center">
+                    <img 
+                      src={comment.team.teamLogo} 
+                      alt={comment.team.teamName}
+                      style={{ 
+                        width: '30px', 
+                        height: '30px', 
+                        marginRight: '8px',
+                        borderRadius: '6px'
+                      }}
+                    />
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      onClick={() => handleDismiss(comment.id)}
+                      style={{
+                        padding: '2px 6px',
+                        fontSize: '12px',
+                        border: 'none',
+                        color: '#6c757d'
+                      }}
+                      title="Dismiss comment"
+                    >
+                      ×
+                    </Button>
+                  </div>
                 </div>
                 
                 <div style={{ 
@@ -193,7 +240,7 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
       
       <div className="text-center mt-3">
         <small className="text-muted" style={{ fontFamily: 'sans-serif' }}>
-          Click × to dismiss comments
+          Click × to dismiss and refresh comments
         </small>
       </div>
     </div>
