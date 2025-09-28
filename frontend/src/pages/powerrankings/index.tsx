@@ -405,27 +405,6 @@ const PowerRankingsPage: NextPage = () => {
               </Row>
             </Container>
             
-            {/* Random Trophies Section */}
-            <Container className="px-4 px-lg-5">
-              <Row className="gx-4 gx-lg-5 justify-content-center">
-                <Col xs={12}>
-                  {trophiesLoading ? (
-                    <div className="text-center">
-                      <Spinner animation="border" role="status" size="sm">
-                        <span className="visually-hidden">Loading featured trophies...</span>
-                      </Spinner>
-                    </div>
-                  ) : trophiesError ? (
-                    <div className="text-center">
-                      <small className="text-muted">Featured trophies unavailable</small>
-                    </div>
-                  ) : (
-                    <RandomTrophies trophies={trophies} />
-                  )}
-                </Col>
-              </Row>
-            </Container>
-
             {/* Random Comments Section */}
             <Container className="px-4 px-lg-5">
               <Row className="gx-4 gx-lg-5 justify-content-center">
@@ -456,12 +435,23 @@ const PowerRankingsPage: NextPage = () => {
                   </Row>
                 </Container>
 
-                <Container fluid className="px-4 px-lg-5">
+                {/* Featured Trophies Section */}
+                <Container className="px-4 px-lg-5">
                   <Row className="gx-4 gx-lg-5 justify-content-center">
                     <Col xs={12}>
-                      <div style={{ width: '90vw', maxWidth: '100%', margin: '0 auto' }}>
-                        {renderTrendChart()}
-                      </div>
+                      {trophiesLoading ? (
+                        <div className="text-center">
+                          <Spinner animation="border" role="status" size="sm">
+                            <span className="visually-hidden">Loading featured trophies...</span>
+                          </Spinner>
+                        </div>
+                      ) : trophiesError ? (
+                        <div className="text-center">
+                          <small className="text-muted">Featured trophies unavailable</small>
+                        </div>
+                      ) : (
+                        <RandomTrophies trophies={trophies} />
+                      )}
                     </Col>
                   </Row>
                 </Container>
@@ -486,6 +476,16 @@ const PowerRankingsPage: NextPage = () => {
                       ) : (
                         <PowerRankingTrophies trophies={trophies} />
                       )}
+                    </Col>
+                  </Row>
+                </Container>
+
+                <Container fluid className="px-4 px-lg-5">
+                  <Row className="gx-4 gx-lg-5 justify-content-center">
+                    <Col xs={12}>
+                      <div style={{ width: '90vw', maxWidth: '100%', margin: '0 auto' }}>
+                        {renderTrendChart()}
+                      </div>
                     </Col>
                   </Row>
                 </Container>
