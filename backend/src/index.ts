@@ -19,6 +19,7 @@ import picksRoute from "./routes/PicksRoute";
 import devRoute from "./routes/DevRoute";
 import videoProxyRoute from "./routes/VideoProxyRoute";
 import powerRankingRoute from "./routes/PowerRankingRoute";
+import articleRoute from "./routes/ArticleRoute";
 import * as process from "process";
 
 const app = express();
@@ -55,6 +56,7 @@ connectToDb().then(() => {
     app.use('/dev', devRoute)
     app.use('/api', videoProxyRoute)
     app.use('/api', powerRankingRoute)
+    app.use('/api/articles', articleRoute)
 
     const port = process.env.PORT || 4000;
     app.listen(port, () => {

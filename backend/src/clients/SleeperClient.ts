@@ -36,3 +36,33 @@ export async function getMatchupsByWeek(week: number): Promise<SleeperMatchupMod
     const response = await axios.get<SleeperMatchupModel[]>(url);
     return response.data;
 }
+
+export async function getLeagueInfo(): Promise<any> {
+    const url: string = `${BASEURL_SLEEPER}league/${SLEEPER_LEAGUE_ID}`;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+export async function getLeagueUsers(): Promise<any[]> {
+    const url: string = `${BASEURL_SLEEPER}league/${SLEEPER_LEAGUE_ID}/users`;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+export async function getLeagueTransactions(week?: number): Promise<any[]> {
+    const url: string = `${BASEURL_SLEEPER}league/${SLEEPER_LEAGUE_ID}/transactions${week ? `/${week}` : ''}`;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+export async function getPlayerStats(season: string, week: number): Promise<any> {
+    const url: string = `${BASEURL_SLEEPER}stats/nfl/${season}/${week}`;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+export async function getPlayerProjections(season: string, week: number): Promise<any> {
+    const url: string = `${BASEURL_SLEEPER}projections/nfl/${season}/${week}`;
+    const response = await axios.get(url);
+    return response.data;
+}
