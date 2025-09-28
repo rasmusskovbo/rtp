@@ -150,6 +150,11 @@ router.post('/power-rankings/submit', async (req: Request<{}, SubmitRankingsResp
                 res.status(400).json(errorResponse);
                 return;
             }
+            if (ranking.comment && ranking.comment.length > 300) {
+                const errorResponse: ErrorResponse = { error: 'Comments must be 300 characters or less' };
+                res.status(400).json(errorResponse);
+                return;
+            }
         }
 
         // Get user ID from username

@@ -4,7 +4,7 @@ import Layout from '@/components/global/Layout';
 import RoadToPinkHead from '@/components/global/RoadToPinkHead';
 import Header from '@/components/global/Header';
 import { AuthContext } from '@/auth/AuthProvider';
-import { Container, Row, Col, Button, Table, Figure, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Button, Table, Figure, Spinner, Form } from 'react-bootstrap';
 import LoginPopup from '@/components/upload/LoginPopup';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
@@ -27,7 +27,11 @@ const PowerRankingsInputPage: NextPage = () => {
     team: Team;
   };
 
-  const [teamsOrder, setTeamsOrder] = useState<Team[]>([]);
+  type TeamWithComment = Team & {
+    comment?: string;
+  };
+
+  const [teamsOrder, setTeamsOrder] = useState<TeamWithComment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
@@ -74,11 +78,12 @@ const PowerRankingsInputPage: NextPage = () => {
         setLoading(true);
         const { data } = await axios.get(`${process.env.API_URL}/api/power-rankings`);
         const rankings: TeamRankingData[] = Array.isArray(data?.rankings) ? data.rankings : [];
-        const teams: Team[] = rankings.map((r) => ({
+        const teams: TeamWithComment[] = rankings.map((r) => ({
           id: r.team.id,
           teamName: r.team.teamName,
           ownerName: r.team.ownerName,
           teamLogo: r.team.teamLogo,
+          comment: '',
         }));
         setTeamsOrder(teams);
       } catch (error) {
@@ -166,6 +171,15 @@ const PowerRankingsInputPage: NextPage = () => {
     });
   };
 
+  const handleCommentChange = (index: number, comment: string) => {
+    if (comment.length > 300) return; // Prevent exceeding character limit
+    setTeamsOrder((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], comment };
+      return updated;
+    });
+  };
+
   const handleSubmit = async () => {
     if (!loggedInUser) {
       toast.info('Please log in to submit.', { position: toast.POSITION.TOP_RIGHT });
@@ -180,7 +194,11 @@ const PowerRankingsInputPage: NextPage = () => {
       setSubmitting(true);
       const payload = {
         username: loggedInUser.name,
-        rankings: teamsOrder.map((team, idx) => ({ teamId: team.id, rank: idx + 1 })),
+        rankings: teamsOrder.map((team, idx) => ({ 
+          teamId: team.id, 
+          rank: idx + 1,
+          comment: team.comment || undefined
+        })),
       };
       await axios.post(`${process.env.API_URL}/api/power-rankings/submit`, payload);
       toast.success('Rankings submitted successfully!');
@@ -216,7 +234,7 @@ const PowerRankingsInputPage: NextPage = () => {
         {loggedInUser ? (
           <Container className="px-4 px-lg-5">
             <Row className="gx-4 gx-lg-5 justify-content-center">
-              <Col sm={12} md={10} lg={8}>
+              <Col sm={12} md={12} lg={12}>
                 {loading ? (
                   <div className="text-center">
                     <Spinner animation="border" role="status">
@@ -248,6 +266,7 @@ const PowerRankingsInputPage: NextPage = () => {
                           <th scope="col">Team Logo</th>
                           <th scope="col">Team Name</th>
                           <th scope="col">Owner</th>
+                          <th scope="col">Comment (Optional)</th>
                           {isTouchDevice && <th scope="col">Actions</th>}
                         </tr>
                       </thead>
@@ -275,19 +294,35 @@ const PowerRankingsInputPage: NextPage = () => {
                               title={isTouchDevice ? undefined : 'Drag to reorder'}
                             >
                               <td className="v-center"><strong>{index + 1}</strong></td>
-                              <td>
-                                <Figure id="avatar" className="mb-0">
-                                  <Figure.Image
-                                    width={32}
-                                    height={32}
-                                    alt={team.teamName}
-                                    src={team.teamLogo}
-                                    rounded
-                                  />
-                                </Figure>
+                              <td className="text-center v-center">
+                                <div className="d-flex justify-content-center align-items-center">
+                                  <Figure id="avatar" className="mb-0">
+                                    <Figure.Image
+                                      width={160}
+                                      height={160}
+                                      alt={team.teamName}
+                                      src={team.teamLogo}
+                                      rounded
+                                    />
+                                  </Figure>
+                                </div>
                               </td>
                               <td className="v-center"><strong>{team.teamName}</strong></td>
                               <td className="v-center">{team.ownerName}</td>
+                              <td className="v-center">
+                                <Form.Control
+                                  as="textarea"
+                                  rows={2}
+                                  placeholder="Add a comment (optional)"
+                                  value={team.comment || ''}
+                                  onChange={(e) => handleCommentChange(index, e.target.value)}
+                                  maxLength={300}
+                                  style={{ fontSize: '0.875rem', minWidth: '200px' }}
+                                />
+                                <small className="text-muted">
+                                  {team.comment?.length || 0}/300 characters
+                                </small>
+                              </td>
                               {isTouchDevice && (
                                 <td className="v-center">
                                   <div className="d-flex justify-content-center gap-2">
