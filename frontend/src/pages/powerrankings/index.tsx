@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import PowerRankingsTable from '@/components/tables/PowerRankingsTable';
 import PowerRankingTrophies from '@/components/tables/PowerRankingTrophies';
+import RandomTrophies from '@/components/tables/RandomTrophies';
 import { PowerRankingsProps, TrophyData } from '@/components/tables/RtpStatsTypes';
 
 // Import team logos
@@ -402,6 +403,26 @@ const PowerRankingsPage: NextPage = () => {
               </Row>
             </Container>
             
+            {/* Random Trophies Section */}
+            <Container className="px-4 px-lg-5">
+              <Row className="gx-4 gx-lg-5 justify-content-center">
+                <Col xs={12}>
+                  {trophiesLoading ? (
+                    <div className="text-center">
+                      <Spinner animation="border" role="status" size="sm">
+                        <span className="visually-hidden">Loading featured trophies...</span>
+                      </Spinner>
+                    </div>
+                  ) : trophiesError ? (
+                    <div className="text-center">
+                      <small className="text-muted">Featured trophies unavailable</small>
+                    </div>
+                  ) : (
+                    <RandomTrophies trophies={trophies} />
+                  )}
+                </Col>
+              </Row>
+            </Container>
             
             {rankings.length > 0 ? (
               <>
