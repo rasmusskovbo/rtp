@@ -3,8 +3,12 @@ import { TrophyData, TrophiesProps } from './RtpStatsTypes';
 import { Card, Row, Col, Badge } from 'react-bootstrap';
 
 const PowerRankingTrophies: React.FC<TrophiesProps> = ({ trophies }) => {
-    // Group trophies by category
-    const groupedTrophies = trophies.reduce((acc, trophy) => {
+    // Filter out the top 5 trophies that are displayed separately
+    const topTrophyIds = ['biggest-homie', 'realist', 'biggest-drop', 'biggest-rise', 'consensus-builder'];
+    const filteredTrophies = trophies.filter(trophy => !topTrophyIds.includes(trophy.id));
+    
+    // Group remaining trophies by category
+    const groupedTrophies = filteredTrophies.reduce((acc, trophy) => {
         if (!acc[trophy.category]) {
             acc[trophy.category] = [];
         }

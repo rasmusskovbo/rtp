@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import PowerRankingsTable from '@/components/tables/PowerRankingsTable';
 import PowerRankingTrophies from '@/components/tables/PowerRankingTrophies';
+import TopTrophies from '@/components/tables/TopTrophies';
 import { PowerRankingsProps, TrophyData } from '@/components/tables/RtpStatsTypes';
 
 // Import team logos
@@ -398,6 +399,30 @@ const PowerRankingsPage: NextPage = () => {
                   <Button variant="primary" onClick={handleAddClick} disabled={checking}>
                     {checking ? 'Checking...' : 'Add Power Rankings'}
                   </Button>
+                </Col>
+              </Row>
+            </Container>
+            
+            {/* Top Trophies Section */}
+            <Container fluid className="px-4 px-lg-5">
+              <Row className="gx-4 gx-lg-5 justify-content-center">
+                <Col xs={12} lg={10} xl={11}>
+                  {trophiesLoading ? (
+                    <div className="text-center">
+                      <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading trophies...</span>
+                      </Spinner>
+                      <p className="mt-2">Loading trophies...</p>
+                    </div>
+                  ) : trophiesError ? (
+                    <div className="text-center">
+                      <div className="alert alert-warning" role="alert">
+                        {trophiesError}
+                      </div>
+                    </div>
+                  ) : (
+                    <TopTrophies trophies={trophies} />
+                  )}
                 </Col>
               </Row>
             </Container>
