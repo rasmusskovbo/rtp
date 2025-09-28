@@ -42,6 +42,24 @@ export interface GetTrophiesResponse {
     trophies: TrophyData[];
 }
 
+export interface GetCommentsResponse {
+    comments: Array<{
+        id: number;
+        comment: string;
+        rank: number;
+        team: {
+            id: number;
+            teamName: string;
+            ownerName: string;
+            teamLogo: string;
+        };
+        user: {
+            id: string;
+            name: string;
+        };
+    }>;
+}
+
 export interface ErrorResponse {
     error: string;
 }
@@ -232,6 +250,36 @@ router.get('/power-rankings/trophies', async (req: Request, res: Response<GetTro
     } catch (err) {
         console.error(err);
         const errorResponse: ErrorResponse = { error: 'An error occurred while retrieving trophy data' };
+        res.status(500).json(errorResponse);
+    }
+});
+
+// GET /api/power-rankings/comments - Get all comments from current week
+router.get('/power-rankings/comments', async (req: Request, res: Response<GetCommentsResponse | ErrorResponse>) => {
+    try {
+        console.log("Received request for /power-rankings/comments");
+        const comments = await PowerRankingService.getCurrentWeekComments();
+        const response: GetCommentsResponse = { 
+            comments: comments.map(c => ({
+                id: c.id,
+                comment: c.comment!,
+                rank: c.rank,
+                team: {
+                    id: c.team.id,
+                    teamName: c.team.teamName,
+                    ownerName: c.team.ownerName,
+                    teamLogo: c.team.teamLogo
+                },
+                user: {
+                    id: c.user.id,
+                    name: c.user.username
+                }
+            }))
+        };
+        res.json(response);
+    } catch (err) {
+        console.error(err);
+        const errorResponse: ErrorResponse = { error: 'An error occurred while retrieving comments' };
         res.status(500).json(errorResponse);
     }
 });

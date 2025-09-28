@@ -242,4 +242,21 @@ export class PowerRankingService {
         const week = await this.getCurrentWeekNumber();
         return this.getUserRankingsForWeek(userId, week);
     }
+
+    /**
+     * Get all comments from the current week's rankings
+     */
+    static async getCurrentWeekComments(): Promise<PowerRankingEntity[]> {
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const week = await this.getCurrentWeekNumber();
+
+        return await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.team', 'team')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .where('ranking.week = :week', { week })
+            .andWhere('ranking.comment IS NOT NULL')
+            .andWhere('ranking.comment != :empty', { empty: '' })
+            .getMany();
+    }
 }

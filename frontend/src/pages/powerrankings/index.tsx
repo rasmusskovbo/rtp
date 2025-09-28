@@ -12,6 +12,7 @@ import axios from 'axios';
 import PowerRankingsTable from '@/components/tables/PowerRankingsTable';
 import PowerRankingTrophies from '@/components/tables/PowerRankingTrophies';
 import RandomTrophies from '@/components/tables/RandomTrophies';
+import RandomComments from '@/components/powerrankings/RandomComments';
 import { PowerRankingsProps, TrophyData } from '@/components/tables/RtpStatsTypes';
 
 // Import team logos
@@ -420,6 +421,15 @@ const PowerRankingsPage: NextPage = () => {
                   ) : (
                     <RandomTrophies trophies={trophies} />
                   )}
+                </Col>
+              </Row>
+            </Container>
+
+            {/* Random Comments Section */}
+            <Container className="px-4 px-lg-5">
+              <Row className="gx-4 gx-lg-5 justify-content-center">
+                <Col xs={12}>
+                  <RandomComments />
                 </Col>
               </Row>
             </Container>
