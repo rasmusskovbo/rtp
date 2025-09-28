@@ -92,7 +92,7 @@ const Home: React.FC = () => {
                         </Col>
                         
                         {/* Vertical Divider */}
-                        <Col xs={12} lg={1} className="d-flex justify-content-center align-items-start pt-5">
+                        <Col lg={1} className="d-none d-lg-flex justify-content-center align-items-start pt-5">
                             <div style={{ 
                                 width: '2px', 
                                 height: '400px', 
