@@ -125,6 +125,29 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
     }
   };
 
+  const handleRefreshAll = () => {
+    // Clear all dismissed comments and visible comments
+    setDismissedComments(new Set());
+    setVisibleComments(new Set());
+    
+    // Select 6 new random comments from all available comments
+    const shuffled = [...allComments].sort(() => 0.5 - Math.random());
+    const selectedComments = shuffled.slice(0, 6);
+    
+    setDisplayedComments(selectedComments);
+    
+    // Show comments one by one with delays
+    selectedComments.forEach((comment, index) => {
+      setTimeout(() => {
+        setVisibleComments(prev => {
+          const newSet = new Set(prev);
+          newSet.add(comment.id);
+          return newSet;
+        });
+      }, index * 500); // 500ms delay between each comment
+    });
+  };
+
   const getRankText = (rank: number) => {
     const suffixes = ['th', 'st', 'nd', 'rd'];
     const v = rank % 100;
@@ -362,6 +385,20 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
         <small className="text-muted" style={{ fontFamily: 'sans-serif' }}>
           Click × to dismiss and refresh comments
         </small>
+        <div className="mt-2">
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={handleRefreshAll}
+            style={{
+              fontSize: '13px',
+              padding: '6px 16px',
+              fontFamily: 'sans-serif'
+            }}
+          >
+            🔄 Refresh All Comments
+          </Button>
+        </div>
       </div>
     </div>
   );
