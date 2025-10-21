@@ -129,6 +129,56 @@ export class PowerRankingTrophyService {
                 category: 'Ranking Behavior',
                 winner: await this.getHater(allRankings)
             },
+
+            // Activity Trophies
+            {
+                id: 'most-comments',
+                title: 'Most Comments',
+                description: 'User who has submitted the most comments',
+                icon: '💬',
+                category: 'Activity',
+                winner: await this.getMostComments()
+            },
+            {
+                id: 'fewest-comments',
+                title: 'Fewest Comments',
+                description: 'User who has submitted the fewest comments',
+                icon: '🤐',
+                category: 'Activity',
+                winner: await this.getFewestComments()
+            },
+            {
+                id: 'most-submissions',
+                title: 'Most Power Rankings Submitted',
+                description: 'User who has submitted power rankings the most weeks',
+                icon: '📊',
+                category: 'Activity',
+                winner: await this.getMostSubmissions()
+            },
+            {
+                id: 'fewest-submissions',
+                title: 'Fewest Submitted',
+                description: 'User who has submitted power rankings the fewest weeks',
+                icon: '😴',
+                category: 'Activity',
+                winner: await this.getFewestSubmissions()
+            },
+            {
+                id: 'most-likes-received',
+                title: 'Most Likes Received',
+                description: 'User whose comments have received the most likes',
+                icon: '❤️',
+                category: 'Activity',
+                winner: await this.getMostLikesReceived()
+            },
+            {
+                id: 'fewest-likes-received',
+                title: 'Fewest Likes Received',
+                description: 'User whose comments have received the fewest likes',
+                icon: '💔',
+                category: 'Activity',
+                winner: await this.getFewestLikesReceived()
+            },
         ];
 
         return trophies;
@@ -439,46 +489,6 @@ export class PowerRankingTrophyService {
         return winner;
     }
 
-    private static async getDelusionalOptimist(allRankings: PowerRankingEntity[]): Promise<TrophyWinner | null> {
-        const userRankings = this.groupRankingsByUser(allRankings);
-        let maxOptimism = -1;
-        let winner: TrophyWinner | null = null;
-
-        for (const [userId, rankings] of userRankings) {
-            const user = rankings[0].user;
-            const userTeam = await this.getUserTeam(userId);
-            if (!userTeam) continue;
-
-            const ownTeamRanking = rankings.find(r => r.teamId === userTeam.id);
-            if (!ownTeamRanking) continue;
-
-            const otherRankings = allRankings.filter(r => r.teamId === userTeam.id && r.userId !== userId);
-            if (otherRankings.length === 0) continue;
-
-            const averageOtherRanking = otherRankings.reduce((sum, r) => sum + r.rank, 0) / otherRankings.length;
-            const optimism = averageOtherRanking - ownTeamRanking.rank; // Positive means they ranked higher (better)
-
-            if (optimism > maxOptimism) {
-                maxOptimism = optimism;
-                winner = {
-                    userId,
-                    username: user.username,
-                    teamName: userTeam.teamName,
-                    value: Math.round(optimism * 100) / 100,
-                    description: `Ranks own team ${Math.round(ownTeamRanking.rank * 100) / 100} while others rank it ${Math.round(averageOtherRanking * 100) / 100}`
-                };
-            }
-        }
-
-        return winner;
-    }
-
-    private static async getRealityCheck(allRankings: PowerRankingEntity[]): Promise<TrophyWinner | null> {
-        // This would need actual team performance data to calculate accurately
-        // For now, return null as it requires additional data
-        return null;
-    }
-
     // Volatility & Movement Trophies
     private static async getBiggestDrop(allRankings: PowerRankingEntity[], currentWeek: number): Promise<TrophyWinner | null> {
         if (currentWeek <= 1) return null;
@@ -682,56 +692,6 @@ export class PowerRankingTrophyService {
         return winner;
     }
 
-    private static async getExtremeRanker(allRankings: PowerRankingEntity[]): Promise<TrophyWinner | null> {
-        const userRankings = this.groupRankingsByUser(allRankings);
-        let maxVariance = -1;
-        let winner: TrophyWinner | null = null;
-
-        for (const [userId, rankings] of userRankings) {
-            const ranks = rankings.map(r => r.rank);
-            const variance = this.calculateVariance(ranks);
-            const user = rankings[0].user;
-
-            if (variance > maxVariance) {
-                maxVariance = variance;
-                winner = {
-                    userId,
-                    username: user.username,
-                    teamName: await this.getUserTeamName(userId),
-                    value: Math.round(variance * 100) / 100,
-                    description: `Variance of ${Math.round(variance * 100) / 100} in rankings`
-                };
-            }
-        }
-
-        return winner;
-    }
-
-    private static async getSafeRanker(allRankings: PowerRankingEntity[]): Promise<TrophyWinner | null> {
-        const userRankings = this.groupRankingsByUser(allRankings);
-        let minVariance = Infinity;
-        let winner: TrophyWinner | null = null;
-
-        for (const [userId, rankings] of userRankings) {
-            const ranks = rankings.map(r => r.rank);
-            const variance = this.calculateVariance(ranks);
-            const user = rankings[0].user;
-
-            if (variance < minVariance) {
-                minVariance = variance;
-                winner = {
-                    userId,
-                    username: user.username,
-                    teamName: await this.getUserTeamName(userId),
-                    value: Math.round(variance * 100) / 100,
-                    description: `Variance of ${Math.round(variance * 100) / 100} in rankings`
-                };
-            }
-        }
-
-        return winner;
-    }
-
     private static async getHomer(allRankings: PowerRankingEntity[]): Promise<TrophyWinner | null> {
         const rankingRepository = getRepository(PowerRankingEntity);
         const allRankingsAcrossWeeks: PowerRankingEntity[] = await rankingRepository
@@ -906,33 +866,35 @@ export class PowerRankingTrophyService {
         return winner;
     }
 
-    // Statistical Anomaly Trophies
-    private static async getOutlierKing(allRankings: PowerRankingEntity[]): Promise<TrophyWinner | null> {
+    // Activity Trophies
+    private static async getMostComments(): Promise<TrophyWinner | null> {
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const allRankings: PowerRankingEntity[] = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .leftJoinAndSelect('ranking.team', 'team')
+            .where('ranking.comment IS NOT NULL')
+            .andWhere('ranking.comment != :empty', { empty: '' })
+            .getMany();
+
+        if (allRankings.length === 0) return null;
+
         const userRankings = this.groupRankingsByUser(allRankings);
-        let maxOutlier = -1;
+        let maxComments = 0;
         let winner: TrophyWinner | null = null;
 
         for (const [userId, rankings] of userRankings) {
+            const commentCount = rankings.length;
             const user = rankings[0].user;
-            let outlierScore = 0;
 
-            for (const ranking of rankings) {
-                const otherRankings = allRankings.filter(r => r.teamId === ranking.teamId && r.userId !== userId);
-                if (otherRankings.length === 0) continue;
-
-                const averageOtherRanking = otherRankings.reduce((sum, r) => sum + r.rank, 0) / otherRankings.length;
-                const difference = Math.abs(ranking.rank - averageOtherRanking);
-                outlierScore += difference;
-            }
-
-            if (outlierScore > maxOutlier) {
-                maxOutlier = outlierScore;
+            if (commentCount > maxComments) {
+                maxComments = commentCount;
                 winner = {
                     userId,
                     username: user.username,
                     teamName: await this.getUserTeamName(userId),
-                    value: Math.round(outlierScore * 100) / 100,
-                    description: `Total difference of ${Math.round(outlierScore * 100) / 100} from averages`
+                    value: commentCount,
+                    description: `${commentCount} comment${commentCount !== 1 ? 's' : ''} submitted`
                 };
             }
         }
@@ -940,41 +902,251 @@ export class PowerRankingTrophyService {
         return winner;
     }
 
-    private static async getPredictable(allRankings: PowerRankingEntity[], currentWeek: number): Promise<TrophyWinner | null> {
-        if (currentWeek <= 1) return null;
+    private static async getFewestComments(): Promise<TrophyWinner | null> {
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const userRepository = getRepository(UserEntity);
+        
+        // Get all rankings with comments
+        const allRankingsWithComments: PowerRankingEntity[] = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .leftJoinAndSelect('ranking.team', 'team')
+            .where('ranking.comment IS NOT NULL')
+            .andWhere('ranking.comment != :empty', { empty: '' })
+            .getMany();
 
-        const userRankings = this.groupRankingsByUser(allRankings);
-        let minPredictability = Infinity;
+        // Get all users who have submitted rankings
+        const allRankings: PowerRankingEntity[] = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .getMany();
+
+        if (allRankings.length === 0) return null;
+
+        const allUsers = new Set(allRankings.map(r => r.userId));
+        const userCommentCounts = new Map<string, number>();
+
+        // Initialize all users with 0 comments
+        for (const userId of allUsers) {
+            userCommentCounts.set(userId, 0);
+        }
+
+        // Count comments for each user
+        for (const ranking of allRankingsWithComments) {
+            const currentCount = userCommentCounts.get(ranking.userId) || 0;
+            userCommentCounts.set(ranking.userId, currentCount + 1);
+        }
+
+        let minComments = Infinity;
         let winner: TrophyWinner | null = null;
 
-        for (const [userId, rankings] of userRankings) {
-            const user = rankings[0].user;
-            let predictabilityScore = 0;
-            let weekCount = 0;
-
-            // Compare with previous week's rankings
-            const lastWeekRankings = await this.getAllRankingsForUser(userId, currentWeek - 1);
-            if (lastWeekRankings.length === 0) continue;
-
-            for (const currentRanking of rankings) {
-                const lastRanking = lastWeekRankings.find(r => r.teamId === currentRanking.teamId);
-                if (lastRanking) {
-                    const change = Math.abs(currentRanking.rank - lastRanking.rank);
-                    predictabilityScore += change;
-                    weekCount++;
-                }
-            }
-
-            if (weekCount > 0) {
-                const avgChange = predictabilityScore / weekCount;
-                if (avgChange < minPredictability) {
-                    minPredictability = avgChange;
+        for (const [userId, commentCount] of userCommentCounts) {
+            if (commentCount < minComments) {
+                minComments = commentCount;
+                const user = await userRepository.findOne({ where: { id: userId } });
+                if (user) {
                     winner = {
                         userId,
                         username: user.username,
                         teamName: await this.getUserTeamName(userId),
-                        value: Math.round(avgChange * 100) / 100,
-                        description: `Average change of ${Math.round(avgChange * 100) / 100} from last week`
+                        value: commentCount,
+                        description: `${commentCount} comment${commentCount !== 1 ? 's' : ''} submitted`
+                    };
+                }
+            }
+        }
+
+        return winner;
+    }
+
+    private static async getMostSubmissions(): Promise<TrophyWinner | null> {
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const allRankings: PowerRankingEntity[] = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .getMany();
+
+        if (allRankings.length === 0) return null;
+
+        // Count total submissions per user (each week a user submits rankings for all teams)
+        const userSubmissions = new Map<string, Set<number>>();
+
+        for (const ranking of allRankings) {
+            if (!userSubmissions.has(ranking.userId)) {
+                userSubmissions.set(ranking.userId, new Set());
+            }
+            userSubmissions.get(ranking.userId)!.add(ranking.week);
+        }
+
+        let maxSubmissions = 0;
+        let winner: TrophyWinner | null = null;
+
+        for (const [userId, weeks] of userSubmissions) {
+            const submissionCount = weeks.size;
+            if (submissionCount > maxSubmissions) {
+                maxSubmissions = submissionCount;
+                const user = allRankings.find(r => r.userId === userId)?.user;
+                if (user) {
+                    winner = {
+                        userId,
+                        username: user.username,
+                        teamName: await this.getUserTeamName(userId),
+                        value: submissionCount,
+                        description: `${submissionCount} week${submissionCount !== 1 ? 's' : ''} submitted`
+                    };
+                }
+            }
+        }
+
+        return winner;
+    }
+
+    private static async getFewestSubmissions(): Promise<TrophyWinner | null> {
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const userRepository = getRepository(UserEntity);
+        
+        const allRankings: PowerRankingEntity[] = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .getMany();
+
+        if (allRankings.length === 0) return null;
+
+        // Get all unique users who have submitted at least once
+        const allUsers = new Set(allRankings.map(r => r.userId));
+        
+        // Count total submissions per user (each week a user submits rankings for all teams)
+        const userSubmissions = new Map<string, Set<number>>();
+
+        for (const userId of allUsers) {
+            userSubmissions.set(userId, new Set());
+        }
+
+        for (const ranking of allRankings) {
+            userSubmissions.get(ranking.userId)!.add(ranking.week);
+        }
+
+        let minSubmissions = Infinity;
+        let winner: TrophyWinner | null = null;
+
+        for (const [userId, weeks] of userSubmissions) {
+            const submissionCount = weeks.size;
+            if (submissionCount < minSubmissions && submissionCount > 0) {
+                minSubmissions = submissionCount;
+                const user = await userRepository.findOne({ where: { id: userId } });
+                if (user) {
+                    winner = {
+                        userId,
+                        username: user.username,
+                        teamName: await this.getUserTeamName(userId),
+                        value: submissionCount,
+                        description: `${submissionCount} week${submissionCount !== 1 ? 's' : ''} submitted`
+                    };
+                }
+            }
+        }
+
+        return winner;
+    }
+
+    private static async getMostLikesReceived(): Promise<TrophyWinner | null> {
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const { getRepository: getRepo } = await import('typeorm');
+        const CommentLikeEntity = (await import('../database/entities/CommentLikeEntity')).CommentLikeEntity;
+        const likeRepository = getRepo(CommentLikeEntity);
+
+        // Get all rankings that have comments
+        const allRankingsWithComments: PowerRankingEntity[] = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .where('ranking.comment IS NOT NULL')
+            .andWhere('ranking.comment != :empty', { empty: '' })
+            .getMany();
+
+        if (allRankingsWithComments.length === 0) return null;
+
+        // Count likes per user
+        const userLikeCounts = new Map<string, number>();
+
+        for (const ranking of allRankingsWithComments) {
+            const likeCount = await likeRepository
+                .createQueryBuilder('like')
+                .where('like.comment = :commentId', { commentId: ranking.id })
+                .getCount();
+
+            const currentCount = userLikeCounts.get(ranking.userId) || 0;
+            userLikeCounts.set(ranking.userId, currentCount + likeCount);
+        }
+
+        let maxLikes = 0;
+        let winner: TrophyWinner | null = null;
+
+        for (const [userId, likeCount] of userLikeCounts) {
+            if (likeCount > maxLikes) {
+                maxLikes = likeCount;
+                const user = allRankingsWithComments.find(r => r.userId === userId)?.user;
+                if (user) {
+                    winner = {
+                        userId,
+                        username: user.username,
+                        teamName: await this.getUserTeamName(userId),
+                        value: likeCount,
+                        description: `${likeCount} like${likeCount !== 1 ? 's' : ''} received`
+                    };
+                }
+            }
+        }
+
+        return winner;
+    }
+
+    private static async getFewestLikesReceived(): Promise<TrophyWinner | null> {
+        const rankingRepository = getRepository(PowerRankingEntity);
+        const { getRepository: getRepo } = await import('typeorm');
+        const CommentLikeEntity = (await import('../database/entities/CommentLikeEntity')).CommentLikeEntity;
+        const likeRepository = getRepo(CommentLikeEntity);
+
+        // Get all rankings that have comments
+        const allRankingsWithComments: PowerRankingEntity[] = await rankingRepository
+            .createQueryBuilder('ranking')
+            .leftJoinAndSelect('ranking.user', 'user')
+            .where('ranking.comment IS NOT NULL')
+            .andWhere('ranking.comment != :empty', { empty: '' })
+            .getMany();
+
+        if (allRankingsWithComments.length === 0) return null;
+
+        // Count likes per user
+        const userLikeCounts = new Map<string, number>();
+        const usersWithComments = new Set<string>();
+
+        for (const ranking of allRankingsWithComments) {
+            usersWithComments.add(ranking.userId);
+            
+            const likeCount = await likeRepository
+                .createQueryBuilder('like')
+                .where('like.comment = :commentId', { commentId: ranking.id })
+                .getCount();
+
+            const currentCount = userLikeCounts.get(ranking.userId) || 0;
+            userLikeCounts.set(ranking.userId, currentCount + likeCount);
+        }
+
+        let minLikes = Infinity;
+        let winner: TrophyWinner | null = null;
+
+        for (const userId of usersWithComments) {
+            const likeCount = userLikeCounts.get(userId) || 0;
+            if (likeCount < minLikes) {
+                minLikes = likeCount;
+                const user = allRankingsWithComments.find(r => r.userId === userId)?.user;
+                if (user) {
+                    winner = {
+                        userId,
+                        username: user.username,
+                        teamName: await this.getUserTeamName(userId),
+                        value: likeCount,
+                        description: `${likeCount} like${likeCount !== 1 ? 's' : ''} received`
                     };
                 }
             }
@@ -1049,10 +1221,4 @@ export class PowerRankingTrophyService {
         return Math.sqrt(variance);
     }
 
-    private static calculateVariance(values: number[]): number {
-        if (values.length < 2) return 0;
-        
-        const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
-        return values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
-    }
 }
