@@ -15,7 +15,8 @@ const PowerRankingTrophies: React.FC<TrophiesProps> = ({ trophies }) => {
     const categoryColors = {
         'Bias & Self-Rating': 'primary',
         'Volatility & Movement': 'success',
-        'Ranking Behavior': 'warning'
+        'Ranking Behavior': 'warning',
+        'Activity': 'info'
     } as const;
 
     return (
