@@ -12,7 +12,7 @@ import axios from 'axios';
 import PowerRankingsTable from '@/components/tables/PowerRankingsTable';
 import PowerRankingTrophies from '@/components/tables/PowerRankingTrophies';
 import RandomTrophies from '@/components/tables/RandomTrophies';
-import RandomComments from '@/components/powerrankings/RandomComments';
+import FanComments from '@/components/powerrankings/FanComments';
 import TopComments from '@/components/powerrankings/TopComments';
 import { PowerRankingsProps, TrophyData } from '@/components/tables/RtpStatsTypes';
 
@@ -409,7 +409,7 @@ const PowerRankingsPage: NextPage = () => {
             <Container className="px-4 px-lg-5">
               <Row className="gx-4 gx-lg-5 justify-content-center">
                 <Col xs={12}>
-                  <RandomComments />
+                  <FanComments />
                 </Col>
               </Row>
             </Container>

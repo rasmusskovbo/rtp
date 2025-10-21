@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Card, Button, Spinner } from 'react-bootstrap';
+import React, { useState, useEffect, useContext, useCallback, useRef } from 'react';
+import { Card, Button, Spinner, Form } from 'react-bootstrap';
 import axios from 'axios';
 import { AuthContext } from '@/auth/AuthProvider';
 import HeartIcon from './HeartIcon';
@@ -26,7 +26,7 @@ interface RandomCommentsProps {
   className?: string;
 }
 
-const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
+const FanComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
   const authContext = useContext(AuthContext);
   const { loggedInUser } = authContext;
   const [allComments, setAllComments] = useState<Comment[]>([]);
@@ -36,6 +36,38 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
   const [visibleComments, setVisibleComments] = useState<Set<number>>(new Set());
   const [dismissedComments, setDismissedComments] = useState<Set<number>>(new Set());
   const [likingComments, setLikingComments] = useState<Set<number>>(new Set());
+  const [selectedCommenter, setSelectedCommenter] = useState<string>('');
+  const [selectedTeam, setSelectedTeam] = useState<string>('');
+  const isInitialMount = useRef(true);
+
+  const getFilteredComments = useCallback((comments: Comment[]) => {
+    let filtered = [...comments];
+    
+    if (selectedCommenter) {
+      filtered = filtered.filter(c => c.user.name === selectedCommenter);
+    }
+    
+    if (selectedTeam) {
+      filtered = filtered.filter(c => c.team.teamName === selectedTeam);
+    }
+    
+    return filtered;
+  }, [selectedCommenter, selectedTeam]);
+
+  const getUniqueCommenters = useCallback(() => {
+    const commenters = new Set(allComments.map(c => c.user.name));
+    return Array.from(commenters).sort();
+  }, [allComments]);
+
+  const getUniqueTeams = useCallback(() => {
+    const teams = new Set(allComments.map(c => c.team.teamName));
+    return Array.from(teams).sort();
+  }, [allComments]);
+
+  const handleResetFilters = useCallback(() => {
+    setSelectedCommenter('');
+    setSelectedTeam('');
+  }, []);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -55,7 +87,7 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
           // Store all comments for potential replacement
           setAllComments(fetchedComments);
           
-          // Select 6 random comments
+          // On initial load, show 6 random comments (no filters applied yet)
           const shuffled = [...fetchedComments].sort(() => 0.5 - Math.random());
           const selectedComments = shuffled.slice(0, 6);
           
@@ -85,6 +117,51 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
     fetchComments();
   }, [loggedInUser]);
 
+  // Apply filters whenever filter selections change
+  useEffect(() => {
+    // Skip on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
+    // Only run this effect when filters change
+    if (allComments.length > 0) {
+      const filteredComments = getFilteredComments(allComments);
+      
+      // If filters are active, show ALL filtered comments
+      // If no filters, show 6 random comments
+      const hasActiveFilters = selectedCommenter || selectedTeam;
+      let selectedComments: Comment[];
+      
+      if (hasActiveFilters) {
+        // Show all filtered comments
+        selectedComments = filteredComments;
+      } else {
+        // Show 6 random comments
+        const shuffled = [...filteredComments].sort(() => 0.5 - Math.random());
+        selectedComments = shuffled.slice(0, 6);
+      }
+      
+      // Reset visible and dismissed comments
+      setDismissedComments(new Set());
+      setVisibleComments(new Set());
+      
+      setDisplayedComments(selectedComments);
+      
+      // Show comments one by one with delays
+      selectedComments.forEach((comment, index) => {
+        setTimeout(() => {
+          setVisibleComments(prev => {
+            const newSet = new Set(prev);
+            newSet.add(comment.id);
+            return newSet;
+          });
+        }, index * 500);
+      });
+    }
+  }, [selectedCommenter, selectedTeam, allComments, getFilteredComments]);
+
   const handleDismiss = (commentId: number) => {
     setDismissedComments(prev => {
       const newSet = new Set(prev);
@@ -97,8 +174,9 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
     const dismissedIds = Array.from(dismissedComments);
     const allDismissedIds = [...dismissedIds, commentId];
     
-    // Get comments that are not currently displayed and not dismissed
-    const availableComments = allComments.filter(c => 
+    // Apply filters first, then filter out displayed and dismissed comments
+    const filteredComments = getFilteredComments(allComments);
+    const availableComments = filteredComments.filter(c => 
       !currentlyDisplayedIds.includes(c.id) && !allDismissedIds.includes(c.id)
     );
 
@@ -130,9 +208,22 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
     setDismissedComments(new Set());
     setVisibleComments(new Set());
     
-    // Select 6 new random comments from all available comments
-    const shuffled = [...allComments].sort(() => 0.5 - Math.random());
-    const selectedComments = shuffled.slice(0, 6);
+    // Apply current filters
+    const filteredComments = getFilteredComments(allComments);
+    
+    // If filters are active, show ALL filtered comments
+    // If no filters, show 6 random comments
+    const hasActiveFilters = selectedCommenter || selectedTeam;
+    let selectedComments: Comment[];
+    
+    if (hasActiveFilters) {
+      // Show all filtered comments (no shuffling needed)
+      selectedComments = filteredComments;
+    } else {
+      // Select 6 new random comments
+      const shuffled = [...filteredComments].sort(() => 0.5 - Math.random());
+      selectedComments = shuffled.slice(0, 6);
+    }
     
     setDisplayedComments(selectedComments);
     
@@ -250,11 +341,155 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
             padding: 0;
           }
         }
+        
+        .filters-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          align-items: center;
+          justify-content: center;
+          max-width: 1200px;
+          margin: 0 auto 20px auto;
+          padding: 0 10px;
+        }
+        
+        .filter-group {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          min-width: 180px;
+          flex: 1 1 auto;
+          max-width: 250px;
+        }
+        
+        @media (max-width: 768px) {
+          .filter-group {
+            min-width: 150px;
+            max-width: 100%;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .filters-container {
+            flex-direction: column;
+            gap: 10px;
+          }
+          
+          .filter-group {
+            width: 100%;
+            max-width: 100%;
+          }
+        }
+        
+        .filter-label {
+          font-size: 12px;
+          font-weight: 600;
+          color: #6c757d;
+          margin-bottom: 2px;
+        }
+        
+        .filter-select {
+          padding: 6px 10px;
+          font-size: 13px;
+          border: 1px solid #ced4da;
+          border-radius: 4px;
+          background-color: white;
+          cursor: pointer;
+          width: 100%;
+        }
+        
+        .filter-select:focus {
+          outline: none;
+          border-color: #0d6efd;
+          box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .filter-buttons {
+          display: flex;
+          gap: 8px;
+          align-items: flex-end;
+          flex-wrap: wrap;
+        }
+        
+        @media (max-width: 480px) {
+          .filter-buttons {
+            width: 100%;
+            justify-content: space-between;
+          }
+          
+          .filter-buttons button {
+            flex: 1;
+          }
+        }
       `}</style>
       <h4 className="mb-3 text-center" style={{ color: '#343a40', fontFamily: 'sans-serif' }}>
         Fan Comments
       </h4>
       <hr style={{ borderColor: '#e0e0e0', borderWidth: '1px', marginBottom: '20px' }} />
+      
+      {/* Filter Controls */}
+      <div className="filters-container">
+        <div className="filter-group">
+          <label className="filter-label" htmlFor="commenter-filter">Filter by Commenter</label>
+          <select
+            id="commenter-filter"
+            className="filter-select"
+            value={selectedCommenter}
+            onChange={(e) => setSelectedCommenter(e.target.value)}
+          >
+            <option value="">All Commenters</option>
+            {getUniqueCommenters().map(commenter => (
+              <option key={commenter} value={commenter}>{commenter}</option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="filter-group">
+          <label className="filter-label" htmlFor="team-filter">Filter by Rated Team</label>
+          <select
+            id="team-filter"
+            className="filter-select"
+            value={selectedTeam}
+            onChange={(e) => setSelectedTeam(e.target.value)}
+          >
+            <option value="">All Teams</option>
+            {getUniqueTeams().map(team => (
+              <option key={team} value={team}>{team}</option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="filter-buttons">
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={handleResetFilters}
+            disabled={!selectedCommenter && !selectedTeam}
+            style={{
+              fontSize: '13px',
+              padding: '6px 16px',
+              fontFamily: 'sans-serif',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            🔄 Reset Filters
+          </Button>
+          
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={handleRefreshAll}
+            style={{
+              fontSize: '13px',
+              padding: '6px 16px',
+              fontFamily: 'sans-serif',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            🔄 Refresh Comments
+          </Button>
+        </div>
+      </div>
       
       <div className="comments-grid">
         {displayedComments.map((comment) => {
@@ -383,25 +618,18 @@ const RandomComments: React.FC<RandomCommentsProps> = ({ className = '' }) => {
       
       <div className="text-center mt-3">
         <small className="text-muted" style={{ fontFamily: 'sans-serif' }}>
-          Click × to dismiss and refresh comments
+          {(selectedCommenter || selectedTeam) ? (
+            <>
+              Showing {displayedComments.length} comment{displayedComments.length !== 1 ? 's' : ''} • 
+              Filters: {[selectedCommenter, selectedTeam].filter(Boolean).join(', ')}
+            </>
+          ) : (
+            <>Click × to dismiss and see new comments</>
+          )}
         </small>
-        <div className="mt-2">
-          <Button
-            variant="outline-primary"
-            size="sm"
-            onClick={handleRefreshAll}
-            style={{
-              fontSize: '13px',
-              padding: '6px 16px',
-              fontFamily: 'sans-serif'
-            }}
-          >
-            🔄 Refresh All Comments
-          </Button>
-        </div>
       </div>
     </div>
   );
 };
 
-export default RandomComments;
+export default FanComments;
